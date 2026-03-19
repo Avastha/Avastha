@@ -11,8 +11,6 @@
     :root {
       --gold: #c9a84c;
       --teal: #3dd6c8;
-      --purple: #9b6dff;
-      --pink: #e040fb;
       --dark: #050810;
       --dark2: #0a0f1e;
       --text: #e8e8f0;
@@ -22,7 +20,6 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -31,6 +28,48 @@
       color: var(--text);
       overflow-x: hidden;
     }
+
+    /* ── NAV ────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(5,8,16,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .nav-logo {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.45em;
+      background: linear-gradient(135deg, var(--teal), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--teal); }
+    @media (max-width: 600px) { .nav-links { display: none; } }
 
     /* ── HERO ───────────────────────────────────── */
     #hero {
@@ -43,23 +82,19 @@
       text-align: center;
       overflow: hidden;
     }
-
     .hero-bg {
       position: absolute;
       inset: 0;
       background-image: url('https://raw.githubusercontent.com/Avastha/Avastha/main/desktop_backround.png');
       background-size: cover;
       background-position: center;
-      background-repeat: no-repeat;
       z-index: 0;
     }
-
     @media (max-width: 768px) {
       .hero-bg {
         background-image: url('https://raw.githubusercontent.com/Avastha/Avastha/main/mobile_Backround.png');
       }
     }
-
     .hero-overlay {
       position: absolute;
       inset: 0;
@@ -72,16 +107,12 @@
       );
       z-index: 1;
     }
-
     .hero-content {
       position: relative;
       z-index: 2;
       padding: 2rem;
     }
-
     .hero-tag {
-      font-family: 'Raleway', sans-serif;
-      font-weight: 500;
       font-size: 0.75rem;
       letter-spacing: 0.45em;
       color: var(--teal);
@@ -90,7 +121,6 @@
       opacity: 0;
       animation: fadeUp 1s ease forwards 0.4s;
     }
-
     .hero-title {
       font-family: 'Cinzel', serif;
       font-weight: 900;
@@ -101,14 +131,11 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      text-shadow: none;
       filter: drop-shadow(0 0 30px rgba(61,214,200,0.4));
       opacity: 0;
       animation: fadeUp 1s ease forwards 0.7s;
     }
-
     .hero-subtitle {
-      font-family: 'Raleway', sans-serif;
       font-weight: 300;
       font-size: clamp(0.85rem, 2.5vw, 1.1rem);
       letter-spacing: 0.3em;
@@ -119,9 +146,10 @@
       animation: fadeUp 1s ease forwards 1s;
     }
 
+    /* ── HERO SOCIAL ICONS ──────────────────────── */
     .hero-social {
       display: flex;
-      gap: 1.1rem;
+      gap: 1.4rem;
       justify-content: center;
       align-items: center;
       margin-top: 2.6rem;
@@ -129,7 +157,6 @@
       opacity: 0;
       animation: fadeUp 1s ease forwards 1.3s;
     }
-
     .hero-social-link {
       display: flex;
       flex-direction: column;
@@ -138,67 +165,24 @@
       text-decoration: none;
       transition: transform 0.3s ease;
     }
-
-    .hero-social-link:hover {
-      transform: translateY(-4px);
-    }
-
+    .hero-social-link:hover { transform: translateY(-4px); }
     .hero-social-link img {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       object-fit: contain;
       border-radius: 10px;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
-      transition: filter 0.3s, box-shadow 0.3s;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
+      transition: filter 0.3s;
     }
-
     .hero-social-link:hover img {
-      filter: drop-shadow(0 0 10px rgba(61,214,200,0.6));
+      filter: drop-shadow(0 0 10px rgba(61,214,200,0.65));
     }
-
     .hero-social-label {
       font-size: 0.55rem;
       letter-spacing: 0.3em;
       color: rgba(255,255,255,0.4);
       text-transform: uppercase;
       font-weight: 500;
-    }
-
-    .btn {
-      font-family: 'Cinzel', serif;
-      font-size: 0.72rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 0.85rem 2.2rem;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border: none;
-      display: inline-block;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--teal), #1aa89c);
-      color: #000;
-      font-weight: 700;
-      box-shadow: var(--glow-teal);
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 30px #3dd6c8aa, 0 0 60px #3dd6c860;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--gold);
-      border: 1px solid rgba(201,168,76,0.5);
-    }
-    .btn-ghost:hover {
-      background: rgba(201,168,76,0.08);
-      border-color: var(--gold);
-      transform: translateY(-2px);
-      box-shadow: var(--glow-gold);
     }
 
     .scroll-hint {
@@ -227,17 +211,9 @@
       animation: scrollPulse 2s ease-in-out infinite;
     }
 
-    /* ── SECTION COMMONS ───────────────────────── */
-    section {
-      position: relative;
-      padding: 7rem 2rem;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
+    /* ── SECTIONS ───────────────────────────────── */
+    section { position: relative; padding: 7rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
     .section-label {
       font-size: 0.68rem;
       letter-spacing: 0.5em;
@@ -245,7 +221,6 @@
       text-transform: uppercase;
       margin-bottom: 0.8rem;
     }
-
     .section-title {
       font-family: 'Cinzel', serif;
       font-size: clamp(1.8rem, 5vw, 3rem);
@@ -253,30 +228,27 @@
       color: #fff;
       margin-bottom: 1.5rem;
     }
-
     .divider {
       width: 60px;
       height: 2px;
       background: linear-gradient(to right, var(--teal), transparent);
       margin-bottom: 2.5rem;
     }
-
-    /* ── ABOUT / MEANING ───────────────────────── */
-    #about {
-      background: var(--dark2);
+    .rule {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(61,214,200,0.3), transparent);
     }
 
+    /* ── ABOUT ─────────────────────────────────── */
+    #about { background: var(--dark2); }
     .about-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 5rem;
       align-items: center;
     }
-
-    @media (max-width: 768px) {
-      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
-    }
-
+    @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; gap: 3rem; } }
     .about-text p {
       font-size: 1.05rem;
       line-height: 1.9;
@@ -284,16 +256,8 @@
       margin-bottom: 1.2rem;
       font-weight: 300;
     }
-
-    .about-text p strong {
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    .meaning-img-wrap {
-      position: relative;
-    }
-
+    .about-text p strong { color: var(--text); font-weight: 500; }
+    .meaning-img-wrap { position: relative; }
     .meaning-img-wrap::before {
       content: '';
       position: absolute;
@@ -302,7 +266,6 @@
       border-radius: 4px;
       pointer-events: none;
     }
-
     .meaning-img-wrap::after {
       content: '';
       position: absolute;
@@ -311,19 +274,34 @@
       pointer-events: none;
       border-radius: 4px;
     }
+    .meaning-img-wrap img { width: 100%; border-radius: 4px; display: block; }
 
-    .meaning-img-wrap img {
-      width: 100%;
-      border-radius: 4px;
-      display: block;
+    .btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.85rem 2.2rem;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      display: inline-block;
     }
+    .btn-ghost {
+      background: transparent;
+      color: var(--gold);
+      border: 1px solid rgba(201,168,76,0.5);
+    }
+    .btn-ghost:hover {
+      background: rgba(201,168,76,0.08);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-gold);
+    }
+    .presskit-row { margin-top: 3rem; }
 
     /* ── DUO PHOTO ─────────────────────────────── */
-    #duo {
-      background: var(--dark);
-      padding: 4rem 2rem;
-    }
-
+    #duo { background: var(--dark); padding: 5rem 2rem; }
     .duo-photo-wrap {
       position: relative;
       max-width: 700px;
@@ -331,7 +309,6 @@
       border-radius: 6px;
       overflow: hidden;
     }
-
     .duo-photo-wrap::before {
       content: '';
       position: absolute;
@@ -340,13 +317,7 @@
       z-index: 1;
       pointer-events: none;
     }
-
-    .duo-photo-wrap img {
-      width: 100%;
-      display: block;
-      border-radius: 6px;
-    }
-
+    .duo-photo-wrap img { width: 100%; display: block; border-radius: 6px; }
     .duo-caption {
       position: absolute;
       bottom: 1.5rem;
@@ -356,7 +327,6 @@
       text-align: center;
       white-space: nowrap;
     }
-
     .duo-caption span {
       font-family: 'Cinzel', serif;
       font-size: 0.7rem;
@@ -366,29 +336,20 @@
     }
 
     /* ── ARTISTS ────────────────────────────────── */
-    #artists {
-      background: var(--dark2);
-    }
-
+    #artists { background: var(--dark2); }
     .artists-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 2.5rem;
       margin-top: 3.5rem;
     }
-
-    @media (max-width: 640px) {
-      .artists-grid { grid-template-columns: 1fr; }
-    }
-
+    @media (max-width: 640px) { .artists-grid { grid-template-columns: 1fr; } }
     .artist-card {
       position: relative;
       border-radius: 6px;
       overflow: hidden;
-      cursor: pointer;
       background: #0d1124;
     }
-
     .artist-card::after {
       content: '';
       position: absolute;
@@ -398,11 +359,7 @@
       pointer-events: none;
       transition: border-color 0.4s;
     }
-
-    .artist-card:hover::after {
-      border-color: rgba(61,214,200,0.3);
-    }
-
+    .artist-card:hover::after { border-color: rgba(61,214,200,0.3); }
     .artist-photo {
       width: 100%;
       aspect-ratio: 3/4;
@@ -412,26 +369,20 @@
       transition: transform 0.6s ease, filter 0.4s ease;
       filter: saturate(0.8) brightness(0.9);
     }
-
     .artist-card:hover .artist-photo {
       transform: scale(1.04);
       filter: saturate(1) brightness(1);
     }
-
     .artist-overlay {
       position: absolute;
       inset: 0;
       background: linear-gradient(to top, rgba(5,8,16,0.95) 0%, rgba(5,8,16,0.4) 50%, transparent 100%);
     }
-
     .artist-info {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       padding: 2rem 1.8rem;
     }
-
     .artist-alias {
       font-family: 'Cinzel', serif;
       font-size: 0.65rem;
@@ -440,7 +391,6 @@
       text-transform: uppercase;
       margin-bottom: 0.4rem;
     }
-
     .artist-name {
       font-family: 'Cinzel', serif;
       font-size: clamp(1.4rem, 4vw, 2rem);
@@ -448,92 +398,11 @@
       color: #fff;
       margin-bottom: 0.7rem;
     }
-
     .artist-bio {
       font-size: 0.82rem;
       line-height: 1.7;
       color: var(--text-dim);
       font-weight: 300;
-    }
-
-    /* ── SOCIAL LINKS ───────────────────────────── */
-    #connect {
-      background: var(--dark);
-      text-align: center;
-    }
-
-    .social-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.2rem;
-      max-width: 700px;
-      margin: 3rem auto 0;
-    }
-
-    @media (max-width: 500px) {
-      .social-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .social-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.9rem;
-      padding: 1.6rem 1rem;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(255,255,255,0.02);
-      text-decoration: none;
-      transition: all 0.35s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .social-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(61,214,200,0.05), transparent);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-
-    .social-card:hover::before { opacity: 1; }
-
-    .social-card:hover {
-      border-color: rgba(61,214,200,0.4);
-      transform: translateY(-4px);
-      box-shadow: 0 8px 30px rgba(61,214,200,0.15);
-    }
-
-    .social-card img {
-      width: 38px;
-      height: 38px;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .social-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.35em;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      font-weight: 500;
-    }
-
-    /* email card special */
-    .social-card.email .social-icon-letter {
-      width: 38px;
-      height: 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .social-card.email .social-icon-letter img {
-      width: 38px;
-      height: 38px;
     }
 
     /* ── FOOTER ─────────────────────────────────── */
@@ -543,7 +412,6 @@
       padding: 2.5rem 2rem;
       text-align: center;
     }
-
     .footer-logo {
       font-family: 'Cinzel', serif;
       font-size: 1.4rem;
@@ -554,69 +422,10 @@
       background-clip: text;
       margin-bottom: 0.8rem;
     }
-
     .footer-text {
       font-size: 0.72rem;
       letter-spacing: 0.2em;
       color: var(--text-dim);
-    }
-
-    /* ── NAV ────────────────────────────────────── */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      padding: 1.2rem 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: background 0.4s;
-    }
-
-    nav.scrolled {
-      background: rgba(5,8,16,0.92);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .nav-logo {
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-    }
-    .nav-logo img {
-      height: 36px;
-      width: auto;
-      filter: brightness(0) invert(1);
-      transition: filter 0.3s, opacity 0.3s;
-      opacity: 0.9;
-    }
-    .nav-logo:hover img {
-      opacity: 1;
-      filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(61,214,200,0.7));
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-size: 0.68rem;
-      letter-spacing: 0.3em;
-      color: var(--text-dim);
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: color 0.3s;
-    }
-
-    .nav-links a:hover { color: var(--teal); }
-
-    @media (max-width: 600px) {
-      .nav-links { display: none; }
     }
 
     /* ── ANIMATIONS ─────────────────────────────── */
@@ -624,66 +433,32 @@
       from { opacity: 0; transform: translateY(30px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes fadeIn {
       from { opacity: 0; }
       to   { opacity: 1; }
     }
-
     @keyframes scrollPulse {
-      0%, 100% { opacity: 0.3; transform: scaleY(1); }
-      50%       { opacity: 1;   transform: scaleY(1.15); }
+      0%, 100% { opacity: 0.3; }
+      50%       { opacity: 1; }
     }
-
-    /* Reveal-on-scroll */
     .reveal {
       opacity: 0;
       transform: translateY(40px);
       transition: opacity 0.9s ease, transform 0.9s ease;
     }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Stagger delays */
+    .reveal.visible { opacity: 1; transform: translateY(0); }
     .reveal:nth-child(2) { transition-delay: 0.12s; }
     .reveal:nth-child(3) { transition-delay: 0.24s; }
     .reveal:nth-child(4) { transition-delay: 0.36s; }
-
-    /* ── GEOMETRIC ACCENT ────────────────────────── */
-    .geo-accent {
-      position: absolute;
-      pointer-events: none;
-      opacity: 0.06;
-    }
-
-    /* thin horizontal line rule */
-    .rule {
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(to right, transparent, rgba(61,214,200,0.3), transparent);
-      margin: 0;
-    }
-
-    /* press kit link */
-    .presskit-row {
-      display: flex;
-      justify-content: center;
-      margin-top: 3rem;
-    }
   </style>
 </head>
 <body>
 
   <!-- NAV -->
   <nav id="nav">
-    <a href="#hero" class="nav-logo">
-      <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_logo.png" alt="Avastha" />
-    </a>
+    <a href="#hero" class="nav-logo">AVASTHA</a>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
-      <li><a href="#artists">Artists</a></li>
       <li><a href="#artists">Artists</a></li>
     </ul>
   </nav>
@@ -694,12 +469,7 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-tag">✦ &nbsp;Psytrance &nbsp;✦&nbsp; Live Performance&nbsp; ✦</p>
-      <img
-        src="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_logo.png"
-        alt="AVASTHA"
-        class="hero-title"
-        style="display:block; width: clamp(260px, 60vw, 680px); height: auto; margin: 0 auto; filter: brightness(0) invert(1) drop-shadow(0 0 30px rgba(61,214,200,0.45)); -webkit-text-fill-color: unset; background: none;"
-      />
+      <h1 class="hero-title">AVASTHA</h1>
       <p class="hero-subtitle">A phase of being where spirit takes form</p>
       <div class="hero-social">
         <a href="https://soundcloud.com/avastha_music" target="_blank" rel="noopener" class="hero-social-link">
@@ -744,15 +514,9 @@
           <p class="section-label">The Project</p>
           <h2 class="section-title">Two Minds,<br>One Frequency</h2>
           <div class="divider"></div>
-          <p>
-            <strong>Avastha</strong> is a collaborative project born from two distinct musical worlds colliding into a single, powerful live experience.
-          </p>
-          <p>
-            Rooted in <strong>original, performance-driven material</strong>, Avastha delivers precise, high-energy psytrance crafted for the live experience. By fusing their original productions with enhanced tracks from leading artists through custom edits and additions, the duo ensures a unique experience tailored for any dance floor.
-          </p>
-          <p>
-            The name itself — <em>Avastha</em> — speaks to the shifting landscape of life: wakefulness, dreams, deep sleep, and the awakening beyond. Every set is that journey.
-          </p>
+          <p><strong>Avastha</strong> is a collaborative project born from two distinct musical worlds colliding into a single, powerful live experience.</p>
+          <p>Rooted in <strong>original, performance-driven material</strong>, Avastha delivers precise, high-energy psytrance crafted for the live experience. By fusing their original productions with enhanced tracks from leading artists through custom edits and additions, the duo ensures a unique experience tailored for any dance floor.</p>
+          <p>The name itself — <em>Avastha</em> — speaks to the shifting landscape of life: wakefulness, dreams, deep sleep, and the awakening beyond. Every set is that journey.</p>
           <div class="presskit-row">
             <a href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf" target="_blank" class="btn btn-ghost">↓ &nbsp;Download Press Kit</a>
           </div>
@@ -767,7 +531,7 @@
   <div class="rule"></div>
 
   <!-- DUO PHOTO -->
-  <section id="duo" style="padding: 5rem 2rem;">
+  <section id="duo">
     <div class="container">
       <div class="duo-photo-wrap reveal">
         <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/adi_and_valentin.jpg" alt="Adi and Valentin – Avastha" loading="lazy" />
@@ -813,21 +577,26 @@
 
   <!-- FOOTER -->
   <footer>
-    <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_logo.png" alt="Avastha" style="height:40px; width:auto; filter: brightness(0) invert(1); opacity:0.7; margin-bottom:0.8rem;" />
+    <p class="footer-logo">AVASTHA</p>
     <p class="footer-text">© 2025 Avastha Music &nbsp;·&nbsp; All Rights Reserved</p>
   </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    // Nav scroll effect
+  <script>
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 60);
     });
 
-    // Reveal on scroll
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         if (e.isIntersecting) {
           e.target.classList.add('visible');
-          ob
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
