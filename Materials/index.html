@@ -448,11 +448,10 @@
       countEl.textContent = files.length;
       container.innerHTML = '';
       files.forEach((file, i) => {
-        const a = document.createElement('a');
+        const a = document.createElement('div');
         a.className = 'logo-card';
-        a.href = rawUrl(file);
-        a.download = file.name;
         a.style.animationDelay = `${i * 40}ms`;
+        a.style.cursor = 'pointer';
         a.innerHTML = `
           <div class="dl-badge">${dlIcon}</div>
           <div class="logo-img-wrap">
@@ -460,6 +459,7 @@
           </div>
           <div class="card-name">${baseName(file.name)}</div>
         `;
+        a.addEventListener('click', () => forceDownload(rawUrl(file), file.name, a));
         container.appendChild(a);
       });
     }
@@ -473,11 +473,10 @@
       countEl.textContent = files.length;
       container.innerHTML = '';
       files.forEach((file, i) => {
-        const a = document.createElement('a');
+        const a = document.createElement('div');
         a.className = 'photo-card';
-        a.href = rawUrl(file);
-        a.download = file.name;
         a.style.animationDelay = `${i * 50}ms`;
+        a.style.cursor = 'pointer';
         a.innerHTML = `
           <img src="${rawUrl(file)}" alt="${file.name}" loading="lazy" />
           <div class="photo-overlay">
@@ -487,6 +486,7 @@
             </div>
           </div>
         `;
+        a.addEventListener('click', () => forceDownload(rawUrl(file), file.name, a));
         container.appendChild(a);
       });
     }
@@ -515,6 +515,30 @@
         imagesGrid.innerHTML = `<div class="state-msg error">⚠ Could not load images.<br><small>${imagesResult.reason.message}</small></div>`;
       }
     }
+
+    // ── FORCE DOWNLOAD via blob ──────────────────────────────
+    async function forceDownload(url, filename, el) {
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.5';
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      } catch(e) {
+        alert('Download failed. Try right-click → Save As.');
+      } finally {
+        el.style.pointerEvents = '';
+        el.style.opacity = '';
+      }
+    }
+    // ────────────────────────────────────────────────────────
 
     // Nav active state on scroll
     const sections = document.querySelectorAll('section[id]');
