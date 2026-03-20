@@ -46,10 +46,59 @@
       padding: 64px 40px 48px;
       border-bottom: 1px solid var(--border);
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
       max-width: 1400px;
       margin: 0 auto;
+      gap: 24px;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── PRESS KIT BUTTON ── */
+    .presskit-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 8px;
+      background: rgba(201,169,110,0.06);
+      color: var(--gold);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background .2s, border-color .2s, transform .2s, box-shadow .2s;
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+
+    .presskit-btn:hover {
+      background: rgba(201,169,110,0.14);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(201,169,110,0.12);
+    }
+
+    .presskit-btn svg {
+      width: 14px; height: 14px;
+      fill: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .presskit-btn.loading {
+      opacity: 0.5;
+      pointer-events: none;
     }
 
     .brand {
@@ -322,6 +371,57 @@
 
     .dl-icon svg { width: 14px; height: 14px; fill: #0d0d0d; }
 
+    /* ── SOCIAL SECTION ── */
+    .social-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 48px 0 20px;
+    }
+
+    .social-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: transform .25s, opacity .25s;
+    }
+
+    .social-link:hover {
+      transform: translateY(-5px);
+      opacity: 0.85;
+    }
+
+    .social-icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      transition: border-color .25s, box-shadow .25s;
+    }
+
+    .social-link:hover .social-icon {
+      border-color: var(--gold-dim);
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+
+    .social-icon img {
+      width: 34px; height: 34px;
+      object-fit: contain;
+    }
+
+    .social-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
     /* ── FOOTER ── */
     footer {
       border-top: 1px solid var(--border);
@@ -335,7 +435,8 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      header { padding: 40px 20px 32px; }
+      header { padding: 40px 20px 32px; flex-direction: column; }
+      .presskit-btn { align-self: flex-start; }
       .nav { padding: 16px 20px; gap: 16px; flex-wrap: wrap; }
       main { padding: 0 16px 60px; }
       .logos-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
@@ -343,6 +444,9 @@
       .photo-card { aspect-ratio: 1; }
       .photo-overlay { opacity: 1; }
       footer { padding: 24px 20px; }
+      .social-banner { gap: 14px; }
+      .social-icon { width: 48px; height: 48px; }
+      .social-icon img { width: 28px; height: 28px; }
     }
 
     @media (max-width: 480px) {
@@ -364,13 +468,20 @@
 <body>
 
   <header>
-    <div class="brand">Ava<span>stha</span></div>
-    <div class="tagline">Brand Materials &amp; Assets</div>
+    <div class="header-left">
+      <div class="brand">Avastha</div>
+      <div class="tagline">Brand Materials &amp; Assets</div>
+    </div>
+    <button class="presskit-btn" id="presskit-btn">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+      Download Press Kit
+    </button>
   </header>
 
   <nav class="nav">
     <a href="#logos" class="active">Logos</a>
     <a href="#images">Photos</a>
+    <a href="#social">Social</a>
   </nav>
 
   <main>
@@ -394,6 +505,39 @@
       </div>
       <div id="images-grid" class="photos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading photos…</div>
+      </div>
+    </section>
+
+    <!-- SOCIAL SECTION -->
+    <section id="social">
+      <div class="section-header">
+        <h2 class="section-title">Connect</h2>
+      </div>
+      <div class="social-banner">
+        <a class="social-link" href="https://soundcloud.com/avastha_music" target="_blank" rel="noopener">
+          <div class="social-icon"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/soundcloud.png" alt="SoundCloud" /></div>
+          <span class="social-label">SoundCloud</span>
+        </a>
+        <a class="social-link" href="https://instagram.com/avastha.music" target="_blank" rel="noopener">
+          <div class="social-icon"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/instagram.png" alt="Instagram" /></div>
+          <span class="social-label">Instagram</span>
+        </a>
+        <a class="social-link" href="https://youtube.com/@Avastha_Music" target="_blank" rel="noopener">
+          <div class="social-icon"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/youtube.png" alt="YouTube" /></div>
+          <span class="social-label">YouTube</span>
+        </a>
+        <a class="social-link" href="https://facebook.com/Avastha.Music" target="_blank" rel="noopener">
+          <div class="social-icon"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/facebook.png" alt="Facebook" /></div>
+          <span class="social-label">Facebook</span>
+        </a>
+        <a class="social-link" href="https://chat.whatsapp.com/GThUsW3my9tEqU9ejBl9wa?mode=ac_c" target="_blank" rel="noopener">
+          <div class="social-icon"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/whatsapp.png" alt="WhatsApp" /></div>
+          <span class="social-label">WhatsApp</span>
+        </a>
+        <a class="social-link" href="mailto:avastha.music@gmail.com">
+          <div class="social-icon"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/gmail.png" alt="Email" /></div>
+          <span class="social-label">Email</span>
+        </a>
       </div>
     </section>
 
@@ -538,6 +682,31 @@
         el.style.opacity = '';
       }
     }
+    // ────────────────────────────────────────────────────────
+
+    // ── PRESS KIT BUTTON ─────────────────────────────────────
+    const PRESSKIT_URL = 'https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf';
+    document.getElementById('presskit-btn').addEventListener('click', async function() {
+      this.classList.add('loading');
+      this.textContent = 'Downloading…';
+      try {
+        const res = await fetch(PRESSKIT_URL);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = 'avastha_presskit.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      } catch(e) {
+        alert('Download failed. Please try again.');
+      } finally {
+        this.classList.remove('loading');
+        this.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg> Download Press Kit`;
+      }
+    });
     // ────────────────────────────────────────────────────────
 
     // Nav active state on scroll
