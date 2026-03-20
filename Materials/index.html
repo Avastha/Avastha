@@ -373,12 +373,11 @@
 
     /* ── SOCIAL SECTION ── */
     .social-banner {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
       padding: 48px 0 20px;
+      width: 100%;
     }
 
     .social-link {
@@ -403,6 +402,8 @@
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
       transition: border-color .25s, box-shadow .25s;
+      width: 100%;
+      aspect-ratio: 1;
     }
 
     .social-link:hover .social-icon {
@@ -411,15 +412,17 @@
     }
 
     .social-icon img {
-      width: 34px; height: 34px;
+      width: 55%;
+      height: 55%;
       object-fit: contain;
     }
 
     .social-label {
       font-size: 10px;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
       color: var(--muted);
+      text-align: center;
     }
 
     /* ── FOOTER ── */
@@ -444,9 +447,14 @@
       .photo-card { aspect-ratio: 1; }
       .photo-overlay { opacity: 1; }
       footer { padding: 24px 20px; }
-      .social-banner { gap: 14px; }
-      .social-icon { width: 48px; height: 48px; }
-      .social-icon img { width: 28px; height: 28px; }
+      .social-banner { grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 32px 0 16px; }
+      .social-label { font-size: 9px; letter-spacing: 0.1em; }
+    }
+
+    @media (max-width: 480px) {
+      .photos-grid { grid-template-columns: 1fr; }
+      .logos-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .social-banner { grid-template-columns: repeat(3, 1fr); gap: 12px; }
     }
 
     @media (max-width: 480px) {
@@ -534,7 +542,7 @@
           <div class="social-icon"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/whatsapp.png" alt="WhatsApp" /></div>
           <span class="social-label">WhatsApp</span>
         </a>
-        <a class="social-link" href="mailto:avastha.music@gmail.com">
+        <a class="social-link" href="/cdn-cgi/l/email-protection#4524332436312d246b2830362c26052228242c296b262a28">
           <div class="social-icon"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/gmail.png" alt="Email" /></div>
           <span class="social-label">Email</span>
         </a>
@@ -547,7 +555,7 @@
     © Avastha — All rights reserved
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ── CONFIG ──────────────────────────────────────────────
     const REPO_OWNER  = 'Avastha';
     const REPO_NAME   = 'Avastha';
@@ -715,13 +723,4 @@
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id));
-        }
-      });
-    }, { threshold: 0.4 });
-    sections.forEach(s => observer.observe(s));
-
-    init();
-  </script>
-</body>
-</html>
+          navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + en
