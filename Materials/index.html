@@ -35,7 +35,7 @@
       pointer-events: none; z-index: 1000; opacity: .5;
     }
 
-    /* HEADER */
+    /* ── HEADER ── */
     header {
       padding: 64px 40px 48px;
       border-bottom: 1px solid var(--border);
@@ -58,7 +58,7 @@
     }
     .tagline { font-size: 12px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); }
 
-    /* PRESS KIT BTN */
+    /* ── PRESS KIT ── */
     .press-kit-btn {
       display: inline-flex;
       align-items: center;
@@ -88,7 +88,7 @@
     }
     .press-kit-btn svg { width: 14px; height: 14px; fill: var(--gold); flex-shrink: 0; }
 
-    /* NAV */
+    /* ── NAV ── */
     .nav {
       display: flex;
       gap: 24px;
@@ -116,7 +116,7 @@
     .nav a:hover, .nav a.active { color: var(--gold); }
     .nav a:hover::before, .nav a.active::before { background: var(--gold); }
 
-    /* MAIN */
+    /* ── MAIN / SECTIONS ── */
     main { max-width: 1400px; margin: 0 auto; padding: 0 24px 80px; }
     section { padding: 60px 0 40px; }
     section + section { border-top: 1px solid var(--border); }
@@ -138,7 +138,7 @@
       border-radius: 20px;
     }
 
-    /* LOADING */
+    /* ── LOADING ── */
     .state-msg { padding: 60px 20px; text-align: center; color: var(--muted); font-size: 13px; letter-spacing: 0.1em; }
     .state-msg.error { color: #c06060; }
     .spinner {
@@ -152,66 +152,94 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* SHARED GRID */
-    .logos-grid, .photos-grid {
+    /* ── LOGO GRID ── */
+    .logos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    /* Logo card: flex column — name strip on top, image area below, NO border */
+    .logo-card {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+      animation: fadeUp .4s ease both;
+      background: transparent;
+    }
+    .logo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.5);
+    }
+
+    /* Name strip — always visible, fixed height, above the image */
+    .logo-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .logo-name {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .logo-card:hover .logo-name { color: var(--gold); }
+
+    /* Download icon — always visible in the label strip */
+    .dl-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.15);
+      border: 1px solid rgba(201,169,110,0.3);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .2s, border-color .2s;
+    }
+    .logo-card:hover .dl-icon {
+      background: rgba(201,169,110,0.9);
+      border-color: var(--gold);
+    }
+    .dl-icon svg { width: 12px; height: 12px; fill: var(--gold); transition: fill .2s; }
+    .logo-card:hover .dl-icon svg { fill: #0d0d0d; }
+
+    /* Image area below the label */
+    .logo-img-area {
+      background: var(--surface);
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .logo-img-area img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      padding: 24px;
+      transition: transform .4s;
+      display: block;
+    }
+    .logo-card:hover .logo-img-area img { transform: scale(1.05); }
+
+    /* ── PHOTOS GRID ── */
+    .photos-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 16px;
     }
-
-    /* LOGO CARD */
-    .logo-card {
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      cursor: pointer;
-      display: block;
-      background: var(--surface);
-      aspect-ratio: 4/3;
-      transition: border-color .25s, transform .25s, box-shadow .25s;
-      animation: fadeUp .4s ease both;
-    }
-    .logo-card:hover {
-      border-color: var(--gold-dim);
-      transform: translateY(-4px);
-      box-shadow: 0 16px 48px rgba(0,0,0,.6);
-    }
-    .logo-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      padding: 28px;
-      transition: transform .4s;
-    }
-    .logo-card:hover img { transform: scale(1.05); }
-    .logo-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 50%);
-      display: flex;
-      align-items: flex-end;
-      padding: 14px;
-      pointer-events: none;
-    }
-    .logo-overlay-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      pointer-events: auto;
-    }
-    .logo-name {
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.8);
-      word-break: break-word;
-      flex: 1;
-      padding-right: 10px;
-    }
-
-    /* PHOTO CARD */
     .photo-card {
       position: relative;
       overflow: hidden;
@@ -250,9 +278,7 @@
       word-break: break-all;
       flex: 1;
     }
-
-    /* DOWNLOAD ICON */
-    .dl-icon {
+    .photo-dl-icon {
       width: 32px; height: 32px;
       border-radius: 50%;
       background: rgba(201,169,110,0.9);
@@ -260,9 +286,9 @@
       flex-shrink: 0;
       margin-left: 12px;
     }
-    .dl-icon svg { width: 14px; height: 14px; fill: #0d0d0d; }
+    .photo-dl-icon svg { width: 14px; height: 14px; fill: #0d0d0d; }
 
-    /* MEDIA SECTION */
+    /* ── MEDIA SECTION ── */
     .media-banner {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -291,7 +317,7 @@
     .media-item:hover .media-icon-wrap img { filter: grayscale(0%) brightness(1.1); transform: scale(1.08); }
     .media-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; text-align: center; }
 
-    /* FOOTER */
+    /* ── FOOTER ── */
     footer {
       border-top: 1px solid var(--border);
       padding: 32px 40px;
@@ -302,7 +328,7 @@
       text-transform: uppercase;
     }
 
-    /* RESPONSIVE */
+    /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       header { padding: 40px 20px 32px; flex-direction: column; gap: 24px; }
       .press-kit-btn { align-self: flex-start; }
@@ -311,12 +337,10 @@
       .logos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
       .photos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
       .photo-card { aspect-ratio: 1; }
-      .logo-card  { aspect-ratio: 1; }
       .photo-overlay { opacity: 1; }
       footer { padding: 24px 20px; }
       .media-banner { grid-template-columns: repeat(3, 1fr); gap: 6px 12px; }
       .media-label { font-size: 9px; letter-spacing: 0.1em; }
-      #media .section-header { margin-bottom: 24px; }
       section { padding: 40px 0 32px; }
     }
     @media (max-width: 480px) {
@@ -413,25 +437,29 @@
   <footer>© Avastha — All rights reserved</footer>
 
   <script>
-    const REPO_OWNER  = 'Avastha';
-    const REPO_NAME   = 'Avastha';
-    const BRANCH      = 'main';
-    const LOGOS_PATH  = 'Materials/Logos';
-    const IMAGES_PATH = 'Materials/Images';
+    var REPO_OWNER  = 'Avastha';
+    var REPO_NAME   = 'Avastha';
+    var BRANCH      = 'main';
+    var LOGOS_PATH  = 'Materials/Logos';
+    var IMAGES_PATH = 'Materials/Images';
 
-    const IMAGE_EXTS = ['.png','.jpg','.jpeg','.gif','.webp','.svg','.bmp','.tiff','.ico'];
+    var IMAGE_EXTS = ['.png','.jpg','.jpeg','.gif','.webp','.svg','.bmp','.tiff','.ico'];
 
-    function isImage(n) { return IMAGE_EXTS.some(e => n.toLowerCase().endsWith(e)); }
+    function isImage(n) { return IMAGE_EXTS.some(function(e) { return n.toLowerCase().endsWith(e); }); }
     function rawUrl(f) { return f.download_url; }
-    function baseName(n) { return n.replace(/\.[^/.]+$/, ''); }
+    function baseName(n) { return n.replace(/\.[^/.]+$/, '').replace(/_/g, ' '); }
 
-    const dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
+    var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
 
-    async function fetchFiles(path) {
-      const res = await fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + path + '?ref=' + BRANCH);
-      if (!res.ok) throw new Error('GitHub API error: ' + res.status);
-      const data = await res.json();
-      return data.filter(function(f) { return f.type === 'file' && isImage(f.name); });
+    function fetchFiles(path) {
+      return fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + path + '?ref=' + BRANCH)
+        .then(function(res) {
+          if (!res.ok) throw new Error('GitHub API error: ' + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          return data.filter(function(f) { return f.type === 'file' && isImage(f.name); });
+        });
     }
 
     function renderLogos(files, container, countEl) {
@@ -447,12 +475,12 @@
         card.className = 'logo-card';
         card.style.animationDelay = (i * 40) + 'ms';
         card.innerHTML =
-          '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
-          '<div class="logo-overlay">' +
-            '<div class="logo-overlay-inner">' +
-              '<span class="logo-name">' + baseName(file.name) + '</span>' +
-              '<div class="dl-icon">' + dlIcon + '</div>' +
-            '</div>' +
+          '<div class="logo-label">' +
+            '<span class="logo-name">' + baseName(file.name) + '</span>' +
+            '<div class="dl-icon">' + dlIcon + '</div>' +
+          '</div>' +
+          '<div class="logo-img-area">' +
+            '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
           '</div>';
         card.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, card); });
         container.appendChild(card);
@@ -476,7 +504,7 @@
           '<div class="photo-overlay">' +
             '<div class="photo-meta">' +
               '<span class="photo-name">' + baseName(file.name) + '</span>' +
-              '<div class="dl-icon">' + dlIcon + '</div>' +
+              '<div class="photo-dl-icon">' + dlIcon + '</div>' +
             '</div>' +
           '</div>';
         card.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, card); });
@@ -484,47 +512,44 @@
       });
     }
 
-    async function init() {
+    function init() {
       var logosGrid   = document.getElementById('logos-grid');
       var imagesGrid  = document.getElementById('images-grid');
       var logosCount  = document.getElementById('logos-count');
       var imagesCount = document.getElementById('images-count');
 
-      var results = await Promise.allSettled([fetchFiles(LOGOS_PATH), fetchFiles(IMAGES_PATH)]);
-
-      if (results[0].status === 'fulfilled') {
-        renderLogos(results[0].value, logosGrid, logosCount);
-      } else {
-        logosGrid.innerHTML = '<div class="state-msg error">Could not load logos: ' + results[0].reason.message + '</div>';
-      }
-
-      if (results[1].status === 'fulfilled') {
-        renderPhotos(results[1].value, imagesGrid, imagesCount);
-      } else {
-        imagesGrid.innerHTML = '<div class="state-msg error">Could not load images: ' + results[1].reason.message + '</div>';
-      }
+      Promise.allSettled([fetchFiles(LOGOS_PATH), fetchFiles(IMAGES_PATH)])
+        .then(function(results) {
+          if (results[0].status === 'fulfilled') {
+            renderLogos(results[0].value, logosGrid, logosCount);
+          } else {
+            logosGrid.innerHTML = '<div class="state-msg error">Could not load logos: ' + results[0].reason.message + '</div>';
+          }
+          if (results[1].status === 'fulfilled') {
+            renderPhotos(results[1].value, imagesGrid, imagesCount);
+          } else {
+            imagesGrid.innerHTML = '<div class="state-msg error">Could not load images: ' + results[1].reason.message + '</div>';
+          }
+        });
     }
 
-    async function forceDownload(url, filename, el) {
+    function forceDownload(url, filename, el) {
       el.style.pointerEvents = 'none';
       el.style.opacity = '0.5';
-      try {
-        var res = await fetch(url);
-        var blob = await res.blob();
-        var blobUrl = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 5000);
-      } catch(e) {
-        alert('Download failed. Try right-click and Save As.');
-      } finally {
-        el.style.pointerEvents = '';
-        el.style.opacity = '';
-      }
+      fetch(url)
+        .then(function(res) { return res.blob(); })
+        .then(function(blob) {
+          var blobUrl = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 5000);
+        })
+        .catch(function() { alert('Download failed. Try right-click and Save As.'); })
+        .finally(function() { el.style.pointerEvents = ''; el.style.opacity = ''; });
     }
 
     var sections = document.querySelectorAll('section[id]');
