@@ -239,16 +239,30 @@
 
     .logo-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 55%);
+      background: linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 52%);
       display: flex;
       align-items: flex-end;
-      justify-content: flex-end;
       padding: 14px;
-      opacity: 0;
-      transition: opacity .25s;
+      pointer-events: none;
     }
 
-    .logo-card:hover .logo-overlay { opacity: 1; }
+    .logo-overlay-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      pointer-events: auto;
+    }
+
+    .logo-name {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.78);
+      word-break: break-word;
+      flex: 1;
+      padding-right: 10px;
+    }
 
     /* ── PHOTO CARD ── */
     .photo-card {
@@ -506,7 +520,7 @@
           <span class="media-label">WhatsApp</span>
         </a>
 
-        <a class="media-item" href="mailto:avastha.music@gmail.com" style="animation-delay:300ms">
+        <a class="media-item" href="/cdn-cgi/l/email-protection#3d5c4b5c4e49555c1350484e545e7d5a505c5451135e5250" style="animation-delay:300ms">
           <div class="media-icon-wrap">
             <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/gmail.png" alt="Gmail" />
           </div>
@@ -522,7 +536,7 @@
     © Avastha — All rights reserved
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     const REPO_OWNER  = 'Avastha';
     const REPO_NAME   = 'Avastha';
     const BRANCH      = 'main';
@@ -561,7 +575,10 @@
         card.innerHTML = `
           <img src="${rawUrl(file)}" alt="${file.name}" loading="lazy" />
           <div class="logo-overlay">
-            <div class="dl-icon">${dlIcon}</div>
+            <div class="logo-overlay-inner">
+              <span class="logo-name">${baseName(file.name)}</span>
+              <div class="dl-icon">${dlIcon}</div>
+            </div>
           </div>
         `;
         card.addEventListener('click', () => forceDownload(rawUrl(file), file.name, card));
@@ -646,13 +663,4 @@
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id));
-        }
-      });
-    }, { threshold: 0.4 });
-    sections.forEach(s => observer.observe(s));
-
-    init();
-  </script>
-</body>
-</html>
+          navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + en
