@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avastha — Materials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d0d;
+      --surface:   #161616;
+      --border:    #2a2a2a;
+      --gold:      #c9a96e;
+      --gold-dim:  #7a6040;
+      --text:      #e8e2d9;
+      --muted:     #7a7570;
+      --radius:    12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: .5;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 64px 40px 48px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(42px, 8vw, 80px);
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .brand span {
+      color: var(--gold);
+    }
+
+    .tagline {
+      font-size: 12px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── NAV DOTS ── */
+    .nav {
+      display: flex;
+      gap: 24px;
+      padding: 24px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav a {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav a::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      transition: background .2s;
+    }
+    .nav a:hover, .nav a.active { color: var(--gold); }
+    .nav a:hover::before, .nav a.active::before { background: var(--gold); }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── SECTION ── */
+    section {
+      padding: 60px 0 40px;
+    }
+
+    section + section {
+      border-top: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .section-count {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      background: rgba(201,169,110,0.1);
+      border: 1px solid rgba(201,169,110,0.2);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── LOADING / ERROR ── */
+    .state-msg {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.1em;
+    }
+
+    .state-msg.error { color: #c06060; }
+
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── LOGO GRID ── */
+    .logos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .logo-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(201,169,110,0.04), transparent);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+
+    .logo-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.5);
+    }
+
+    .logo-card:hover::after { opacity: 1; }
+
+    .logo-img-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .logo-img-wrap img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,.4));
+    }
+
+    .card-name {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      word-break: break-all;
+    }
+
+    .dl-badge {
+      position: absolute;
+      top: 10px; right: 10px;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.15);
+      border: 1px solid rgba(201,169,110,0.3);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .logo-card:hover .dl-badge { opacity: 1; }
+
+    .dl-badge svg { width: 12px; height: 12px; fill: var(--gold); }
+
+    /* ── PHOTO GRID ── */
+    .photos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .photo-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      background: var(--surface);
+      aspect-ratio: 4/3;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+    }
+
+    .photo-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.6);
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .4s;
+    }
+
+    .photo-card:hover img { transform: scale(1.04); }
+
+    .photo-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 60%);
+      display: flex;
+      align-items: flex-end;
+      padding: 16px;
+      opacity: 0;
+      transition: opacity .25s;
+    }
+
+    .photo-card:hover .photo-overlay { opacity: 1; }
+
+    .photo-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .photo-name {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .dl-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.9);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+
+    .dl-icon svg { width: 14px; height: 14px; fill: #0d0d0d; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header { padding: 40px 20px 32px; }
+      .nav { padding: 16px 20px; gap: 16px; flex-wrap: wrap; }
+      main { padding: 0 16px 60px; }
+      .logos-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+      .photos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .photo-card { aspect-ratio: 1; }
+      .photo-overlay { opacity: 1; }
+      footer { padding: 24px 20px; }
+    }
+
+    @media (max-width: 480px) {
+      .photos-grid { grid-template-columns: 1fr; }
+      .logos-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    }
+
+    /* ── FADE-IN ANIMATION ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-card, .photo-card {
+      animation: fadeUp .4s ease both;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">Ava<span>stha</span></div>
+    <div class="tagline">Brand Materials &amp; Assets</div>
+  </header>
+
+  <nav class="nav">
+    <a href="#logos" class="active">Logos</a>
+    <a href="#images">Photos</a>
+  </nav>
+
+  <main>
+
+    <!-- LOGOS SECTION -->
+    <section id="logos">
+      <div class="section-header">
+        <h2 class="section-title">Logos</h2>
+        <span class="section-count" id="logos-count">—</span>
+      </div>
+      <div id="logos-grid" class="logos-grid">
+        <div class="state-msg"><div class="spinner"></div><br/>Loading logos…</div>
+      </div>
+    </section>
+
+    <!-- IMAGES SECTION -->
+    <section id="images">
+      <div class="section-header">
+        <h2 class="section-title">Photos</h2>
+        <span class="section-count" id="images-count">—</span>
+      </div>
+      <div id="images-grid" class="photos-grid">
+        <div class="state-msg"><div class="spinner"></div><br/>Loading photos…</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    © Avastha — All rights reserved
+  </footer>
+
+  <script>
+    // ── CONFIG ──────────────────────────────────────────────
+    const REPO_OWNER  = 'Avastha';
+    const REPO_NAME   = 'Avastha';
+    const BRANCH      = 'main';
+    const LOGOS_PATH  = 'Materials/Logos';
+    const IMAGES_PATH = 'Materials/Images';
+    // ────────────────────────────────────────────────────────
+
+    const IMAGE_EXTS = ['.png','.jpg','.jpeg','.gif','.webp','.svg','.bmp','.tiff','.ico'];
+
+    function isImage(name) {
+      return IMAGE_EXTS.some(e => name.toLowerCase().endsWith(e));
+    }
+
+    function rawUrl(file) {
+      // Use the download_url from GitHub API (the raw CDN link)
+      return file.download_url;
+    }
+
+    function baseName(name) {
+      return name.replace(/\.[^/.]+$/, '');
+    }
+
+    const dlIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
+    </svg>`;
+
+    async function fetchFiles(path) {
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${BRANCH}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+      const data = await res.json();
+      return data.filter(f => f.type === 'file' && isImage(f.name));
+    }
+
+    function renderLogos(files, container, countEl) {
+      if (!files.length) {
+        container.innerHTML = '<div class="state-msg">No logo files found in this folder.</div>';
+        countEl.textContent = '0';
+        return;
+      }
+      countEl.textContent = files.length;
+      container.innerHTML = '';
+      files.forEach((file, i) => {
+        const a = document.createElement('a');
+        a.className = 'logo-card';
+        a.href = rawUrl(file);
+        a.download = file.name;
+        a.style.animationDelay = `${i * 40}ms`;
+        a.innerHTML = `
+          <div class="dl-badge">${dlIcon}</div>
+          <div class="logo-img-wrap">
+            <img src="${rawUrl(file)}" alt="${file.name}" loading="lazy" />
+          </div>
+          <div class="card-name">${baseName(file.name)}</div>
+        `;
+        container.appendChild(a);
+      });
+    }
+
+    function renderPhotos(files, container, countEl) {
+      if (!files.length) {
+        container.innerHTML = '<div class="state-msg">No image files found in this folder.</div>';
+        countEl.textContent = '0';
+        return;
+      }
+      countEl.textContent = files.length;
+      container.innerHTML = '';
+      files.forEach((file, i) => {
+        const a = document.createElement('a');
+        a.className = 'photo-card';
+        a.href = rawUrl(file);
+        a.download = file.name;
+        a.style.animationDelay = `${i * 50}ms`;
+        a.innerHTML = `
+          <img src="${rawUrl(file)}" alt="${file.name}" loading="lazy" />
+          <div class="photo-overlay">
+            <div class="photo-meta">
+              <span class="photo-name">${baseName(file.name)}</span>
+              <div class="dl-icon">${dlIcon}</div>
+            </div>
+          </div>
+        `;
+        container.appendChild(a);
+      });
+    }
+
+    async function init() {
+      const logosGrid   = document.getElementById('logos-grid');
+      const imagesGrid  = document.getElementById('images-grid');
+      const logosCount  = document.getElementById('logos-count');
+      const imagesCount = document.getElementById('images-count');
+
+      // Load both in parallel
+      const [logosResult, imagesResult] = await Promise.allSettled([
+        fetchFiles(LOGOS_PATH),
+        fetchFiles(IMAGES_PATH)
+      ]);
+
+      if (logosResult.status === 'fulfilled') {
+        renderLogos(logosResult.value, logosGrid, logosCount);
+      } else {
+        logosGrid.innerHTML = `<div class="state-msg error">⚠ Could not load logos.<br><small>${logosResult.reason.message}</small></div>`;
+      }
+
+      if (imagesResult.status === 'fulfilled') {
+        renderPhotos(imagesResult.value, imagesGrid, imagesCount);
+      } else {
+        imagesGrid.innerHTML = `<div class="state-msg error">⚠ Could not load images.<br><small>${imagesResult.reason.message}</small></div>`;
+      }
+    }
+
+    // Nav active state on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav a');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id));
+        }
+      });
+    }, { threshold: 0.4 });
+    sections.forEach(s => observer.observe(s));
+
+    init();
+  </script>
+</body>
+</html>
