@@ -149,13 +149,8 @@
     }
 
     /* ── SECTION ── */
-    section {
-      padding: 60px 0 40px;
-    }
-
-    section + section {
-      border-top: 1px solid var(--border);
-    }
+    section { padding: 60px 0 40px; }
+    section + section { border-top: 1px solid var(--border); }
 
     .section-header {
       display: flex;
@@ -190,7 +185,6 @@
       font-size: 13px;
       letter-spacing: 0.1em;
     }
-
     .state-msg.error { color: #c06060; }
 
     .spinner {
@@ -202,108 +196,72 @@
       animation: spin .8s linear infinite;
       margin-bottom: 12px;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── LOGO GRID ── */
-    .logos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 16px;
-    }
-
-    .logo-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 20px 18px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-      transition: border-color .25s, transform .25s, box-shadow .25s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .logo-card::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(201,169,110,0.04), transparent);
-      opacity: 0;
-      transition: opacity .25s;
-    }
-
-    .logo-card:hover {
-      border-color: var(--gold-dim);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0,0,0,.5);
-    }
-
-    .logo-card:hover::after { opacity: 1; }
-
-    .logo-img-wrap {
-      width: 100%;
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-    }
-
-    .logo-img-wrap img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,.4));
-    }
-
-    .card-name {
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-align: center;
-      word-break: break-all;
-    }
-
-    .dl-badge {
-      position: absolute;
-      top: 10px; right: 10px;
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: rgba(201,169,110,0.15);
-      border: 1px solid rgba(201,169,110,0.3);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0;
-      transition: opacity .2s;
-    }
-
-    .logo-card:hover .dl-badge { opacity: 1; }
-
-    .dl-badge svg { width: 12px; height: 12px; fill: var(--gold); }
-
-    /* ── PHOTO GRID ── */
+    /* ── SHARED CARD GRID ── */
+    .logos-grid,
     .photos-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 16px;
     }
 
+    /* ── LOGO CARD — same look as photo card ── */
+    .logo-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: block;
+      background: var(--surface);
+      aspect-ratio: 4/3;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      animation: fadeUp .4s ease both;
+    }
+
+    .logo-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.6);
+    }
+
+    .logo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      padding: 28px;
+      transition: transform .4s;
+    }
+
+    .logo-card:hover img { transform: scale(1.05); }
+
+    .logo-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 55%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 14px;
+      opacity: 0;
+      transition: opacity .25s;
+    }
+
+    .logo-card:hover .logo-overlay { opacity: 1; }
+
+    /* ── PHOTO CARD ── */
     .photo-card {
       position: relative;
       overflow: hidden;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       cursor: pointer;
-      text-decoration: none;
       display: block;
       background: var(--surface);
       aspect-ratio: 4/3;
       transition: border-color .25s, transform .25s, box-shadow .25s;
+      animation: fadeUp .4s ease both;
     }
 
     .photo-card:hover {
@@ -350,6 +308,7 @@
       flex: 1;
     }
 
+    /* ── SHARED DOWNLOAD ICON ── */
     .dl-icon {
       width: 32px; height: 32px;
       border-radius: 50%;
@@ -358,14 +317,13 @@
       flex-shrink: 0;
       margin-left: 12px;
     }
-
     .dl-icon svg { width: 14px; height: 14px; fill: #0d0d0d; }
 
-    /* ── MEDIA / SOCIAL SECTION ── */
+    /* ── MEDIA / SOCIAL — no frame, just icons ── */
     .media-banner {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 12px;
+      gap: 8px 20px;
       align-items: start;
       padding: 4px 0 8px;
     }
@@ -378,6 +336,7 @@
       text-decoration: none;
       color: var(--muted);
       transition: color .25s, transform .25s;
+      animation: fadeUp .4s ease both;
     }
 
     .media-item:hover {
@@ -388,33 +347,22 @@
     .media-icon-wrap {
       width: 100%;
       aspect-ratio: 1;
-      border-radius: 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 18%;
-      transition: border-color .25s, box-shadow .25s, background .25s;
-      overflow: hidden;
-    }
-
-    .media-item:hover .media-icon-wrap {
-      border-color: var(--gold-dim);
-      background: rgba(201,169,110,0.06);
-      box-shadow: 0 8px 28px rgba(0,0,0,.45);
     }
 
     .media-icon-wrap img {
-      width: 100%;
-      height: 100%;
+      width: 72%;
+      height: 72%;
       object-fit: contain;
-      filter: grayscale(30%) brightness(0.9);
-      transition: filter .25s;
+      filter: grayscale(20%) brightness(0.88);
+      transition: filter .25s, transform .25s;
     }
 
     .media-item:hover .media-icon-wrap img {
       filter: grayscale(0%) brightness(1.1);
+      transform: scale(1.08);
     }
 
     .media-label {
@@ -441,13 +389,13 @@
       .press-kit-btn { align-self: flex-start; }
       .nav { padding: 16px 20px; gap: 16px; flex-wrap: wrap; }
       main { padding: 0 16px 60px; }
-      .logos-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+      .logos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
       .photos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
       .photo-card { aspect-ratio: 1; }
+      .logo-card  { aspect-ratio: 1; }
       .photo-overlay { opacity: 1; }
       footer { padding: 24px 20px; }
-      .media-banner { grid-template-columns: repeat(3, 1fr); gap: 10px 16px; }
-      .media-icon-wrap { border-radius: 14px; }
+      .media-banner { grid-template-columns: repeat(3, 1fr); gap: 6px 12px; }
       .media-label { font-size: 9px; letter-spacing: 0.1em; }
       #media .section-header { margin-bottom: 24px; }
       section { padding: 40px 0 32px; }
@@ -455,21 +403,13 @@
 
     @media (max-width: 480px) {
       .photos-grid { grid-template-columns: 1fr; }
-      .logos-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .logos-grid  { grid-template-columns: 1fr 1fr; gap: 10px; }
     }
 
     /* ── FADE-IN ANIMATION ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .logo-card, .photo-card {
-      animation: fadeUp .4s ease both;
-    }
-
-    .media-item {
-      animation: fadeUp .4s ease both;
     }
   </style>
 </head>
@@ -583,27 +523,16 @@
   </footer>
 
   <script>
-    // ── CONFIG ──────────────────────────────────────────────
     const REPO_OWNER  = 'Avastha';
     const REPO_NAME   = 'Avastha';
     const BRANCH      = 'main';
     const LOGOS_PATH  = 'Materials/Logos';
     const IMAGES_PATH = 'Materials/Images';
-    // ────────────────────────────────────────────────────────
 
     const IMAGE_EXTS = ['.png','.jpg','.jpeg','.gif','.webp','.svg','.bmp','.tiff','.ico'];
-
-    function isImage(name) {
-      return IMAGE_EXTS.some(e => name.toLowerCase().endsWith(e));
-    }
-
-    function rawUrl(file) {
-      return file.download_url;
-    }
-
-    function baseName(name) {
-      return name.replace(/\.[^/.]+$/, '');
-    }
+    function isImage(name) { return IMAGE_EXTS.some(e => name.toLowerCase().endsWith(e)); }
+    function rawUrl(file) { return file.download_url; }
+    function baseName(name) { return name.replace(/\.[^/.]+$/, ''); }
 
     const dlIcon = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
@@ -619,43 +548,40 @@
 
     function renderLogos(files, container, countEl) {
       if (!files.length) {
-        container.innerHTML = '<div class="state-msg">No logo files found in this folder.</div>';
+        container.innerHTML = '<div class="state-msg">No logo files found.</div>';
         countEl.textContent = '0';
         return;
       }
       countEl.textContent = files.length;
       container.innerHTML = '';
       files.forEach((file, i) => {
-        const a = document.createElement('div');
-        a.className = 'logo-card';
-        a.style.animationDelay = `${i * 40}ms`;
-        a.style.cursor = 'pointer';
-        a.innerHTML = `
-          <div class="dl-badge">${dlIcon}</div>
-          <div class="logo-img-wrap">
-            <img src="${rawUrl(file)}" alt="${file.name}" loading="lazy" />
+        const card = document.createElement('div');
+        card.className = 'logo-card';
+        card.style.animationDelay = `${i * 40}ms`;
+        card.innerHTML = `
+          <img src="${rawUrl(file)}" alt="${file.name}" loading="lazy" />
+          <div class="logo-overlay">
+            <div class="dl-icon">${dlIcon}</div>
           </div>
-          <div class="card-name">${baseName(file.name)}</div>
         `;
-        a.addEventListener('click', () => forceDownload(rawUrl(file), file.name, a));
-        container.appendChild(a);
+        card.addEventListener('click', () => forceDownload(rawUrl(file), file.name, card));
+        container.appendChild(card);
       });
     }
 
     function renderPhotos(files, container, countEl) {
       if (!files.length) {
-        container.innerHTML = '<div class="state-msg">No image files found in this folder.</div>';
+        container.innerHTML = '<div class="state-msg">No image files found.</div>';
         countEl.textContent = '0';
         return;
       }
       countEl.textContent = files.length;
       container.innerHTML = '';
       files.forEach((file, i) => {
-        const a = document.createElement('div');
-        a.className = 'photo-card';
-        a.style.animationDelay = `${i * 50}ms`;
-        a.style.cursor = 'pointer';
-        a.innerHTML = `
+        const card = document.createElement('div');
+        card.className = 'photo-card';
+        card.style.animationDelay = `${i * 50}ms`;
+        card.innerHTML = `
           <img src="${rawUrl(file)}" alt="${file.name}" loading="lazy" />
           <div class="photo-overlay">
             <div class="photo-meta">
@@ -664,8 +590,8 @@
             </div>
           </div>
         `;
-        a.addEventListener('click', () => forceDownload(rawUrl(file), file.name, a));
-        container.appendChild(a);
+        card.addEventListener('click', () => forceDownload(rawUrl(file), file.name, card));
+        container.appendChild(card);
       });
     }
 
@@ -693,7 +619,6 @@
       }
     }
 
-    // ── FORCE DOWNLOAD via blob ──────────────────────────────
     async function forceDownload(url, filename, el) {
       el.style.pointerEvents = 'none';
       el.style.opacity = '0.5';
@@ -715,9 +640,7 @@
         el.style.opacity = '';
       }
     }
-    // ────────────────────────────────────────────────────────
 
-    // Nav active state on scroll
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav a');
     const observer = new IntersectionObserver(entries => {
