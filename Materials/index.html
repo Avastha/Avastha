@@ -447,19 +447,17 @@
       .photo-card { aspect-ratio: 1; }
       .photo-overlay { opacity: 1; }
       footer { padding: 24px 20px; }
-      .social-banner { grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 32px 0 16px; }
+      .social-banner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 32px 0 16px; }
+      .social-link { width: auto; }
+      .social-icon { width: 100%; height: 60px; border-radius: 10px; }
+      .social-icon img { width: 28px; height: 28px; }
       .social-label { font-size: 9px; letter-spacing: 0.1em; }
     }
 
     @media (max-width: 480px) {
       .photos-grid { grid-template-columns: 1fr; }
       .logos-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-      .social-banner { grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    }
-
-    @media (max-width: 480px) {
-      .photos-grid { grid-template-columns: 1fr; }
-      .logos-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .social-banner { gap: 10px; }
     }
 
     /* ── FADE-IN ANIMATION ── */
