@@ -437,14 +437,13 @@
     }
     .lightbox.open .lightbox-inner { transform: scale(1); }
 
-    /* Canvas — pure solid color */
+    /* Canvas — color set exclusively via JS */
     .lightbox-canvas {
       width: 100%;
       aspect-ratio: 4/3;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #aaaaaa;
     }
     .lightbox-img {
       max-width: 85%;
@@ -757,7 +756,7 @@
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
 
     function setLbBg(color) {
-      lbCanvas.style.cssText = 'background-color:' + color + ' !important;';
+      lbCanvas.setAttribute('style', 'background-color:' + color);
       lbBgBtns.forEach(function(b) {
         b.classList.toggle('active', b.dataset.bg.toLowerCase() === color.toLowerCase());
       });
