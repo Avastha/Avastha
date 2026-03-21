@@ -781,9 +781,13 @@
             '<span class="logo-name">' + baseName(file.name) + '</span>' +
             '<div class="dl-icon">' + dlIcon + '</div>' +
           '</div>' +
-          '<div class="logo-img-area">' +
-            '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
-          '</div>';
+          '<div class="logo-img-area"></div>';
+
+        // Set image src directly on the DOM element — prevents browser reordering
+        var imgEl = document.createElement('img');
+        imgEl.alt = file.name;
+        imgEl.src = rawUrl(file);
+        card.querySelector('.logo-img-area').appendChild(imgEl);
 
         // Image area → preview with full list
         (function(idx) {
@@ -811,10 +815,14 @@
           '<div class="logo-list-info">' +
             '<div class="logo-list-name">' + baseName(file.name) + '</div>' +
           '</div>' +
-          '<div class="logo-list-thumb">' +
-            '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
-          '</div>' +
+          '<div class="logo-list-thumb"></div>' +
           '<div class="logo-list-dl">' + dlIcon + '</div>';
+
+        // Set image src directly — prevents Brave/aggressive-blocker reordering
+        var thumbImg = document.createElement('img');
+        thumbImg.alt = file.name;
+        thumbImg.src = rawUrl(file);
+        item.querySelector('.logo-list-thumb').appendChild(thumbImg);
 
         // Name + thumb → preview with full list
         (function(idx) {
@@ -932,13 +940,18 @@
         card.className = 'photo-card';
         card.style.animationDelay = (i * 50) + 'ms';
         card.innerHTML =
-          '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
           '<div class="photo-overlay">' +
             '<div class="photo-meta">' +
               '<span class="photo-name">' + baseName(file.name) + '</span>' +
               '<div class="photo-dl-icon">' + dlIcon + '</div>' +
             '</div>' +
           '</div>';
+
+        // Insert image before overlay — bound directly to this card
+        var photoImg = document.createElement('img');
+        photoImg.alt = file.name;
+        photoImg.src = rawUrl(file);
+        card.insertBefore(photoImg, card.firstChild);
         card.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, card); });
         container.appendChild(card);
       });
