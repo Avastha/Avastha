@@ -241,7 +241,7 @@
     .logo-list-item:hover { background: #1e1e1e; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
     .logo-list-thumb {
       width: 100px;
-      height: 72px;
+      min-height: 72px;
       flex-shrink: 0;
       background: #111;
       display: flex;
@@ -262,20 +262,20 @@
     }
     .logo-list-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 17px;
+      font-size: 15px;
       font-weight: 400;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.3;
       transition: color .2s;
     }
     .logo-list-item:hover .logo-list-name { color: var(--gold); }
     .logo-list-dl {
       width: 40px;
-      height: 72px;
+      min-height: 72px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -670,14 +670,22 @@
       lbName.textContent = name;
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
+      history.pushState({ lightbox: true }, '');
     }
     function closeLightbox() {
       lb.classList.remove('open');
       document.body.style.overflow = '';
     }
-    lbClose.addEventListener('click', closeLightbox);
-    lb.addEventListener('click', function(e) { if (e.target === lb) closeLightbox(); });
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+    lbClose.addEventListener('click', function() {
+      history.back();
+    });
+    lb.addEventListener('click', function(e) {
+      if (e.target === lb) history.back();
+    });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') history.back(); });
+    window.addEventListener('popstate', function(e) {
+      if (lb.classList.contains('open')) closeLightbox();
+    });
 
     function renderPhotos(files, container) {
       if (!files.length) {
