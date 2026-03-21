@@ -262,14 +262,19 @@
     }
     .logo-list-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 15px;
+      font-size: clamp(11px, 3.5vw, 15px);
       font-weight: 400;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--text);
       white-space: normal;
-      word-break: break-word;
-      line-height: 1.3;
+      word-break: normal;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.35;
       transition: color .2s;
     }
     .logo-list-item:hover .logo-list-name { color: var(--gold); }
@@ -373,45 +378,89 @@
     /* ── LIGHTBOX ── */
     .lightbox {
       position: fixed; inset: 0; z-index: 9000;
-      background: rgba(0,0,0,0.92);
+      background: rgba(0,0,0,0.88);
       display: flex; align-items: center; justify-content: center;
       opacity: 0; pointer-events: none;
-      transition: opacity .25s;
+      transition: opacity .3s;
     }
     .lightbox.open { opacity: 1; pointer-events: all; }
     .lightbox-inner {
       position: relative;
-      max-width: 90vw; max-height: 82vh;
-      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
       transform: scale(0.93);
-      transition: transform .25s;
+      transition: transform .3s;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 32px 100px rgba(0,0,0,.9);
+      max-width: 88vw;
     }
     .lightbox.open .lightbox-inner { transform: scale(1); }
+    .lightbox-canvas {
+      width: 88vw;
+      max-width: 500px;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .4s;
+      position: relative;
+    }
     .lightbox-img {
-      max-width: 90vw; max-height: 72vh;
+      max-width: 85%;
+      max-height: 85%;
       object-fit: contain;
-      border-radius: 8px;
-      box-shadow: 0 24px 80px rgba(0,0,0,.8);
+    }
+    .lightbox-footer {
+      width: 100%;
+      background: #111;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
     }
     .lightbox-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 15px;
-      letter-spacing: 0.2em;
+      font-size: 13px;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--muted);
+      flex: 1;
     }
+    .lightbox-bg-btns {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .lb-bg-btn {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: border-color .2s, transform .2s;
+    }
+    .lb-bg-btn:hover { transform: scale(1.2); border-color: rgba(255,255,255,0.6); }
+    .lb-bg-btn.active { border-color: var(--gold); }
+    .lb-bg-btn.btn-white  { background: #ffffff; }
+    .lb-bg-btn.btn-black  { background: #1a1a1a; }
+    .lb-bg-btn.btn-orange { background: #c9a96e; }
     .lightbox-close {
       position: fixed; top: 20px; right: 20px;
       width: 40px; height: 40px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.6);
       border: 1px solid rgba(255,255,255,0.15);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       transition: background .2s;
+      z-index: 9001;
     }
-    .lightbox-close:hover { background: rgba(255,255,255,0.16); }
-    .lightbox-close svg { width: 16px; height: 16px; fill: var(--text); }
+    .lightbox-close:hover { background: rgba(255,255,255,0.15); }
+    .lightbox-close svg { width: 16px; height: 16px; stroke: var(--text); }
 
     /* ── FOOTER ── */
     footer {
@@ -559,11 +608,20 @@
   <!-- Lightbox -->
   <div class="lightbox" id="lightbox">
     <div class="lightbox-close" id="lightbox-close">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </div>
     <div class="lightbox-inner">
-      <img class="lightbox-img" id="lightbox-img" src="" alt="" />
-      <div class="lightbox-name" id="lightbox-name"></div>
+      <div class="lightbox-canvas" id="lightbox-canvas">
+        <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+      </div>
+      <div class="lightbox-footer">
+        <div class="lightbox-name" id="lightbox-name"></div>
+        <div class="lightbox-bg-btns">
+          <div class="lb-bg-btn btn-white"  data-bg="#ffffff" title="White background"></div>
+          <div class="lb-bg-btn btn-black"  data-bg="#1a1a1a" title="Black background"></div>
+          <div class="lb-bg-btn btn-orange" data-bg="#c9a96e" title="Gold background"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -660,14 +718,34 @@
     }
 
     /* ── Lightbox ── */
-    var lb      = document.getElementById('lightbox');
-    var lbImg   = document.getElementById('lightbox-img');
-    var lbName  = document.getElementById('lightbox-name');
-    var lbClose = document.getElementById('lightbox-close');
+    var lb       = document.getElementById('lightbox');
+    var lbImg    = document.getElementById('lightbox-img');
+    var lbName   = document.getElementById('lightbox-name');
+    var lbClose  = document.getElementById('lightbox-close');
+    var lbCanvas = document.getElementById('lightbox-canvas');
+    var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
+
+    var bgColors = ['#ffffff', '#1a1a1a', '#c9a96e'];
+
+    function setLbBg(color) {
+      lbCanvas.style.background = color;
+      lbBgBtns.forEach(function(b) {
+        b.classList.toggle('active', b.dataset.bg === color);
+      });
+    }
+
+    lbBgBtns.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        setLbBg(btn.dataset.bg);
+      });
+    });
 
     function openLightbox(src, name) {
       lbImg.src = src;
       lbName.textContent = name;
+      var randomBg = bgColors[Math.floor(Math.random() * bgColors.length)];
+      setLbBg(randomBg);
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
       history.pushState({ lightbox: true }, '');
@@ -676,14 +754,10 @@
       lb.classList.remove('open');
       document.body.style.overflow = '';
     }
-    lbClose.addEventListener('click', function() {
-      history.back();
-    });
-    lb.addEventListener('click', function(e) {
-      if (e.target === lb) history.back();
-    });
+    lbClose.addEventListener('click', function() { history.back(); });
+    lb.addEventListener('click', function(e) { if (e.target === lb) history.back(); });
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') history.back(); });
-    window.addEventListener('popstate', function(e) {
+    window.addEventListener('popstate', function() {
       if (lb.classList.contains('open')) closeLightbox();
     });
 
