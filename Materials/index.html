@@ -386,11 +386,15 @@
     /* ── LIGHTBOX ── */
     .lightbox {
       position: fixed; inset: 0; z-index: 9000;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 60px 20px 20px;
       opacity: 0; pointer-events: none;
       transition: opacity .3s;
     }
-    /* Separate overlay so it never bleeds into canvas color */
     .lightbox::before {
       content: '';
       position: absolute; inset: 0;
@@ -398,6 +402,25 @@
       z-index: 0;
     }
     .lightbox.open { opacity: 1; pointer-events: all; }
+
+    /* Floating name — above the card */
+    .lightbox-name {
+      position: relative;
+      z-index: 1;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #e8e2d9;
+      text-align: center;
+      white-space: normal;
+      word-break: break-word;
+      max-width: 88vw;
+      line-height: 1.4;
+    }
+
+    /* Card */
     .lightbox-inner {
       position: relative;
       z-index: 1;
@@ -414,33 +437,13 @@
     }
     .lightbox.open .lightbox-inner { transform: scale(1); }
 
-    /* Name — TOP strip */
-    .lightbox-header {
-      background: #111111;
-      padding: 13px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      text-align: center;
-    }
-    .lightbox-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 14px;
-      font-weight: 400;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: #e8e2d9;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Canvas — fully solid, no transparency */
+    /* Canvas — pure solid color */
     .lightbox-canvas {
       width: 100%;
       aspect-ratio: 4/3;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background-color .35s;
       background-color: #aaaaaa;
     }
     .lightbox-img {
@@ -450,7 +453,7 @@
       display: block;
     }
 
-    /* Footer — buttons only, centered */
+    /* Footer — buttons only */
     .lightbox-footer {
       background: #111111;
       padding: 13px 16px;
@@ -458,7 +461,6 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      border-top: 1px solid rgba(255,255,255,0.08);
     }
     .lb-bg-btn {
       width: 22px; height: 22px;
@@ -635,19 +637,17 @@
     <div class="lightbox-close" id="lightbox-close">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </div>
+    <div class="lightbox-name" id="lightbox-name"></div>
     <div class="lightbox-inner">
-      <div class="lightbox-header">
-        <div class="lightbox-name" id="lightbox-name"></div>
-      </div>
       <div class="lightbox-canvas" id="lightbox-canvas">
         <img class="lightbox-img" id="lightbox-img" src="" alt="" />
       </div>
       <div class="lightbox-footer">
-        <div class="lb-bg-btn" id="lbbtn-grey"  data-bg="#aaaaaa" style="background-color:#aaaaaa;"></div>
-        <div class="lb-bg-btn" id="lbbtn-white" data-bg="#ffffff" style="background-color:#ffffff; box-shadow:inset 0 0 0 1px #999;"></div>
-        <div class="lb-bg-btn" id="lbbtn-black" data-bg="#111111" style="background-color:#111111; box-shadow:inset 0 0 0 1px #555;"></div>
-        <div class="lb-bg-btn" id="lbbtn-gold"  data-bg="#c9a96e" style="background-color:#c9a96e;"></div>
-        <div class="lb-bg-btn" id="lbbtn-red"   data-bg="#c0151a" style="background-color:#c0151a;"></div>
+        <div class="lb-bg-btn" data-bg="#aaaaaa" style="background-color:#aaaaaa;"></div>
+        <div class="lb-bg-btn" data-bg="#ffffff" style="background-color:#ffffff; box-shadow:inset 0 0 0 1px #999;"></div>
+        <div class="lb-bg-btn" data-bg="#111111" style="background-color:#111111; box-shadow:inset 0 0 0 1px #555;"></div>
+        <div class="lb-bg-btn" data-bg="#c9a96e" style="background-color:#c9a96e;"></div>
+        <div class="lb-bg-btn" data-bg="#c0151a" style="background-color:#c0151a;"></div>
       </div>
     </div>
   </div>
@@ -757,7 +757,7 @@
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
 
     function setLbBg(color) {
-      lbCanvas.style.backgroundColor = color;
+      lbCanvas.style.cssText = 'background-color:' + color + ' !important;';
       lbBgBtns.forEach(function(b) {
         b.classList.toggle('active', b.dataset.bg.toLowerCase() === color.toLowerCase());
       });
