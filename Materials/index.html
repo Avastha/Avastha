@@ -628,12 +628,11 @@
       <div class="lightbox-footer">
         <div class="lightbox-name" id="lightbox-name"></div>
         <div class="lightbox-bg-btns">
-          <div class="lb-bg-btn btn-white"   data-bg="#ffffff" title="White"></div>
-          <div class="lb-bg-btn btn-black"   data-bg="#1a1a1a" title="Black"></div>
-          <div class="lb-bg-btn btn-orange"  data-bg="#c9a96e" title="Gold"></div>
-          <div class="lb-bg-btn btn-navy"    data-bg="#0a1628" title="Navy"></div>
-          <div class="lb-bg-btn btn-charcoal" data-bg="#1e1810" title="Warm Dark"></div>
-          <div class="lb-bg-btn btn-purple"  data-bg="#160d24" title="Deep Purple"></div>
+          <div class="lb-bg-btn" data-bg="#ffffff" style="background:#ffffff;" title="White"></div>
+          <div class="lb-bg-btn" data-bg="#888888" style="background:#888888;" title="Grey"></div>
+          <div class="lb-bg-btn" data-bg="#111111" style="background:#111111;" title="Black"></div>
+          <div class="lb-bg-btn" data-bg="#c9861a" style="background:#c9861a;" title="Gold"></div>
+          <div class="lb-bg-btn" data-bg="#c0151a" style="background:#c0151a;" title="Red"></div>
         </div>
       </div>
     </div>
@@ -743,7 +742,7 @@
     var lbCanvas = document.getElementById('lightbox-canvas');
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
 
-    var bgColors = ['#ffffff', '#1a1a1a', '#c9a96e', '#0a1628', '#1e1810', '#160d24'];
+    var bgColors = ['#ffffff', '#888888', '#111111', '#c9861a', '#c0151a'];
 
     function setLbBg(color) {
       lbCanvas.style.background = color;
