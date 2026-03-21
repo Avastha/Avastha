@@ -261,21 +261,18 @@
       min-width: 0;
     }
     .logo-list-name {
-      font-size: 11px;
-      letter-spacing: 0.18em;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      transition: color .2s;
     }
-    .logo-list-sub {
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
+    .logo-list-item:hover .logo-list-name { color: var(--gold); }
     .logo-list-dl {
       width: 40px;
       height: 72px;
@@ -372,6 +369,49 @@
     }
     .media-item:hover .media-icon-wrap img { filter: grayscale(0%) brightness(1.1); transform: scale(1.08); }
     .media-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; text-align: center; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,0.92);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .lightbox.open { opacity: 1; pointer-events: all; }
+    .lightbox-inner {
+      position: relative;
+      max-width: 90vw; max-height: 82vh;
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      transform: scale(0.93);
+      transition: transform .25s;
+    }
+    .lightbox.open .lightbox-inner { transform: scale(1); }
+    .lightbox-img {
+      max-width: 90vw; max-height: 72vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.8);
+    }
+    .lightbox-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .lightbox-close {
+      position: fixed; top: 20px; right: 20px;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.16); }
+    .lightbox-close svg { width: 16px; height: 16px; fill: var(--text); }
 
     /* ── FOOTER ── */
     footer {
@@ -507,7 +547,7 @@
           <div class="media-icon-wrap"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/whatsapp.png" alt="WhatsApp" /></div>
           <span class="media-label">WhatsApp</span>
         </a>
-        <a class="media-item" href="mailto:avastha.music@gmail.com" style="animation-delay:300ms">
+        <a class="media-item" href="/cdn-cgi/l/email-protection#6607100715120e07480b13150f0526010b070f0a4805090b" style="animation-delay:300ms">
           <div class="media-icon-wrap"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/gmail.png" alt="Gmail" /></div>
           <span class="media-label">Gmail</span>
         </a>
@@ -515,6 +555,17 @@
     </section>
 
   </main>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-close" id="lightbox-close">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+    </div>
+    <div class="lightbox-inner">
+      <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+      <div class="lightbox-name" id="lightbox-name"></div>
+    </div>
+  </div>
 
   <footer>
     <a class="footer-site-link" href="https://avastha.info" target="_blank" rel="noopener">
@@ -526,7 +577,7 @@
     <span>© Avastha — All rights reserved</span>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     var REPO_OWNER  = 'Avastha';
     var REPO_NAME   = 'Avastha';
     var BRANCH      = 'main';
@@ -538,8 +589,6 @@
     function isImage(n) { return IMAGE_EXTS.some(function(e) { return n.toLowerCase().endsWith(e); }); }
     function rawUrl(f) { return f.download_url; }
     function baseName(n) { return n.replace(/\.[^/.]+$/, '').replace(/_/g, ' '); }
-    function extName(n) { var m = n.match(/\.([^.]+)$/); return m ? m[1].toUpperCase() : ''; }
-
     var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
 
     function fetchFiles(path) {
@@ -591,13 +640,44 @@
           '</div>' +
           '<div class="logo-list-info">' +
             '<div class="logo-list-name">' + baseName(file.name) + '</div>' +
-            '<div class="logo-list-sub">' + extName(file.name) + ' · Tap to download</div>' +
           '</div>' +
           '<div class="logo-list-dl">' + dlIcon + '</div>';
-        item.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, item); });
+
+        // Thumb → preview
+        item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
+          e.stopPropagation();
+          openLightbox(rawUrl(file), baseName(file.name));
+        });
+
+        // Download icon → download
+        item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
+          e.stopPropagation();
+          forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
+        });
+
         listContainer.appendChild(item);
       });
     }
+
+    /* ── Lightbox ── */
+    var lb      = document.getElementById('lightbox');
+    var lbImg   = document.getElementById('lightbox-img');
+    var lbName  = document.getElementById('lightbox-name');
+    var lbClose = document.getElementById('lightbox-close');
+
+    function openLightbox(src, name) {
+      lbImg.src = src;
+      lbName.textContent = name;
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    lbClose.addEventListener('click', closeLightbox);
+    lb.addEventListener('click', function(e) { if (e.target === lb) closeLightbox(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
 
     function renderPhotos(files, container) {
       if (!files.length) {
@@ -670,13 +750,3 @@
         if (entry.isIntersecting) {
           navLinks.forEach(function(l) {
             l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id);
-          });
-        }
-      });
-    }, { threshold: 0.4 });
-    sections.forEach(function(s) { observer.observe(s); });
-
-    init();
-  </script>
-</body>
-</html>
