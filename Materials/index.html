@@ -424,36 +424,47 @@
     .lightbox-footer {
       width: 100%;
       background: #111;
-      padding: 14px 18px;
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       border-top: 1px solid rgba(255,255,255,0.08);
+      flex-wrap: nowrap;
+      min-width: 0;
     }
     .lightbox-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 13px;
-      letter-spacing: 0.18em;
+      font-size: 12px;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
       color: var(--muted);
       flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .lightbox-bg-btns {
       display: flex;
-      gap: 8px;
+      gap: 7px;
       flex-shrink: 0;
     }
     .lb-bg-btn {
-      width: 22px; height: 22px;
+      width: 20px; height: 20px;
       border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.15);
       cursor: pointer;
-      transition: border-color .2s, transform .2s;
       flex-shrink: 0;
+      transition: transform .2s;
+      /* Force solid rendering — no transparency */
+      opacity: 1 !important;
+      -webkit-print-color-adjust: exact;
     }
-    .lb-bg-btn:hover { transform: scale(1.2); }
-    .lb-bg-btn.active { border-color: #ffffff; box-shadow: 0 0 0 1px rgba(255,255,255,0.5); }
+    .lb-bg-btn:hover { transform: scale(1.25); }
+    .lb-bg-btn.active {
+      outline: 2px solid #ffffff;
+      outline-offset: 2px;
+    }
     .lb-bg-btn.btn-white    { background: #ffffff; }
     .lb-bg-btn.btn-black    { background: #1a1a1a; }
     .lb-bg-btn.btn-orange   { background: #c9a96e; }
@@ -629,9 +640,9 @@
       <div class="lightbox-footer">
         <div class="lightbox-name" id="lightbox-name"></div>
         <div class="lightbox-bg-btns">
-          <div class="lb-bg-btn" data-bg="#ffffff" style="background:#ffffff; border-color:#555;" title="White"></div>
-          <div class="lb-bg-btn" data-bg="#b0b0b0" style="background:#b0b0b0; border-color:#777;" title="Grey"></div>
-          <div class="lb-bg-btn" data-bg="#111111" style="background:#111111;" title="Black"></div>
+          <div class="lb-bg-btn" data-bg="#ffffff" style="background:#ffffff; box-shadow:inset 0 0 0 1px #888;" title="White"></div>
+          <div class="lb-bg-btn" data-bg="#aaaaaa" style="background:#aaaaaa;" title="Grey"></div>
+          <div class="lb-bg-btn" data-bg="#111111" style="background:#111111; box-shadow:inset 0 0 0 1px #444;" title="Black"></div>
           <div class="lb-bg-btn" data-bg="#c9a96e" style="background:#c9a96e;" title="Gold"></div>
           <div class="lb-bg-btn" data-bg="#c0151a" style="background:#c0151a;" title="Red"></div>
         </div>
@@ -743,7 +754,7 @@
     var lbCanvas = document.getElementById('lightbox-canvas');
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
 
-    var bgColors = ['#c0151a', '#ffffff', '#b0b0b0', '#111111', '#c9a96e'];
+    var bgColors = ['#c0151a', '#ffffff', '#aaaaaa', '#111111', '#c9a96e'];
 
     function setLbBg(color) {
       lbCanvas.style.background = color;
