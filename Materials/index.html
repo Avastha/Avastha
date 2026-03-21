@@ -765,84 +765,88 @@
         return;
       }
 
-      // Build shared lightbox file list
-      var lbFileList = files.map(function(f) {
-        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+      // Fetch ALL images as blobs in parallel, preserving index order
+      var blobPromises = files.map(function(f) {
+        return fetch(rawUrl(f))
+          .then(function(res) { return res.blob(); })
+          .then(function(blob) { return URL.createObjectURL(blob); })
+          .catch(function() { return rawUrl(f); }); // fallback to original url
       });
 
-      // Desktop grid
-      gridContainer.innerHTML = '';
-      files.forEach(function(file, i) {
-        var card = document.createElement('div');
-        card.className = 'logo-card';
-        card.style.animationDelay = (i * 40) + 'ms';
-        card.innerHTML =
-          '<div class="logo-label">' +
-            '<span class="logo-name">' + baseName(file.name) + '</span>' +
-            '<div class="dl-icon">' + dlIcon + '</div>' +
-          '</div>' +
-          '<div class="logo-img-area"></div>';
-
-        // Set image src directly on the DOM element — prevents browser reordering
-        var imgEl = document.createElement('img');
-        imgEl.alt = file.name;
-        imgEl.src = rawUrl(file);
-        card.querySelector('.logo-img-area').appendChild(imgEl);
-
-        // Image area → preview with full list
-        (function(idx) {
-          card.querySelector('.logo-img-area').addEventListener('click', function(e) {
-            e.stopPropagation();
-            openLightbox(lbFileList, idx);
-          });
-        })(i);
-        // Download icon → download
-        card.querySelector('.dl-icon').addEventListener('click', function(e) {
-          e.stopPropagation();
-          forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
+      Promise.all(blobPromises).then(function(blobUrls) {
+        // Build lightbox list with blob URLs
+        var lbFileList = files.map(function(f, i) {
+          return { url: blobUrls[i], name: baseName(f.name), filename: f.name };
         });
 
-        gridContainer.appendChild(card);
-      });
+        // Desktop grid
+        gridContainer.innerHTML = '';
+        files.forEach(function(file, i) {
+          var card = document.createElement('div');
+          card.className = 'logo-card';
+          card.style.animationDelay = (i * 40) + 'ms';
+          card.innerHTML =
+            '<div class="logo-label">' +
+              '<span class="logo-name">' + baseName(file.name) + '</span>' +
+              '<div class="dl-icon">' + dlIcon + '</div>' +
+            '</div>' +
+            '<div class="logo-img-area"></div>';
 
-      // Mobile list
-      listContainer.innerHTML = '';
-      files.forEach(function(file, i) {
-        var item = document.createElement('div');
-        item.className = 'logo-list-item';
-        item.style.animationDelay = (i * 40) + 'ms';
-        item.innerHTML =
-          '<div class="logo-list-info">' +
-            '<div class="logo-list-name">' + baseName(file.name) + '</div>' +
-          '</div>' +
-          '<div class="logo-list-thumb"></div>' +
-          '<div class="logo-list-dl">' + dlIcon + '</div>';
+          var imgEl = document.createElement('img');
+          imgEl.alt = file.name;
+          imgEl.src = blobUrls[i]; // guaranteed to be this file's blob
+          card.querySelector('.logo-img-area').appendChild(imgEl);
 
-        // Set image src directly — prevents Brave/aggressive-blocker reordering
-        var thumbImg = document.createElement('img');
-        thumbImg.alt = file.name;
-        thumbImg.src = rawUrl(file);
-        item.querySelector('.logo-list-thumb').appendChild(thumbImg);
-
-        // Name + thumb → preview with full list
-        (function(idx) {
-          item.querySelector('.logo-list-info').addEventListener('click', function(e) {
+          (function(idx) {
+            card.querySelector('.logo-img-area').addEventListener('click', function(e) {
+              e.stopPropagation();
+              openLightbox(lbFileList, idx);
+            });
+          })(i);
+          card.querySelector('.dl-icon').addEventListener('click', function(e) {
             e.stopPropagation();
-            openLightbox(lbFileList, idx);
+            forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
           });
-          item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
-            e.stopPropagation();
-            openLightbox(lbFileList, idx);
-          });
-        })(i);
 
-        // Download icon → download
-        item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
-          e.stopPropagation();
-          forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
+          gridContainer.appendChild(card);
         });
 
-        listContainer.appendChild(item);
+        // Mobile list
+        listContainer.innerHTML = '';
+        files.forEach(function(file, i) {
+          var item = document.createElement('div');
+          item.className = 'logo-list-item';
+          item.style.animationDelay = (i * 40) + 'ms';
+          item.innerHTML =
+            '<div class="logo-list-info">' +
+              '<div class="logo-list-name">' + baseName(file.name) + '</div>' +
+            '</div>' +
+            '<div class="logo-list-thumb"></div>' +
+            '<div class="logo-list-dl">' + dlIcon + '</div>';
+
+          var thumbImg = document.createElement('img');
+          thumbImg.alt = file.name;
+          thumbImg.src = blobUrls[i]; // same guaranteed blob
+          item.querySelector('.logo-list-thumb').appendChild(thumbImg);
+
+          (function(idx) {
+            item.querySelector('.logo-list-info').addEventListener('click', function(e) {
+              e.stopPropagation();
+              openLightbox(lbFileList, idx);
+            });
+            item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
+              e.stopPropagation();
+              openLightbox(lbFileList, idx);
+            });
+          })(i);
+
+          item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
+            e.stopPropagation();
+            forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
+          });
+
+          listContainer.appendChild(item);
+        });
       });
     }
 
