@@ -750,3 +750,13 @@
         if (entry.isIntersecting) {
           navLinks.forEach(function(l) {
             l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { threshold: 0.4 });
+    sections.forEach(function(s) { observer.observe(s); });
+
+    init();
+  </script>
+</body>
+</html>
