@@ -441,18 +441,19 @@
     }
     .lightbox-bg-btns {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
     }
     .lb-bg-btn {
-      width: 18px; height: 18px;
+      width: 22px; height: 22px;
       border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.15);
       cursor: pointer;
       transition: border-color .2s, transform .2s;
+      flex-shrink: 0;
     }
-    .lb-bg-btn:hover { transform: scale(1.2); border-color: rgba(255,255,255,0.6); }
-    .lb-bg-btn.active { border-color: var(--gold); }
+    .lb-bg-btn:hover { transform: scale(1.2); }
+    .lb-bg-btn.active { border-color: #ffffff; box-shadow: 0 0 0 1px rgba(255,255,255,0.5); }
     .lb-bg-btn.btn-white    { background: #ffffff; }
     .lb-bg-btn.btn-black    { background: #1a1a1a; }
     .lb-bg-btn.btn-orange   { background: #c9a96e; }
@@ -628,10 +629,10 @@
       <div class="lightbox-footer">
         <div class="lightbox-name" id="lightbox-name"></div>
         <div class="lightbox-bg-btns">
-          <div class="lb-bg-btn" data-bg="#ffffff" style="background:#ffffff;" title="White"></div>
-          <div class="lb-bg-btn" data-bg="#888888" style="background:#888888;" title="Grey"></div>
+          <div class="lb-bg-btn" data-bg="#ffffff" style="background:#ffffff; border-color:#555;" title="White"></div>
+          <div class="lb-bg-btn" data-bg="#b0b0b0" style="background:#b0b0b0; border-color:#777;" title="Grey"></div>
           <div class="lb-bg-btn" data-bg="#111111" style="background:#111111;" title="Black"></div>
-          <div class="lb-bg-btn" data-bg="#c9861a" style="background:#c9861a;" title="Gold"></div>
+          <div class="lb-bg-btn" data-bg="#c9a96e" style="background:#c9a96e;" title="Gold"></div>
           <div class="lb-bg-btn" data-bg="#c0151a" style="background:#c0151a;" title="Red"></div>
         </div>
       </div>
@@ -742,12 +743,12 @@
     var lbCanvas = document.getElementById('lightbox-canvas');
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
 
-    var bgColors = ['#ffffff', '#888888', '#111111', '#c9861a', '#c0151a'];
+    var bgColors = ['#c0151a', '#ffffff', '#b0b0b0', '#111111', '#c9a96e'];
 
     function setLbBg(color) {
       lbCanvas.style.background = color;
       lbBgBtns.forEach(function(b) {
-        b.classList.toggle('active', b.dataset.bg === color);
+        b.classList.toggle('active', b.dataset.bg.toLowerCase() === color.toLowerCase());
       });
     }
 
@@ -761,8 +762,7 @@
     function openLightbox(src, name) {
       lbImg.src = src;
       lbName.textContent = name;
-      var randomBg = bgColors[Math.floor(Math.random() * bgColors.length)];
-      setLbBg(randomBg);
+      setLbBg('#c0151a');
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
       history.pushState({ lightbox: true }, '');
