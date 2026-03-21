@@ -453,10 +453,12 @@
     }
     .lb-bg-btn:hover { transform: scale(1.2); border-color: rgba(255,255,255,0.6); }
     .lb-bg-btn.active { border-color: var(--gold); }
-    .lb-bg-btn.btn-white      { background: #f0f0f0; }
-    .lb-bg-btn.btn-pure-white { background: #ffffff; border-color: rgba(255,255,255,0.5); }
-    .lb-bg-btn.btn-black      { background: #1a1a1a; }
-    .lb-bg-btn.btn-orange     { background: #c9a96e; }
+    .lb-bg-btn.btn-white    { background: #ffffff; }
+    .lb-bg-btn.btn-black    { background: #1a1a1a; }
+    .lb-bg-btn.btn-orange   { background: #c9a96e; }
+    .lb-bg-btn.btn-navy     { background: #0a1628; }
+    .lb-bg-btn.btn-charcoal { background: #1e1810; }
+    .lb-bg-btn.btn-purple   { background: #160d24; }
     .lightbox-close {
       position: fixed; top: 20px; right: 20px;
       width: 40px; height: 40px;
@@ -626,10 +628,12 @@
       <div class="lightbox-footer">
         <div class="lightbox-name" id="lightbox-name"></div>
         <div class="lightbox-bg-btns">
-          <div class="lb-bg-btn btn-white"      data-bg="#f5f5f5" title="White"></div>
-          <div class="lb-bg-btn btn-pure-white" data-bg="#ffffff" title="Pure White"></div>
-          <div class="lb-bg-btn btn-black"      data-bg="#1a1a1a" title="Black"></div>
-          <div class="lb-bg-btn btn-orange"     data-bg="#c9a96e" title="Gold"></div>
+          <div class="lb-bg-btn btn-white"   data-bg="#ffffff" title="White"></div>
+          <div class="lb-bg-btn btn-black"   data-bg="#1a1a1a" title="Black"></div>
+          <div class="lb-bg-btn btn-orange"  data-bg="#c9a96e" title="Gold"></div>
+          <div class="lb-bg-btn btn-navy"    data-bg="#0a1628" title="Navy"></div>
+          <div class="lb-bg-btn btn-charcoal" data-bg="#1e1810" title="Warm Dark"></div>
+          <div class="lb-bg-btn btn-purple"  data-bg="#160d24" title="Deep Purple"></div>
         </div>
       </div>
     </div>
@@ -739,7 +743,7 @@
     var lbCanvas = document.getElementById('lightbox-canvas');
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
 
-    var bgColors = ['#ffffff', '#1a1a1a', '#c9a96e', '#f5f5f5'];
+    var bgColors = ['#ffffff', '#1a1a1a', '#c9a96e', '#0a1628', '#1e1810', '#160d24'];
 
     function setLbBg(color) {
       lbCanvas.style.background = color;
