@@ -647,6 +647,9 @@
         <div class="lb-bg-btn" data-bg="#111111" style="background-color:#111111; box-shadow:inset 0 0 0 1px #555;"></div>
         <div class="lb-bg-btn" data-bg="#c9a96e" style="background-color:#c9a96e;"></div>
         <div class="lb-bg-btn" data-bg="#c0151a" style="background-color:#c0151a;"></div>
+        <div class="lb-dl-btn" id="lightbox-dl" style="margin-left:10px; width:34px; height:34px; border-radius:50%; background:rgba(201,169,110,0.15); border:1px solid rgba(201,169,110,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background .2s;">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;fill:#c9a96e;"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+        </div>
       </div>
     </div>
   </div>
@@ -709,7 +712,6 @@
             '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
           '</div>';
         card.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, card); });
-        gridContainer.appendChild(card);
       });
 
       // Mobile list
@@ -730,11 +732,11 @@
         // Name + thumb → preview
         item.querySelector('.logo-list-info').addEventListener('click', function(e) {
           e.stopPropagation();
-          openLightbox(rawUrl(file), baseName(file.name));
+          openLightbox(rawUrl(file), baseName(file.name), file.name);
         });
         item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
           e.stopPropagation();
-          openLightbox(rawUrl(file), baseName(file.name));
+          openLightbox(rawUrl(file), baseName(file.name), file.name);
         });
 
         // Download icon → download
@@ -754,6 +756,13 @@
     var lbClose  = document.getElementById('lightbox-close');
     var lbCanvas = document.getElementById('lightbox-canvas');
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
+    var lbDlBtn  = document.getElementById('lightbox-dl');
+    var lbCurrentFile = { url: '', name: '' };
+
+    lbDlBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (lbCurrentFile.url) forceDownload(lbCurrentFile.url, lbCurrentFile.name, lbDlBtn);
+    });
 
     function setLbBg(color) {
       lbCanvas.setAttribute('style', 'background-color:' + color);
@@ -769,9 +778,10 @@
       });
     });
 
-    function openLightbox(src, name) {
+    function openLightbox(src, name, filename) {
       lbImg.src = src;
       lbName.textContent = name;
+      lbCurrentFile = { url: src, name: filename || name };
       setLbBg('#aaaaaa');
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
