@@ -128,15 +128,6 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
-    .section-count {
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      color: var(--gold);
-      background: rgba(201,169,110,0.1);
-      border: 1px solid rgba(201,169,110,0.2);
-      padding: 3px 10px;
-      border-radius: 20px;
-    }
 
     /* ── LOADING ── */
     .state-msg { padding: 60px 20px; text-align: center; color: var(--muted); font-size: 13px; letter-spacing: 0.1em; }
@@ -152,14 +143,14 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── LOGO GRID ── */
+    /* ── LOGO GRID (desktop) ── */
     .logos-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 20px;
     }
 
-    /* Logo card: flex column — name strip on top, image area below, NO border */
+    /* Logo card */
     .logo-card {
       display: flex;
       flex-direction: column;
@@ -175,7 +166,7 @@
       box-shadow: 0 16px 48px rgba(0,0,0,.5);
     }
 
-    /* Name strip — always visible, fixed height, above the image */
+    /* Name strip */
     .logo-label {
       display: flex;
       align-items: center;
@@ -198,7 +189,7 @@
     }
     .logo-card:hover .logo-name { color: var(--gold); }
 
-    /* Download icon — always visible in the label strip */
+    /* Download icon */
     .dl-icon {
       width: 28px; height: 28px;
       border-radius: 50%;
@@ -215,7 +206,7 @@
     .dl-icon svg { width: 12px; height: 12px; fill: var(--gold); transition: fill .2s; }
     .logo-card:hover .dl-icon svg { fill: #0d0d0d; }
 
-    /* Image area below the label */
+    /* Image area */
     .logo-img-area {
       background: var(--surface);
       aspect-ratio: 4/3;
@@ -233,6 +224,71 @@
       display: block;
     }
     .logo-card:hover .logo-img-area img { transform: scale(1.05); }
+
+    /* ── LOGO LIST (mobile) ── */
+    .logos-list { display: none; flex-direction: column; gap: 1px; }
+    .logo-list-item {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s;
+      animation: fadeUp .35s ease both;
+    }
+    .logo-list-item:hover { background: #1e1e1e; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+    .logo-list-thumb {
+      width: 100px;
+      height: 72px;
+      flex-shrink: 0;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--border);
+    }
+    .logo-list-thumb img {
+      max-width: 84px;
+      max-height: 56px;
+      object-fit: contain;
+      padding: 6px;
+    }
+    .logo-list-info {
+      flex: 1;
+      padding: 0 14px;
+      min-width: 0;
+    }
+    .logo-list-name {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .logo-list-sub {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .logo-list-dl {
+      width: 40px;
+      height: 72px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .logo-list-item:hover .logo-list-dl { background: rgba(201,169,110,0.12); }
+    .logo-list-dl svg { width: 14px; height: 14px; fill: var(--gold-dim); transition: fill .2s; }
+    .logo-list-item:hover .logo-list-dl svg { fill: var(--gold); }
 
     /* ── PHOTOS GRID ── */
     .photos-grid {
@@ -321,12 +377,32 @@
     footer {
       border-top: 1px solid var(--border);
       padding: 32px 40px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
       color: var(--muted);
       font-size: 11px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
     }
+    .footer-site-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.25em;
+      border-bottom: 1px solid var(--gold-dim);
+      padding-bottom: 2px;
+      transition: color .2s, border-color .2s;
+    }
+    .footer-site-link:hover {
+      color: var(--text);
+      border-color: var(--text);
+    }
+    .footer-site-link svg { width: 11px; height: 11px; fill: currentColor; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
@@ -334,7 +410,11 @@
       .press-kit-btn { align-self: flex-start; }
       .nav { padding: 16px 20px; gap: 16px; flex-wrap: wrap; }
       main { padding: 0 16px 60px; }
-      .logos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+      /* Switch logos to list view on mobile */
+      .logos-grid { display: none; }
+      .logos-list { display: flex; }
+
       .photos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
       .photo-card { aspect-ratio: 1; }
       .photo-overlay { opacity: 1; }
@@ -345,7 +425,6 @@
     }
     @media (max-width: 480px) {
       .photos-grid { grid-template-columns: 1fr; }
-      .logos-grid  { grid-template-columns: 1fr 1fr; gap: 10px; }
     }
 
     @keyframes fadeUp {
@@ -383,9 +462,13 @@
     <section id="logos">
       <div class="section-header">
         <h2 class="section-title">Logos</h2>
-        <span class="section-count" id="logos-count">—</span>
       </div>
+      <!-- Desktop grid -->
       <div id="logos-grid" class="logos-grid">
+        <div class="state-msg"><div class="spinner"></div><br/>Loading logos…</div>
+      </div>
+      <!-- Mobile list -->
+      <div id="logos-list" class="logos-list">
         <div class="state-msg"><div class="spinner"></div><br/>Loading logos…</div>
       </div>
     </section>
@@ -393,7 +476,6 @@
     <section id="images">
       <div class="section-header">
         <h2 class="section-title">Photos</h2>
-        <span class="section-count" id="images-count">—</span>
       </div>
       <div id="images-grid" class="photos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading photos…</div>
@@ -434,7 +516,15 @@
 
   </main>
 
-  <footer>© Avastha — All rights reserved</footer>
+  <footer>
+    <a class="footer-site-link" href="https://avastha.info" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 17.93V18a1 1 0 0 0-2 0v1.93A8.001 8.001 0 0 1 4.07 13H6a1 1 0 0 0 0-2H4.07A8.001 8.001 0 0 1 11 4.07V6a1 1 0 0 0 2 0V4.07A8.001 8.001 0 0 1 19.93 11H18a1 1 0 0 0 0 2h1.93A8.001 8.001 0 0 1 13 19.93z"/>
+      </svg>
+      avastha.info
+    </a>
+    <span>© Avastha — All rights reserved</span>
+  </footer>
 
   <script>
     var REPO_OWNER  = 'Avastha';
@@ -448,6 +538,7 @@
     function isImage(n) { return IMAGE_EXTS.some(function(e) { return n.toLowerCase().endsWith(e); }); }
     function rawUrl(f) { return f.download_url; }
     function baseName(n) { return n.replace(/\.[^/.]+$/, '').replace(/_/g, ' '); }
+    function extName(n) { var m = n.match(/\.([^.]+)$/); return m ? m[1].toUpperCase() : ''; }
 
     var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
 
@@ -462,14 +553,16 @@
         });
     }
 
-    function renderLogos(files, container, countEl) {
+    function renderLogos(files, gridContainer, listContainer) {
       if (!files.length) {
-        container.innerHTML = '<div class="state-msg">No logo files found.</div>';
-        countEl.textContent = '0';
+        var empty = '<div class="state-msg">No logo files found.</div>';
+        gridContainer.innerHTML = empty;
+        listContainer.innerHTML = empty;
         return;
       }
-      countEl.textContent = files.length;
-      container.innerHTML = '';
+
+      // Desktop grid
+      gridContainer.innerHTML = '';
       files.forEach(function(file, i) {
         var card = document.createElement('div');
         card.className = 'logo-card';
@@ -483,17 +576,34 @@
             '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
           '</div>';
         card.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, card); });
-        container.appendChild(card);
+        gridContainer.appendChild(card);
+      });
+
+      // Mobile list
+      listContainer.innerHTML = '';
+      files.forEach(function(file, i) {
+        var item = document.createElement('div');
+        item.className = 'logo-list-item';
+        item.style.animationDelay = (i * 40) + 'ms';
+        item.innerHTML =
+          '<div class="logo-list-thumb">' +
+            '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
+          '</div>' +
+          '<div class="logo-list-info">' +
+            '<div class="logo-list-name">' + baseName(file.name) + '</div>' +
+            '<div class="logo-list-sub">' + extName(file.name) + ' · Tap to download</div>' +
+          '</div>' +
+          '<div class="logo-list-dl">' + dlIcon + '</div>';
+        item.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, item); });
+        listContainer.appendChild(item);
       });
     }
 
-    function renderPhotos(files, container, countEl) {
+    function renderPhotos(files, container) {
       if (!files.length) {
         container.innerHTML = '<div class="state-msg">No image files found.</div>';
-        countEl.textContent = '0';
         return;
       }
-      countEl.textContent = files.length;
       container.innerHTML = '';
       files.forEach(function(file, i) {
         var card = document.createElement('div');
@@ -514,19 +624,20 @@
 
     function init() {
       var logosGrid   = document.getElementById('logos-grid');
+      var logosList   = document.getElementById('logos-list');
       var imagesGrid  = document.getElementById('images-grid');
-      var logosCount  = document.getElementById('logos-count');
-      var imagesCount = document.getElementById('images-count');
 
       Promise.allSettled([fetchFiles(LOGOS_PATH), fetchFiles(IMAGES_PATH)])
         .then(function(results) {
           if (results[0].status === 'fulfilled') {
-            renderLogos(results[0].value, logosGrid, logosCount);
+            renderLogos(results[0].value, logosGrid, logosList);
           } else {
-            logosGrid.innerHTML = '<div class="state-msg error">Could not load logos: ' + results[0].reason.message + '</div>';
+            var err = '<div class="state-msg error">Could not load logos: ' + results[0].reason.message + '</div>';
+            logosGrid.innerHTML = err;
+            logosList.innerHTML = err;
           }
           if (results[1].status === 'fulfilled') {
-            renderPhotos(results[1].value, imagesGrid, imagesCount);
+            renderPhotos(results[1].value, imagesGrid);
           } else {
             imagesGrid.innerHTML = '<div class="state-msg error">Could not load images: ' + results[1].reason.message + '</div>';
           }
