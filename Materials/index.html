@@ -711,7 +711,19 @@
           '<div class="logo-img-area">' +
             '<img src="' + rawUrl(file) + '" alt="' + file.name + '" loading="lazy" />' +
           '</div>';
-        card.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, card); });
+
+        // Image area → preview
+        card.querySelector('.logo-img-area').addEventListener('click', function(e) {
+          e.stopPropagation();
+          openLightbox(rawUrl(file), baseName(file.name), file.name);
+        });
+        // Download icon → download
+        card.querySelector('.dl-icon').addEventListener('click', function(e) {
+          e.stopPropagation();
+          forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
+        });
+
+        gridContainer.appendChild(card);
       });
 
       // Mobile list
