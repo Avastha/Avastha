@@ -600,7 +600,7 @@
       animation: spin .7s linear infinite;
       flex-shrink: 0;
     }
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  </style>
 </head>
 <body>
 
@@ -968,32 +968,100 @@
         });
     }
 
+    /* ── Pure-JS ZIP builder (no external lib) ── */
+    function makeCrcTable() {
+      var t = new Uint32Array(256);
+      for (var i = 0; i < 256; i++) {
+        var c = i;
+        for (var j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        t[i] = c;
+      }
+      return t;
+    }
+    var CRC_TABLE = makeCrcTable();
+    function crc32(buf) {
+      var c = 0xFFFFFFFF;
+      for (var i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+      return (c ^ 0xFFFFFFFF) >>> 0;
+    }
+    function u16(n) { return [n & 0xFF, (n >> 8) & 0xFF]; }
+    function u32(n) { return [n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >> 24) & 0xFF]; }
+    function strBytes(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i++) {
+        var c = s.charCodeAt(i);
+        if (c < 128) bytes.push(c);
+        else if (c < 2048) { bytes.push(0xC0|(c>>6)); bytes.push(0x80|(c&63)); }
+        else { bytes.push(0xE0|(c>>12)); bytes.push(0x80|((c>>6)&63)); bytes.push(0x80|(c&63)); }
+      }
+      return bytes;
+    }
+    function buildZip(entries) {
+      // entries: [{name, data: Uint8Array}]
+      var locals = [], centrals = [], offset = 0;
+      entries.forEach(function(e) {
+        var name = strBytes(e.name);
+        var data = e.data;
+        var crc  = crc32(data);
+        var size = data.length;
+        var local = [].concat(
+          [0x50,0x4B,0x03,0x04], u16(20), u16(0), u16(0),
+          u16(0), u16(0), u32(crc), u32(size), u32(size),
+          u16(name.length), u16(0), name
+        );
+        var localArr = new Uint8Array(local.length + size);
+        localArr.set(local);
+        localArr.set(data, local.length);
+        locals.push(localArr);
+
+        var central = [].concat(
+          [0x50,0x4B,0x01,0x02], u16(20), u16(20), u16(0), u16(0),
+          u16(0), u16(0), u32(crc), u32(size), u32(size),
+          u16(name.length), u16(0), u16(0), u16(0), u16(0),
+          u32(0), u32(offset), name
+        );
+        centrals.push(central);
+        offset += localArr.length;
+      });
+      var cdFlat = [].concat.apply([], centrals);
+      var eocd = [].concat(
+        [0x50,0x4B,0x05,0x06], u16(0), u16(0),
+        u16(entries.length), u16(entries.length),
+        u32(cdFlat.length), u32(offset), u16(0)
+      );
+      var total = new Uint8Array(offset + cdFlat.length + eocd.length);
+      var pos = 0;
+      locals.forEach(function(l) { total.set(l, pos); pos += l.length; });
+      total.set(cdFlat, pos); pos += cdFlat.length;
+      total.set(eocd, pos);
+      return new Blob([total], { type: 'application/zip' });
+    }
+
     function wireDownloadAll(btnId, files, zipName) {
       var btn = document.getElementById(btnId);
       if (!files.length) return;
       btn.disabled = false;
       btn.addEventListener('click', function() {
         btn.disabled = true;
-        btn.innerHTML = '<div class="btn-spinner"></div> Zipping…';
-        var zip = new JSZip();
+        btn.innerHTML = '<div class="btn-spinner"></div> Zipping\u2026';
         var fetches = files.map(function(f) {
           return fetch(f.download_url)
-            .then(function(res) { return res.blob(); })
-            .then(function(blob) { zip.file(f.name, blob); });
+            .then(function(res) { return res.arrayBuffer(); })
+            .then(function(buf) { return { name: f.name, data: new Uint8Array(buf) }; });
         });
         Promise.all(fetches)
-          .then(function() { return zip.generateAsync({ type: 'blob' }); })
-          .then(function(blob) {
+          .then(function(entries) {
+            var blob = buildZip(entries);
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url; a.download = zipName;
             document.body.appendChild(a); a.click(); a.remove();
-            setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 8000);
           })
           .catch(function() { alert('Zip failed. Please try again.'); })
           .finally(function() {
             btn.disabled = false;
-            btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg> Download All';
+            btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/><\/svg> Download All';
           });
       });
     }
