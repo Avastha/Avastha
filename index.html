@@ -107,8 +107,8 @@
       background: linear-gradient(
         to bottom,
         rgba(5,8,16,0.3) 0%,
-        rgba(5,8,16,0.1) 40%,
-        rgba(5,8,16,0.7) 80%,
+        rgba(5,8,16,0.05) 40%,
+        rgba(5,8,16,0.6) 80%,
         rgba(5,8,16,1) 100%
       );
       z-index: 1;
@@ -116,53 +116,45 @@
     .hero-content {
       position: relative;
       z-index: 2;
-      padding: 2rem;
+      padding: 2rem 1.5rem;
       width: 100%;
-      max-width: 600px;
     }
     .hero-subtitle {
       font-weight: 300;
-      font-size: clamp(0.75rem, 2.5vw, 1.1rem);
-      letter-spacing: 0.25em;
+      font-size: clamp(0.72rem, 2vw, 1.05rem);
+      letter-spacing: 0.22em;
       color: var(--text-dim);
       text-transform: uppercase;
       opacity: 0;
       animation: fadeUp 1s ease forwards 0.6s;
-      padding: 0 1rem;
     }
 
     /* ── HERO SOCIAL ICONS ──────────────────────── */
     .hero-social {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.6rem 1rem;
-      justify-items: center;
-      align-items: start;
-      margin-top: 2.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2.8rem;
       opacity: 0;
       animation: fadeUp 1s ease forwards 0.9s;
-      padding: 0 1rem;
-    }
-    @media (min-width: 520px) {
-      .hero-social {
-        display: flex;
-        gap: 1.4rem;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
     }
     .hero-social-link {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.45rem;
       text-decoration: none;
       transition: transform 0.3s ease;
+      width: 56px;
     }
     .hero-social-link:hover { transform: translateY(-4px); }
     .hero-social-link img {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       object-fit: contain;
       border-radius: 10px;
       filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
@@ -172,17 +164,27 @@
       filter: drop-shadow(0 0 10px rgba(61,214,200,0.65));
     }
     .hero-social-label {
-      font-size: 0.55rem;
-      letter-spacing: 0.3em;
+      font-size: 0.5rem;
+      letter-spacing: 0.2em;
       color: rgba(255,255,255,0.4);
       text-transform: uppercase;
       font-weight: 500;
+      white-space: nowrap;
     }
 
-    @media (max-width: 519px) {
+    /* Mobile: constrained flex that wraps into 2 even rows of 3 */
+    @media (max-width: 480px) {
+      .hero-social {
+        gap: 1.6rem 0;
+        max-width: 280px;
+        justify-content: space-between;
+      }
+      .hero-social-link {
+        width: calc(100% / 3);
+      }
       .hero-social-link img {
-        width: 48px;
-        height: 48px;
+        width: 42px;
+        height: 42px;
       }
     }
 
@@ -247,7 +249,7 @@
     }
 
     @media (max-width: 600px) {
-      section { padding: 4rem 1.4rem; }
+      section { padding: 4.5rem 1.4rem; }
     }
 
     /* ── ABOUT ─────────────────────────────────── */
@@ -313,6 +315,17 @@
       transform: translateY(-2px);
       box-shadow: var(--glow-gold);
     }
+    .btn-teal {
+      background: transparent;
+      color: var(--teal);
+      border: 1px solid rgba(61,214,200,0.5);
+    }
+    .btn-teal:hover {
+      background: rgba(61,214,200,0.08);
+      border-color: var(--teal);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-teal);
+    }
     .presskit-row { margin-top: 3rem; }
 
     @media (max-width: 600px) {
@@ -320,8 +333,123 @@
       .presskit-row { margin-top: 2rem; }
     }
 
+    /* ── RELEASES ───────────────────────────────── */
+    #releases { background: var(--dark); }
+    .release-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 3rem;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(13,17,36,0.9), rgba(10,15,30,0.95));
+      border: 1px solid rgba(61,214,200,0.12);
+      border-radius: 8px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.4s;
+    }
+    .release-card:hover {
+      border-color: rgba(61,214,200,0.3);
+    }
+    .release-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 20% 50%, rgba(61,214,200,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .release-artwork {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+    .release-artwork img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+    .release-card:hover .release-artwork img {
+      transform: scale(1.05);
+    }
+    .release-artwork::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    .release-info {
+      position: relative;
+    }
+    .release-type {
+      font-size: 0.6rem;
+      letter-spacing: 0.45em;
+      color: var(--teal);
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+      font-weight: 500;
+    }
+    .release-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    .release-artist {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 1.2rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+    }
+    .release-desc {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+      font-weight: 300;
+      margin-bottom: 2rem;
+      max-width: 480px;
+    }
+    .release-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 700px) {
+      .release-card {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+        padding: 2rem 1.5rem;
+        gap: 1.8rem;
+      }
+      .release-artwork {
+        width: 180px;
+        height: 180px;
+      }
+      .release-desc {
+        max-width: 100%;
+        font-size: 0.85rem;
+      }
+      .release-links {
+        justify-content: center;
+      }
+    }
+
     /* ── DUO PHOTO ─────────────────────────────── */
-    #duo { background: var(--dark); padding: 5rem 2rem; }
+    #duo { background: var(--dark2); padding: 5rem 2rem; }
     .duo-photo-wrap {
       position: relative;
       max-width: 700px;
@@ -492,6 +620,7 @@
     <a href="#hero" class="nav-logo">AVASTHA</a>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
+      <li><a href="#releases">Music</a></li>
       <li><a href="#artists">Artists</a></li>
     </ul>
   </nav>
@@ -554,6 +683,33 @@
         </div>
         <div class="meaning-img-wrap reveal">
           <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_meaning.jpg" alt="Avastha – meaning" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- RELEASES -->
+  <section id="releases">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-label">Releases</p>
+        <h2 class="section-title">Latest Music</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="release-card reveal">
+        <div class="release-artwork">
+          <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/adi_and_valentin.jpg" alt="Transforming – Avastha" loading="lazy" />
+        </div>
+        <div class="release-info">
+          <p class="release-type">Single</p>
+          <h3 class="release-title">Transforming</h3>
+          <p class="release-artist">Avastha</p>
+          <p class="release-desc">The debut release from Avastha — a high-energy psytrance journey that captures the raw power and intention of their live sets.</p>
+          <div class="release-links">
+            <a href="https://avastha.info/transforming" target="_blank" rel="noopener" class="btn btn-teal">▶ &nbsp;Listen Now</a>
+          </div>
         </div>
       </div>
     </div>
