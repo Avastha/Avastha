@@ -249,7 +249,7 @@
     }
 
     @media (max-width: 600px) {
-      section { padding: 4.5rem 1.4rem; }
+      section { padding: 3.5rem 1.4rem; }
     }
 
     /* ── ABOUT ─────────────────────────────────── */
@@ -484,7 +484,7 @@
     }
 
     @media (max-width: 600px) {
-      #duo { padding: 3rem 1.4rem; }
+      #duo { padding: 2.5rem 1.4rem; }
       .duo-caption { bottom: 1rem; }
       .duo-caption span { font-size: 0.6rem; letter-spacing: 0.35em; }
     }
@@ -498,7 +498,7 @@
       margin-top: 3.5rem;
     }
     @media (max-width: 640px) {
-      .artists-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .artists-grid { grid-template-columns: 1fr; gap: 1.5rem; margin-top: 2.5rem; }
     }
     .artist-card {
       position: relative;
@@ -652,7 +652,7 @@
           <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/whatsapp.png" alt="WhatsApp" />
           <span class="hero-social-label">WhatsApp</span>
         </a>
-        <a href="mailto:avastha.music@gmail.com" class="hero-social-link">
+        <a href="/cdn-cgi/l/email-protection#ddbcabbcaea9b5bcf3b0a8aeb4be9dbab0bcb4b1f3beb2b0" class="hero-social-link">
           <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/gmail.png" alt="Email" />
           <span class="hero-social-label">Email</span>
         </a>
@@ -700,7 +700,7 @@
       </div>
       <div class="release-card reveal">
         <div class="release-artwork">
-          <img src="https://raw.githubusercontent.com/Avastha/Avastha/main/adi_and_valentin.jpg" alt="Transforming – Avastha" loading="lazy" />
+          <img src="https://raw.githubusercontent.com/Avastha/transforming/main/albom_picture.png" alt="Transforming – Avastha" loading="lazy" />
         </div>
         <div class="release-info">
           <p class="release-type">Single</p>
@@ -768,7 +768,7 @@
     <p class="footer-text">© 2025 Avastha Music &nbsp;·&nbsp; All Rights Reserved</p>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 60);
@@ -779,11 +779,4 @@
       entries.forEach(e => {
         if (e.isIntersecting) {
           e.target.classList.add('visible');
-          observer.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.12 });
-    reveals.forEach(el => observer.observe(el));
-  </script>
-</body>
-</html>
+          ob
