@@ -120,7 +120,15 @@
     main { max-width: 1400px; margin: 0 auto; padding: 0 24px 80px; }
     section { padding: 60px 0 40px; }
     section + section { border-top: 1px solid var(--border); }
-    .section-header { display: flex; align-items: baseline; gap: 20px; margin-bottom: 40px; }
+
+    /* CHANGED: section-header is now a column layout with title on top and button below */
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 40px;
+    }
     .section-title {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(28px, 4vw, 44px);
@@ -390,8 +398,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      padding: 60px 20px 20px;
+      gap: 12px;
+      padding: 50px 20px 20px;
       opacity: 0; pointer-events: none;
       transition: opacity .3s;
     }
@@ -418,6 +426,7 @@
       word-break: break-word;
       max-width: 88vw;
       line-height: 1.4;
+      flex-shrink: 0;
     }
 
     /* Card */
@@ -434,6 +443,9 @@
       box-shadow: 0 32px 100px rgba(0,0,0,.95);
       width: 88vw;
       max-width: 480px;
+      /* CHANGED: constrain max-height so it never overflows viewport */
+      max-height: calc(100vh - 120px);
+      max-height: calc(100dvh - 120px);
     }
     .lightbox.open .lightbox-inner { transform: scale(1); }
 
@@ -444,6 +456,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      /* CHANGED: allow shrinking in landscape */
+      min-height: 0;
+      flex: 1 1 auto;
     }
     .lightbox-img {
       max-width: 85%;
@@ -461,6 +477,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      flex-shrink: 0;
     }
     .lb-bg-btn {
       width: 22px; height: 22px;
@@ -509,6 +526,51 @@
     .lb-arrow-prev { left: 10px; }
     .lb-arrow-next { right: 10px; }
     .lb-arrow:disabled { opacity: 0.2; cursor: default; }
+
+    /* ── LANDSCAPE FIX ── */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .lightbox {
+        padding: 10px 20px;
+        gap: 6px;
+        flex-direction: row;
+      }
+      .lightbox-name {
+        position: fixed;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        z-index: 9002;
+      }
+      .lightbox-inner {
+        max-width: 90vw;
+        max-height: calc(100vh - 20px);
+        max-height: calc(100dvh - 20px);
+        flex-direction: row;
+        width: auto;
+      }
+      .lightbox-canvas {
+        aspect-ratio: auto;
+        width: auto;
+        height: 100%;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .lightbox-img {
+        max-width: 90%;
+        max-height: 90%;
+      }
+      .lightbox-footer {
+        flex-direction: column;
+        padding: 10px 8px;
+        gap: 6px;
+      }
+      .lb-bg-btn { width: 18px; height: 18px; }
+      .lightbox-close { top: 8px; right: 8px; width: 32px; height: 32px; }
+      .lb-arrow { width: 32px; height: 32px; }
+      .lb-arrow svg { width: 14px; height: 14px; }
+    }
 
     /* ── FOOTER ── */
     footer {
@@ -587,7 +649,6 @@
       cursor: pointer;
       transition: background .2s, border-color .2s, opacity .2s;
       white-space: nowrap;
-      margin-left: 16px;
     }
     .download-all-btn:hover { background: rgba(201,169,110,0.08); border-color: var(--gold); }
     .download-all-btn:disabled { opacity: 0.4; cursor: default; }
@@ -709,7 +770,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 6 15 12 9 18"/></svg>
         </button>
       </div>
-      <div class="lightbox-footer">
+      <div class="lightbox-footer" id="lightbox-footer">
         <div class="lb-bg-btn" data-bg="#aaaaaa" style="background-color:#aaaaaa;"></div>
         <div class="lb-bg-btn" data-bg="#ffffff" style="background-color:#ffffff; box-shadow:inset 0 0 0 1px #999;"></div>
         <div class="lb-bg-btn" data-bg="#111111" style="background-color:#111111; box-shadow:inset 0 0 0 1px #555;"></div>
@@ -746,6 +807,9 @@
     function baseName(n) { return n.replace(/\.[^/.]+$/, '').replace(/_/g, ' '); }
     var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
 
+    /* ── Lightbox mode: 'logos' shows bg-color buttons, 'photos' hides them ── */
+    var lbMode = 'logos';
+
     function fetchFiles(path) {
       return fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + path + '?ref=' + BRANCH)
         .then(function(res) {
@@ -765,16 +829,14 @@
         return;
       }
 
-      // Fetch ALL images as blobs in parallel, preserving index order
       var blobPromises = files.map(function(f) {
         return fetch(rawUrl(f))
           .then(function(res) { return res.blob(); })
           .then(function(blob) { return URL.createObjectURL(blob); })
-          .catch(function() { return rawUrl(f); }); // fallback to original url
+          .catch(function() { return rawUrl(f); });
       });
 
       Promise.all(blobPromises).then(function(blobUrls) {
-        // Build lightbox list with blob URLs
         var lbFileList = files.map(function(f, i) {
           return { url: blobUrls[i], name: baseName(f.name), filename: f.name };
         });
@@ -794,13 +856,13 @@
 
           var imgEl = document.createElement('img');
           imgEl.alt = file.name;
-          imgEl.src = blobUrls[i]; // guaranteed to be this file's blob
+          imgEl.src = blobUrls[i];
           card.querySelector('.logo-img-area').appendChild(imgEl);
 
           (function(idx) {
             card.querySelector('.logo-img-area').addEventListener('click', function(e) {
               e.stopPropagation();
-              openLightbox(lbFileList, idx);
+              openLightbox(lbFileList, idx, 'logos');
             });
           })(i);
           card.querySelector('.dl-icon').addEventListener('click', function(e) {
@@ -826,17 +888,17 @@
 
           var thumbImg = document.createElement('img');
           thumbImg.alt = file.name;
-          thumbImg.src = blobUrls[i]; // same guaranteed blob
+          thumbImg.src = blobUrls[i];
           item.querySelector('.logo-list-thumb').appendChild(thumbImg);
 
           (function(idx) {
             item.querySelector('.logo-list-info').addEventListener('click', function(e) {
               e.stopPropagation();
-              openLightbox(lbFileList, idx);
+              openLightbox(lbFileList, idx, 'logos');
             });
             item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
               e.stopPropagation();
-              openLightbox(lbFileList, idx);
+              openLightbox(lbFileList, idx, 'logos');
             });
           })(i);
 
@@ -856,6 +918,7 @@
     var lbName   = document.getElementById('lightbox-name');
     var lbClose  = document.getElementById('lightbox-close');
     var lbCanvas = document.getElementById('lightbox-canvas');
+    var lbFooter = document.getElementById('lightbox-footer');
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
     var lbDlBtn  = document.getElementById('lightbox-dl');
     var lbPrev   = document.getElementById('lb-prev');
@@ -909,10 +972,27 @@
       });
     });
 
-    function openLightbox(files, index) {
+    function openLightbox(files, index, mode) {
+      lbMode = mode || 'logos';
       lbFiles = files;
       showAtIndex(index);
-      setLbBg('#aaaaaa');
+
+      // Toggle background color buttons visibility based on mode
+      if (lbMode === 'photos') {
+        lbBgBtns.forEach(function(b) { b.style.display = 'none'; });
+        lbCanvas.setAttribute('style', 'background-color:#111111');
+        // For photos: make the image fill more of the canvas
+        lbImg.style.maxWidth = '100%';
+        lbImg.style.maxHeight = '100%';
+        lbImg.style.padding = '0';
+      } else {
+        lbBgBtns.forEach(function(b) { b.style.display = ''; });
+        setLbBg('#aaaaaa');
+        lbImg.style.maxWidth = '85%';
+        lbImg.style.maxHeight = '85%';
+        lbImg.style.padding = '';
+      }
+
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
       history.pushState({ lightbox: true }, '');
@@ -933,11 +1013,18 @@
       if (lb.classList.contains('open')) closeLightbox();
     });
 
+    /* ── CHANGED: renderPhotos now supports lightbox preview ── */
     function renderPhotos(files, container) {
       if (!files.length) {
         container.innerHTML = '<div class="state-msg">No image files found.</div>';
         return;
       }
+
+      // Build lightbox file list for photos
+      var photoLbFiles = files.map(function(f) {
+        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+      });
+
       container.innerHTML = '';
       files.forEach(function(file, i) {
         var card = document.createElement('div');
@@ -951,12 +1038,25 @@
             '</div>' +
           '</div>';
 
-        // Insert image before overlay — bound directly to this card
         var photoImg = document.createElement('img');
         photoImg.alt = file.name;
         photoImg.src = rawUrl(file);
         card.insertBefore(photoImg, card.firstChild);
-        card.addEventListener('click', function() { forceDownload(rawUrl(file), file.name, card); });
+
+        // Clicking the download icon triggers download
+        (function(idx) {
+          card.querySelector('.photo-dl-icon').addEventListener('click', function(e) {
+            e.stopPropagation();
+            forceDownload(rawUrl(file), file.name, card);
+          });
+          // Clicking anywhere else on the card opens the lightbox preview
+          card.addEventListener('click', function(e) {
+            // Don't open lightbox if the download icon was clicked
+            if (e.target.closest('.photo-dl-icon')) return;
+            openLightbox(photoLbFiles, idx, 'photos');
+          });
+        })(i);
+
         container.appendChild(card);
       });
     }
@@ -1014,7 +1114,6 @@
       return bytes;
     }
     function buildZip(entries) {
-      // entries: [{name, data: Uint8Array}]
       var locals = [], centrals = [], offset = 0;
       entries.forEach(function(e) {
         var name = strBytes(e.name);
