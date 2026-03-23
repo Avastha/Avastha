@@ -168,7 +168,6 @@
       border-radius: var(--radius);
       overflow: hidden;
       transition: transform .25s, box-shadow .25s;
-      animation: fadeUp .4s ease both;
       background: transparent;
     }
     .logo-card:hover {
@@ -245,7 +244,6 @@
       border-radius: var(--radius);
       overflow: hidden;
       transition: background .2s, box-shadow .2s;
-      animation: fadeUp .35s ease both;
       min-height: 72px;
     }
     .logo-list-item:active { background: #1e1e1e; }
@@ -828,6 +826,13 @@
         });
     }
 
+    /* Escape HTML to prevent XSS from file names */
+    function esc(s) {
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
     function renderLogos(files, gridContainer, listContainer) {
       if (!files.length) {
         var empty = '<div class="state-msg">No logo files found.</div>';
@@ -836,86 +841,97 @@
         return;
       }
 
-      var blobPromises = files.map(function(f) {
-        return fetch(rawUrl(f))
-          .then(function(res) { return res.blob(); })
-          .then(function(blob) { return URL.createObjectURL(blob); })
-          .catch(function() { return rawUrl(f); });
+      // Build lightbox list with direct URLs
+      var lbFileList = files.map(function(f) {
+        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
       });
 
-      Promise.all(blobPromises).then(function(blobUrls) {
-        var lbFileList = files.map(function(f, i) {
-          return { url: blobUrls[i], name: baseName(f.name), filename: f.name };
-        });
+      // Desktop grid
+      gridContainer.innerHTML = '';
+      files.forEach(function(file, i) {
+        var card = document.createElement('div');
+        card.className = 'logo-card';
+        // Start invisible — fadeUp plays once image loads
+        card.style.opacity = '0';
+        card.innerHTML =
+          '<div class="logo-label">' +
+            '<span class="logo-name">' + esc(baseName(file.name)) + '</span>' +
+            '<div class="dl-icon">' + dlIcon + '</div>' +
+          '</div>' +
+          '<div class="logo-img-area"></div>';
 
-        // Desktop grid
-        gridContainer.innerHTML = '';
-        files.forEach(function(file, i) {
-          var card = document.createElement('div');
-          card.className = 'logo-card';
-          card.style.animationDelay = (i * 40) + 'ms';
-          card.innerHTML =
-            '<div class="logo-label">' +
-              '<span class="logo-name">' + baseName(file.name) + '</span>' +
-              '<div class="dl-icon">' + dlIcon + '</div>' +
-            '</div>' +
-            '<div class="logo-img-area"></div>';
+        var imgEl = document.createElement('img');
+        imgEl.alt = file.name;
+        imgEl.src = rawUrl(file);
+        // Fade card in once its image is ready
+        imgEl.onload = function() {
+          card.style.opacity = '';
+          card.style.animation = 'fadeUp .4s ease both';
+        };
+        // Also show on error so cards don't stay invisible
+        imgEl.onerror = function() {
+          card.style.opacity = '';
+          card.style.animation = 'fadeUp .4s ease both';
+        };
+        card.querySelector('.logo-img-area').appendChild(imgEl);
 
-          var imgEl = document.createElement('img');
-          imgEl.alt = file.name;
-          imgEl.src = blobUrls[i];
-          card.querySelector('.logo-img-area').appendChild(imgEl);
-
-          (function(idx) {
-            card.querySelector('.logo-img-area').addEventListener('click', function(e) {
-              e.stopPropagation();
-              openLightbox(lbFileList, idx, 'logos');
-            });
-          })(i);
-          card.querySelector('.dl-icon').addEventListener('click', function(e) {
+        (function(idx) {
+          card.querySelector('.logo-img-area').addEventListener('click', function(e) {
             e.stopPropagation();
-            forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
+            openLightbox(lbFileList, idx, 'logos');
           });
-
-          gridContainer.appendChild(card);
+        })(i);
+        card.querySelector('.dl-icon').addEventListener('click', function(e) {
+          e.stopPropagation();
+          forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
         });
 
-        // Mobile list
-        listContainer.innerHTML = '';
-        files.forEach(function(file, i) {
-          var item = document.createElement('div');
-          item.className = 'logo-list-item';
-          item.style.animationDelay = (i * 40) + 'ms';
-          item.innerHTML =
-            '<div class="logo-list-info">' +
-              '<div class="logo-list-name">' + baseName(file.name) + '</div>' +
-            '</div>' +
-            '<div class="logo-list-thumb"></div>' +
-            '<div class="logo-list-dl">' + dlIcon + '</div>';
+        gridContainer.appendChild(card);
+      });
 
-          var thumbImg = document.createElement('img');
-          thumbImg.alt = file.name;
-          thumbImg.src = blobUrls[i];
-          item.querySelector('.logo-list-thumb').appendChild(thumbImg);
+      // Mobile list
+      listContainer.innerHTML = '';
+      files.forEach(function(file, i) {
+        var item = document.createElement('div');
+        item.className = 'logo-list-item';
+        item.style.opacity = '0';
+        item.innerHTML =
+          '<div class="logo-list-info">' +
+            '<div class="logo-list-name">' + esc(baseName(file.name)) + '</div>' +
+          '</div>' +
+          '<div class="logo-list-thumb"></div>' +
+          '<div class="logo-list-dl">' + dlIcon + '</div>';
 
-          (function(idx) {
-            item.querySelector('.logo-list-info').addEventListener('click', function(e) {
-              e.stopPropagation();
-              openLightbox(lbFileList, idx, 'logos');
-            });
-            item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
-              e.stopPropagation();
-              openLightbox(lbFileList, idx, 'logos');
-            });
-          })(i);
+        var thumbImg = document.createElement('img');
+        thumbImg.alt = file.name;
+        thumbImg.src = rawUrl(file);
+        thumbImg.onload = function() {
+          item.style.opacity = '';
+          item.style.animation = 'fadeUp .35s ease both';
+        };
+        thumbImg.onerror = function() {
+          item.style.opacity = '';
+          item.style.animation = 'fadeUp .35s ease both';
+        };
+        item.querySelector('.logo-list-thumb').appendChild(thumbImg);
 
-          item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
+        (function(idx) {
+          item.querySelector('.logo-list-info').addEventListener('click', function(e) {
             e.stopPropagation();
-            forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
+            openLightbox(lbFileList, idx, 'logos');
           });
+          item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
+            e.stopPropagation();
+            openLightbox(lbFileList, idx, 'logos');
+          });
+        })(i);
 
-          listContainer.appendChild(item);
+        item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
+          e.stopPropagation();
+          forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
         });
+
+        listContainer.appendChild(item);
       });
     }
 
@@ -1026,7 +1042,7 @@
       if (lb.classList.contains('open')) closeLightbox();
     });
 
-    /* ── CHANGED: renderPhotos now supports lightbox preview ── */
+    /* ── renderPhotos with lightbox preview ── */
     function renderPhotos(files, container) {
       if (!files.length) {
         container.innerHTML = '<div class="state-msg">No image files found.</div>';
@@ -1046,13 +1062,14 @@
         card.innerHTML =
           '<div class="photo-overlay">' +
             '<div class="photo-meta">' +
-              '<span class="photo-name">' + baseName(file.name) + '</span>' +
+              '<span class="photo-name">' + esc(baseName(file.name)) + '</span>' +
               '<div class="photo-dl-icon">' + dlIcon + '</div>' +
             '</div>' +
           '</div>';
 
         var photoImg = document.createElement('img');
         photoImg.alt = file.name;
+        if (i > 3) photoImg.loading = 'lazy';
         photoImg.src = rawUrl(file);
         card.insertBefore(photoImg, card.firstChild);
 
