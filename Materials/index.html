@@ -407,7 +407,8 @@
     .lightbox::before {
       content: '';
       position: absolute; inset: 0;
-      background: #000000;
+      background-image: linear-gradient(#000000,#000000);
+      background-color: transparent;
       z-index: 0;
     }
     .lightbox.open { opacity: 1; pointer-events: all; }
@@ -472,7 +473,8 @@
 
     /* Footer — buttons only */
     .lightbox-footer {
-      background: #111111;
+      background-image: linear-gradient(#111111,#111111);
+      background-color: transparent;
       padding: 13px 16px;
       display: flex;
       align-items: center;
@@ -530,7 +532,8 @@
 
     /* Photo-mode lightbox: image fills canvas with cover */
     .lightbox.lb-photo-mode .lightbox-canvas {
-      background: #000 !important;
+      background-image: linear-gradient(#000,#000) !important;
+      background-color: transparent !important;
     }
     .lightbox.lb-photo-mode .lightbox-img {
       max-width: 100%;
@@ -774,12 +777,12 @@
         </button>
       </div>
       <div class="lightbox-footer" id="lightbox-footer">
-        <div class="lb-bg-btn" data-bg="#aaaaaa" style="background-color:#aaaaaa;"></div>
-        <div class="lb-bg-btn" data-bg="#ffffff" style="background-color:#ffffff; box-shadow:inset 0 0 0 1px #999;"></div>
-        <div class="lb-bg-btn" data-bg="#111111" style="background-color:#111111; box-shadow:inset 0 0 0 1px #555;"></div>
-        <div class="lb-bg-btn" data-bg="#c9a96e" style="background-color:#c9a96e;"></div>
-        <div class="lb-bg-btn" data-bg="#c0151a" style="background-color:#c0151a;"></div>
-        <div class="lb-dl-btn" id="lightbox-dl" style="margin-left:10px; width:34px; height:34px; border-radius:50%; background:rgba(201,169,110,0.15); border:1px solid rgba(201,169,110,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background .2s;">
+        <div class="lb-bg-btn" data-bg="#aaaaaa" style="background-image:linear-gradient(#aaaaaa,#aaaaaa);"></div>
+        <div class="lb-bg-btn" data-bg="#ffffff" style="background-image:linear-gradient(#ffffff,#ffffff); box-shadow:inset 0 0 0 1px #999;"></div>
+        <div class="lb-bg-btn" data-bg="#111111" style="background-image:linear-gradient(#111111,#111111); box-shadow:inset 0 0 0 1px #555;"></div>
+        <div class="lb-bg-btn" data-bg="#c9a96e" style="background-image:linear-gradient(#c9a96e,#c9a96e);"></div>
+        <div class="lb-bg-btn" data-bg="#c0151a" style="background-image:linear-gradient(#c0151a,#c0151a);"></div>
+        <div class="lb-dl-btn" id="lightbox-dl" style="margin-left:10px; width:34px; height:34px; border-radius:50%; background-image:linear-gradient(rgba(201,169,110,0.15),rgba(201,169,110,0.15)); border:1px solid rgba(201,169,110,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background .2s;">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;fill:#c9a96e;"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
         </div>
       </div>
@@ -985,7 +988,7 @@
     var lbCurrentFile = { url: '', name: '' };
 
     function setLbBg(color) {
-      lbCanvas.setAttribute('style', 'background-color:' + color);
+      lbCanvas.setAttribute('style', 'background-image:linear-gradient(' + color + ',' + color + ')');
       lbBgBtns.forEach(function(b) {
         b.classList.toggle('active', b.dataset.bg.toLowerCase() === color.toLowerCase());
       });
