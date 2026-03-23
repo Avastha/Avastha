@@ -1011,29 +1011,43 @@
     function openLightbox(files, index, mode) {
       lbMode = mode || 'logos';
       lbFiles = files;
-      showAtIndex(index);
+
+      // Clear previous image immediately so it doesn't flash
+      lbImg.src = '';
+      lbImg.style.opacity = '0';
 
       // Toggle background color buttons visibility and mode class
       if (lbMode === 'photos') {
         lb.classList.add('lb-photo-mode');
         lbBgBtns.forEach(function(b) { b.style.display = 'none'; });
         lbCanvasBg.setAttribute('fill', '#000000');
-        lbImg.removeAttribute('style');
       } else {
         lb.classList.remove('lb-photo-mode');
         lbBgBtns.forEach(function(b) { b.style.display = ''; });
         setLbBg('#aaaaaa');
-        lbImg.removeAttribute('style');
       }
 
+      // Open lightbox first, then load the image
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
       history.pushState({ lightbox: true }, '');
+
+      // Load the correct image after lightbox is visible
+      var f = files[index];
+      lbIndex = index;
+      lbName.textContent = f.name;
+      lbCurrentFile = { url: f.url, name: f.filename };
+      lbPrev.disabled = (index === 0);
+      lbNext.disabled = (index === files.length - 1);
+      lbImg.onload = function() { lbImg.style.opacity = '1'; };
+      lbImg.src = f.url;
     }
     function closeLightbox() {
       lb.classList.remove('open');
       lb.classList.remove('lb-photo-mode');
       document.body.style.overflow = '';
+      lbImg.src = '';
+      lbImg.style.opacity = '0';
     }
     lbClose.addEventListener('click', function() { history.back(); });
     lb.addEventListener('click', function(e) { if (e.target === lb) history.back(); });
