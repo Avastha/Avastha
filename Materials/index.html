@@ -3,9 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="dark" />
-  <meta name="nightmode" content="disable" />
-  <meta name="supported-color-schemes" content="dark" />
   <title>Avastha — Materials</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,7 +10,6 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      color-scheme: dark;
       --bg:       #0d0d0d;
       --surface:  #161616;
       --border:   #2a2a2a;
@@ -38,7 +34,6 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none; z-index: 1000; opacity: .5;
     }
-    body.lb-open::before { display: none; }
 
     /* ── HEADER ── */
     header {
@@ -412,7 +407,7 @@
     .lightbox::before {
       content: '';
       position: absolute; inset: 0;
-      background: rgba(0,0,0,0.88);
+      background: #000000;
       z-index: 0;
     }
     .lightbox.open { opacity: 1; pointer-events: all; }
@@ -484,8 +479,6 @@
       justify-content: center;
       gap: 10px;
       flex-shrink: 0;
-      isolation: isolate;
-      forced-color-adjust: none;
     }
     .lb-bg-btn {
       width: 22px; height: 22px;
@@ -494,8 +487,6 @@
       flex-shrink: 0;
       transition: transform .2s;
       display: block;
-      -webkit-backdrop-filter: none;
-      forced-color-adjust: none;
     }
     .lb-bg-btn:hover { transform: scale(1.25); }
     .lb-bg-btn.active {
@@ -1027,14 +1018,12 @@
       }
 
       lb.classList.add('open');
-      document.body.classList.add('lb-open');
       document.body.style.overflow = 'hidden';
       history.pushState({ lightbox: true }, '');
     }
     function closeLightbox() {
       lb.classList.remove('open');
       lb.classList.remove('lb-photo-mode');
-      document.body.classList.remove('lb-open');
       document.body.style.overflow = '';
     }
     lbClose.addEventListener('click', function() { history.back(); });
