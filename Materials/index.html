@@ -407,8 +407,7 @@
     .lightbox::before {
       content: '';
       position: absolute; inset: 0;
-      background-image: linear-gradient(#000000,#000000);
-      background-color: transparent;
+      background: #000;
       z-index: 0;
     }
     .lightbox.open { opacity: 1; pointer-events: all; }
@@ -459,11 +458,20 @@
       align-items: center;
       justify-content: center;
       position: relative;
-      /* CHANGED: allow shrinking in landscape */
       min-height: 0;
       flex: 1 1 auto;
+      overflow: hidden;
+    }
+    .lb-canvas-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
     }
     .lightbox-img {
+      position: relative;
+      z-index: 1;
       max-width: 85%;
       max-height: 85%;
       object-fit: contain;
@@ -473,8 +481,7 @@
 
     /* Footer — buttons only */
     .lightbox-footer {
-      background-image: linear-gradient(#111111,#111111);
-      background-color: transparent;
+      background: #111;
       padding: 13px 16px;
       display: flex;
       align-items: center;
@@ -484,16 +491,18 @@
     }
     .lb-bg-btn {
       width: 22px; height: 22px;
-      border-radius: 50%;
       cursor: pointer;
       flex-shrink: 0;
       transition: transform .2s;
       display: block;
+      overflow: visible;
     }
     .lb-bg-btn:hover { transform: scale(1.25); }
     .lb-bg-btn.active {
+      filter: drop-shadow(0 0 0 #fff);
       outline: 2.5px solid #ffffff;
       outline-offset: 2.5px;
+      border-radius: 50%;
     }
     .lightbox-close {
       position: fixed; top: 20px; right: 20px;
@@ -530,11 +539,7 @@
     .lb-arrow-next { right: 10px; }
     .lb-arrow:disabled { opacity: 0.2; cursor: default; }
 
-    /* Photo-mode lightbox: image fills canvas with cover */
-    .lightbox.lb-photo-mode .lightbox-canvas {
-      background-image: linear-gradient(#000,#000) !important;
-      background-color: transparent !important;
-    }
+    /* Photo-mode lightbox: image fills canvas */
     .lightbox.lb-photo-mode .lightbox-img {
       max-width: 100%;
       max-height: 100%;
@@ -768,6 +773,7 @@
     <div class="lightbox-name" id="lightbox-name"></div>
     <div class="lightbox-inner">
       <div class="lightbox-canvas" id="lightbox-canvas">
+        <svg class="lb-canvas-bg" id="lb-canvas-bg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><rect width="100%" height="100%" fill="#aaaaaa"/></svg>
         <button class="lb-arrow lb-arrow-prev" id="lb-prev">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
@@ -777,11 +783,11 @@
         </button>
       </div>
       <div class="lightbox-footer" id="lightbox-footer">
-        <div class="lb-bg-btn" data-bg="#aaaaaa" style="background-image:linear-gradient(#aaaaaa,#aaaaaa);"></div>
-        <div class="lb-bg-btn" data-bg="#ffffff" style="background-image:linear-gradient(#ffffff,#ffffff); box-shadow:inset 0 0 0 1px #999;"></div>
-        <div class="lb-bg-btn" data-bg="#111111" style="background-image:linear-gradient(#111111,#111111); box-shadow:inset 0 0 0 1px #555;"></div>
-        <div class="lb-bg-btn" data-bg="#c9a96e" style="background-image:linear-gradient(#c9a96e,#c9a96e);"></div>
-        <div class="lb-bg-btn" data-bg="#c0151a" style="background-image:linear-gradient(#c0151a,#c0151a);"></div>
+        <svg class="lb-bg-btn" data-bg="#aaaaaa" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#aaaaaa"/></svg>
+        <svg class="lb-bg-btn" data-bg="#ffffff" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#ffffff" stroke="#999" stroke-width="0.5"/></svg>
+        <svg class="lb-bg-btn" data-bg="#111111" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#111111" stroke="#555" stroke-width="0.5"/></svg>
+        <svg class="lb-bg-btn" data-bg="#c9a96e" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c9a96e"/></svg>
+        <svg class="lb-bg-btn" data-bg="#c0151a" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c0151a"/></svg>
         <div class="lb-dl-btn" id="lightbox-dl" style="margin-left:10px; width:34px; height:34px; border-radius:50%; background-image:linear-gradient(rgba(201,169,110,0.15),rgba(201,169,110,0.15)); border:1px solid rgba(201,169,110,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background .2s;">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;fill:#c9a96e;"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
         </div>
@@ -942,6 +948,7 @@
     var lbName   = document.getElementById('lightbox-name');
     var lbClose  = document.getElementById('lightbox-close');
     var lbCanvas = document.getElementById('lightbox-canvas');
+    var lbCanvasBg = document.querySelector('#lb-canvas-bg rect');
     var lbFooter = document.getElementById('lightbox-footer');
     var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
     var lbDlBtn  = document.getElementById('lightbox-dl');
@@ -988,7 +995,7 @@
     var lbCurrentFile = { url: '', name: '' };
 
     function setLbBg(color) {
-      lbCanvas.setAttribute('style', 'background-image:linear-gradient(' + color + ',' + color + ')');
+      lbCanvasBg.setAttribute('fill', color);
       lbBgBtns.forEach(function(b) {
         b.classList.toggle('active', b.dataset.bg.toLowerCase() === color.toLowerCase());
       });
@@ -1010,8 +1017,7 @@
       if (lbMode === 'photos') {
         lb.classList.add('lb-photo-mode');
         lbBgBtns.forEach(function(b) { b.style.display = 'none'; });
-        // Reset any inline styles on canvas/img — CSS class handles it
-        lbCanvas.removeAttribute('style');
+        lbCanvasBg.setAttribute('fill', '#000000');
         lbImg.removeAttribute('style');
       } else {
         lb.classList.remove('lb-photo-mode');
