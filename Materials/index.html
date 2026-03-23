@@ -33,7 +33,9 @@
       position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none; z-index: 1000; opacity: .5;
+      transition: opacity .3s;
     }
+    body.lb-open::before { opacity: 0; }
 
     /* ── HEADER ── */
     header {
@@ -999,12 +1001,14 @@
       }
 
       lb.classList.add('open');
+      document.body.classList.add('lb-open');
       document.body.style.overflow = 'hidden';
       history.pushState({ lightbox: true }, '');
     }
     function closeLightbox() {
       lb.classList.remove('open');
       lb.classList.remove('lb-photo-mode');
+      document.body.classList.remove('lb-open');
       document.body.style.overflow = '';
     }
     lbClose.addEventListener('click', function() { history.back(); });
