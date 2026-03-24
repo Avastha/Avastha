@@ -124,21 +124,20 @@
     }
 
     /* ── HERO LOGO VIDEO ────────────────────────── */
-    .hero-logo-video {
-      width: min(520px, 88vw);
-      display: block;
-      margin: 0 auto 0.6rem;
-      /* transparent webm — no background needed */
-      pointer-events: none;
-      opacity: 0;
-      animation: fadeIn 1.2s ease forwards 0.2s;
-    }
+.hero-logo-video {
+  width: min(1040px, 96vw); /* doubled size */
+  display: block;
+  margin: 2rem auto 0.6rem; /* pushes it lower */
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards 0.2s;
+}
 
-    @media (max-width: 480px) {
-      .hero-logo-video {
-        width: min(320px, 92vw);
-      }
-    }
+@media (max-width: 480px) {
+  .hero-logo-video {
+    width: min(640px, 96vw); /* doubled mobile size */
+  }
+}
 
     .hero-subtitle {
       font-weight: 300;
