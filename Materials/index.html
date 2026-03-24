@@ -121,7 +121,6 @@
     section { padding: 60px 0 40px; }
     section + section { border-top: 1px solid var(--border); }
 
-    /* CHANGED: section-header is now a column layout with title on top and button below */
     .section-header {
       display: flex;
       flex-direction: column;
@@ -246,7 +245,6 @@
     }
     .logo-list-item:active { background: #1e1e1e; }
 
-    /* LEFT: name — clickable, opens preview */
     .logo-list-info {
       flex: 1;
       padding: 12px 14px;
@@ -271,7 +269,6 @@
     .logo-list-info:hover .logo-list-name,
     .logo-list-info:active .logo-list-name { color: var(--gold); }
 
-    /* MIDDLE: thumbnail — also clickable, opens preview */
     .logo-list-thumb {
       width: 90px;
       flex-shrink: 0;
@@ -290,7 +287,6 @@
       padding: 6px;
     }
 
-    /* RIGHT: download */
     .logo-list-dl {
       width: 44px;
       flex-shrink: 0;
@@ -363,6 +359,102 @@
     }
     .photo-dl-icon svg { width: 14px; height: 14px; fill: #0d0d0d; }
 
+    /* ── VIDEOS GRID ── */
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    /* Video card */
+    .video-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: var(--surface);
+      aspect-ratio: 16/9;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      animation: fadeUp .4s ease both;
+    }
+    .video-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.6);
+    }
+
+    /* Thumbnail — a <video> set to preload metadata for first frame */
+    .video-thumb {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .4s;
+    }
+    .video-card:hover .video-thumb { transform: scale(1.04); }
+
+    /* Play button overlay */
+    .video-play-overlay {
+      position: absolute; inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.25);
+      transition: background .25s;
+    }
+    .video-card:hover .video-play-overlay { background: rgba(0,0,0,0.4); }
+
+    .play-circle {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.85);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .25s, background .25s;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    }
+    .video-card:hover .play-circle {
+      transform: scale(1.1);
+      background: rgba(201,169,110,1);
+    }
+    .play-circle svg { width: 20px; height: 20px; fill: #0d0d0d; margin-left: 3px; }
+
+    /* Bottom meta bar — always visible */
+    .video-bottom-bar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+      padding: 28px 14px 12px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .video-card-name {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.4;
+      transition: color .2s;
+    }
+    .video-card:hover .video-card-name { color: var(--gold); }
+
+    .video-card-dl {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.9);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: transform .2s, background .2s;
+    }
+    .video-card-dl:hover { transform: scale(1.15); background: var(--gold); }
+    .video-card-dl svg { width: 12px; height: 12px; fill: #0d0d0d; }
+
     /* ── MEDIA SECTION ── */
     .media-banner {
       display: grid;
@@ -392,7 +484,7 @@
     .media-item:hover .media-icon-wrap img { filter: grayscale(0%) brightness(1.1); transform: scale(1.08); }
     .media-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; text-align: center; }
 
-    /* ── LIGHTBOX ── */
+    /* ── LIGHTBOX (base) ── */
     .lightbox {
       position: fixed; inset: 0; z-index: 9000;
       display: flex;
@@ -412,7 +504,6 @@
     }
     .lightbox.open { opacity: 1; pointer-events: all; }
 
-    /* Floating name — above the card */
     .lightbox-name {
       position: relative;
       z-index: 1;
@@ -430,7 +521,6 @@
       flex-shrink: 0;
     }
 
-    /* Card */
     .lightbox-inner {
       position: relative;
       z-index: 1;
@@ -444,13 +534,16 @@
       box-shadow: 0 32px 100px rgba(0,0,0,.95);
       width: 88vw;
       max-width: 480px;
-      /* CHANGED: constrain max-height so it never overflows viewport */
       max-height: calc(100vh - 120px);
       max-height: calc(100dvh - 120px);
     }
     .lightbox.open .lightbox-inner { transform: scale(1); }
 
-    /* Canvas — color set exclusively via JS */
+    /* ── Video lightbox gets wider inner ── */
+    .lightbox.lb-video-mode .lightbox-inner {
+      max-width: 820px;
+    }
+
     .lightbox-canvas {
       width: 100%;
       aspect-ratio: 4/3;
@@ -462,6 +555,13 @@
       flex: 1 1 auto;
       overflow: hidden;
     }
+
+    /* Video mode canvas is 16:9 */
+    .lightbox.lb-video-mode .lightbox-canvas {
+      aspect-ratio: 16/9;
+      background: #000;
+    }
+
     .lb-canvas-bg {
       position: absolute;
       inset: 0;
@@ -479,7 +579,21 @@
       transition: opacity .15s ease;
     }
 
-    /* Footer — buttons only */
+    /* ── Lightbox video element ── */
+    #lightbox-video {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+      background: #000;
+      outline: none;
+    }
+    .lightbox.lb-video-mode #lightbox-video { display: block; }
+    .lightbox.lb-video-mode .lightbox-img    { display: none; }
+    .lightbox.lb-video-mode .lb-canvas-bg    { display: none; }
+
     .lightbox-footer {
       background: #111;
       padding: 13px 16px;
@@ -489,6 +603,11 @@
       gap: 10px;
       flex-shrink: 0;
     }
+
+    /* Hide bg-colour swatches in video and photo modes */
+    .lightbox.lb-video-mode .lb-bg-swatch,
+    .lightbox.lb-photo-mode .lb-bg-swatch { display: none; }
+
     .lb-bg-btn {
       width: 22px; height: 22px;
       cursor: pointer;
@@ -518,7 +637,6 @@
     .lightbox-close:hover { background: rgba(255,255,255,0.15); }
     .lightbox-close svg { width: 16px; height: 16px; stroke: #e8e2d9; }
 
-    /* Prev / Next arrows */
     .lb-arrow {
       position: absolute;
       top: 50%; transform: translateY(-50%);
@@ -539,7 +657,6 @@
     .lb-arrow-next { right: 10px; }
     .lb-arrow:disabled { opacity: 0.2; cursor: default; }
 
-    /* Photo-mode lightbox: image fills canvas */
     .lightbox.lb-photo-mode .lightbox-img {
       max-width: 100%;
       max-height: 100%;
@@ -551,32 +668,14 @@
 
     /* ── LANDSCAPE FIX ── */
     @media (orientation: landscape) and (max-height: 500px) {
-      .lightbox {
-        padding: 8px 20px;
-        gap: 4px;
-      }
-      .lightbox-name {
-        font-size: 11px;
-        letter-spacing: 0.12em;
-        line-height: 1.1;
-      }
-      .lightbox-inner {
-        max-width: 60vw;
-        max-height: calc(100vh - 30px);
-        max-height: calc(100dvh - 30px);
-        width: 60vw;
-      }
-      .lightbox-canvas {
-        aspect-ratio: 16/9;
-      }
-      .lightbox-img {
-        max-width: 88%;
-        max-height: 88%;
-      }
-      .lightbox-footer {
-        padding: 8px 12px;
-        gap: 8px;
-      }
+      .lightbox { padding: 8px 20px; gap: 4px; }
+      .lightbox-name { font-size: 11px; letter-spacing: 0.12em; line-height: 1.1; }
+      .lightbox-inner { max-width: 60vw; max-height: calc(100vh - 30px); max-height: calc(100dvh - 30px); width: 60vw; }
+      .lightbox.lb-video-mode .lightbox-inner { max-width: 80vw; width: 80vw; }
+      .lightbox-canvas { aspect-ratio: 16/9; }
+      .lightbox.lb-video-mode .lightbox-canvas { aspect-ratio: 16/9; }
+      .lightbox-img { max-width: 88%; max-height: 88%; }
+      .lightbox-footer { padding: 8px 12px; gap: 8px; }
       .lb-bg-btn { width: 20px; height: 20px; }
       .lightbox-close { top: 6px; right: 6px; width: 32px; height: 32px; }
       .lb-arrow { width: 30px; height: 30px; }
@@ -608,10 +707,7 @@
       padding-bottom: 2px;
       transition: color .2s, border-color .2s;
     }
-    .footer-site-link:hover {
-      color: var(--text);
-      border-color: var(--text);
-    }
+    .footer-site-link:hover { color: var(--text); border-color: var(--text); }
     .footer-site-link svg { width: 11px; height: 11px; fill: currentColor; }
 
     /* ── RESPONSIVE ── */
@@ -620,18 +716,17 @@
       .press-kit-btn { align-self: flex-start; }
       .nav { padding: 16px 20px; gap: 16px; flex-wrap: wrap; }
       main { padding: 0 16px 60px; }
-
-      /* Switch logos to list view on mobile */
       .logos-grid { display: none; }
       .logos-list { display: flex; }
-
       .photos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
       .photo-card { aspect-ratio: 1; }
       .photo-overlay { opacity: 1; }
+      .videos-grid { grid-template-columns: 1fr; gap: 12px; }
       footer { padding: 24px 20px; }
       .media-banner { grid-template-columns: repeat(3, 1fr); gap: 6px 12px; }
       .media-label { font-size: 9px; letter-spacing: 0.1em; }
       section { padding: 40px 0 32px; }
+      .lightbox.lb-video-mode .lightbox-inner { max-width: 95vw; width: 95vw; }
     }
     @media (max-width: 480px) {
       .photos-grid { grid-template-columns: 1fr; }
@@ -695,11 +790,13 @@
   <nav class="nav">
     <a href="#logos" class="active">Logos</a>
     <a href="#images">Photos</a>
+    <a href="#videos">Videos</a>
     <a href="#media">Media</a>
   </nav>
 
   <main>
 
+    <!-- ── LOGOS ── -->
     <section id="logos">
       <div class="section-header">
         <h2 class="section-title">Logos</h2>
@@ -708,16 +805,15 @@
           Download All
         </button>
       </div>
-      <!-- Desktop grid -->
       <div id="logos-grid" class="logos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading logos…</div>
       </div>
-      <!-- Mobile list -->
       <div id="logos-list" class="logos-list">
         <div class="state-msg"><div class="spinner"></div><br/>Loading logos…</div>
       </div>
     </section>
 
+    <!-- ── PHOTOS ── -->
     <section id="images">
       <div class="section-header">
         <h2 class="section-title">Photos</h2>
@@ -731,6 +827,21 @@
       </div>
     </section>
 
+    <!-- ── VIDEOS ── -->
+    <section id="videos">
+      <div class="section-header">
+        <h2 class="section-title">Videos</h2>
+        <button class="download-all-btn" id="dl-all-videos" disabled>
+          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+          Download All
+        </button>
+      </div>
+      <div id="videos-grid" class="videos-grid">
+        <div class="state-msg"><div class="spinner"></div><br/>Loading videos…</div>
+      </div>
+    </section>
+
+    <!-- ── MEDIA ── -->
     <section id="media">
       <div class="section-header">
         <h2 class="section-title">Media</h2>
@@ -765,31 +876,54 @@
 
   </main>
 
-  <!-- Lightbox -->
+  <!-- ── LIGHTBOX ── -->
   <div class="lightbox" id="lightbox">
     <div class="lightbox-close" id="lightbox-close">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
     </div>
     <div class="lightbox-name" id="lightbox-name"></div>
     <div class="lightbox-inner">
       <div class="lightbox-canvas" id="lightbox-canvas">
-        <svg class="lb-canvas-bg" id="lb-canvas-bg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><rect width="100%" height="100%" fill="#aaaaaa"/></svg>
+        <!-- Background rect for logo colour switching -->
+        <svg class="lb-canvas-bg" id="lb-canvas-bg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <rect width="100%" height="100%" fill="#aaaaaa"/>
+        </svg>
+        <!-- Prev / Next arrows -->
         <button class="lb-arrow lb-arrow-prev" id="lb-prev">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
         </button>
+        <!-- Image (logos / photos) -->
         <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+        <!-- Video (videos) -->
+        <video id="lightbox-video" controls playsinline></video>
+        <!-- Next arrow -->
         <button class="lb-arrow lb-arrow-next" id="lb-next">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 6 15 12 9 18"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <polyline points="9 6 15 12 9 18"/>
+          </svg>
         </button>
       </div>
+      <!-- Footer: colour swatches + download -->
       <div class="lightbox-footer" id="lightbox-footer">
-        <svg class="lb-bg-btn" data-bg="#aaaaaa" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#aaaaaa"/></svg>
-        <svg class="lb-bg-btn" data-bg="#ffffff" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#ffffff" stroke="#999" stroke-width="0.5"/></svg>
-        <svg class="lb-bg-btn" data-bg="#111111" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#111111" stroke="#555" stroke-width="0.5"/></svg>
-        <svg class="lb-bg-btn" data-bg="#c9a96e" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c9a96e"/></svg>
-        <svg class="lb-bg-btn" data-bg="#c0151a" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c0151a"/></svg>
-        <div class="lb-dl-btn" id="lightbox-dl" style="margin-left:10px; width:34px; height:34px; border-radius:50%; background-image:linear-gradient(rgba(201,169,110,0.15),rgba(201,169,110,0.15)); border:1px solid rgba(201,169,110,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background .2s;">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;fill:#c9a96e;"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+        <!-- Colour swatches — hidden in photo & video modes via CSS -->
+        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#aaaaaa" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#aaaaaa"/></svg>
+        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#ffffff" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#ffffff" stroke="#999" stroke-width="0.5"/></svg>
+        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#111111" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#111111" stroke="#555" stroke-width="0.5"/></svg>
+        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#c9a96e" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c9a96e"/></svg>
+        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#c0151a" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c0151a"/></svg>
+        <!-- Download button -->
+        <div class="lb-dl-btn" id="lightbox-dl"
+             style="margin-left:10px; width:34px; height:34px; border-radius:50%;
+                    background-image:linear-gradient(rgba(201,169,110,0.15),rgba(201,169,110,0.15));
+                    border:1px solid rgba(201,169,110,0.4); display:flex; align-items:center;
+                    justify-content:center; cursor:pointer; flex-shrink:0; transition:background .2s;">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px;fill:#c9a96e;">
+            <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
+          </svg>
         </div>
       </div>
     </div>
@@ -805,165 +939,78 @@
     <span>© Avastha — All rights reserved</span>
   </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script>
+    /* ════════════════════════════════════════════════
+       CONFIG
+    ════════════════════════════════════════════════ */
     var REPO_OWNER  = 'Avastha';
     var REPO_NAME   = 'Avastha';
     var BRANCH      = 'main';
     var LOGOS_PATH  = 'Materials/Logos';
     var IMAGES_PATH = 'Materials/Images';
+    var VIDEOS_PATH = 'Materials/Videos';
 
     var IMAGE_EXTS = ['.png','.jpg','.jpeg','.gif','.webp','.svg','.bmp','.tiff','.ico'];
+    var VIDEO_EXTS = ['.mp4','.mov','.webm','.avi','.mkv','.m4v','.ogv','.3gp'];
 
-    function isImage(n) { return IMAGE_EXTS.some(function(e) { return n.toLowerCase().endsWith(e); }); }
-    function rawUrl(f) { return f.download_url; }
-    function baseName(n) { return n.replace(/\.[^/.]+$/, '').replace(/_/g, ' '); }
+    function isImage(n) { return IMAGE_EXTS.some(function(e){ return n.toLowerCase().endsWith(e); }); }
+    function isVideo(n) { return VIDEO_EXTS.some(function(e){ return n.toLowerCase().endsWith(e); }); }
+    function rawUrl(f)  { return f.download_url; }
+    function baseName(n){ return n.replace(/\.[^/.]+$/, '').replace(/_/g, ' '); }
+
     var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
 
-    /* ── Lightbox mode: 'logos' shows bg-color buttons, 'photos' hides them ── */
-    var lbMode = 'logos';
-
-    function fetchFiles(path) {
-      return fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + path + '?ref=' + BRANCH)
-        .then(function(res) {
-          if (!res.ok) throw new Error('GitHub API error: ' + res.status);
-          return res.json();
-        })
-        .then(function(data) {
-          return data.filter(function(f) { return f.type === 'file' && isImage(f.name); });
-        });
-    }
-
-    /* Escape HTML to prevent XSS from file names */
+    /* ════════════════════════════════════════════════
+       HTML ESCAPE
+    ════════════════════════════════════════════════ */
     function esc(s) {
       var d = document.createElement('div');
       d.textContent = s;
       return d.innerHTML;
     }
 
-    function renderLogos(files, gridContainer, listContainer) {
-      if (!files.length) {
-        var empty = '<div class="state-msg">No logo files found.</div>';
-        gridContainer.innerHTML = empty;
-        listContainer.innerHTML = empty;
-        return;
-      }
-
-      // Build lightbox list with direct URLs
-      var lbFileList = files.map(function(f) {
-        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
-      });
-
-      // Desktop grid
-      gridContainer.innerHTML = '';
-      files.forEach(function(file, i) {
-        var card = document.createElement('div');
-        card.className = 'logo-card';
-        // Start invisible — fadeUp plays once image loads
-        card.style.opacity = '0';
-        card.innerHTML =
-          '<div class="logo-label">' +
-            '<span class="logo-name">' + esc(baseName(file.name)) + '</span>' +
-            '<div class="dl-icon">' + dlIcon + '</div>' +
-          '</div>' +
-          '<div class="logo-img-area"></div>';
-
-        var imgEl = document.createElement('img');
-        imgEl.alt = file.name;
-        imgEl.src = rawUrl(file);
-        // Fade card in once its image is ready
-        imgEl.onload = function() {
-          card.style.opacity = '';
-          card.style.animation = 'fadeUp .4s ease both';
-        };
-        // Also show on error so cards don't stay invisible
-        imgEl.onerror = function() {
-          card.style.opacity = '';
-          card.style.animation = 'fadeUp .4s ease both';
-        };
-        card.querySelector('.logo-img-area').appendChild(imgEl);
-
-        (function(idx) {
-          card.querySelector('.logo-img-area').addEventListener('click', function(e) {
-            e.stopPropagation();
-            openLightbox(lbFileList, idx, 'logos');
-          });
-        })(i);
-        card.querySelector('.dl-icon').addEventListener('click', function(e) {
-          e.stopPropagation();
-          forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
+    /* ════════════════════════════════════════════════
+       GITHUB FETCH
+    ════════════════════════════════════════════════ */
+    function fetchFiles(path, filterFn) {
+      return fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + path + '?ref=' + BRANCH)
+        .then(function(res) {
+          if (!res.ok) throw new Error('GitHub API error: ' + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          return data.filter(function(f) { return f.type === 'file' && filterFn(f.name); });
         });
-
-        gridContainer.appendChild(card);
-      });
-
-      // Mobile list
-      listContainer.innerHTML = '';
-      files.forEach(function(file, i) {
-        var item = document.createElement('div');
-        item.className = 'logo-list-item';
-        item.style.opacity = '0';
-        item.innerHTML =
-          '<div class="logo-list-info">' +
-            '<div class="logo-list-name">' + esc(baseName(file.name)) + '</div>' +
-          '</div>' +
-          '<div class="logo-list-thumb"></div>' +
-          '<div class="logo-list-dl">' + dlIcon + '</div>';
-
-        var thumbImg = document.createElement('img');
-        thumbImg.alt = file.name;
-        thumbImg.src = rawUrl(file);
-        thumbImg.onload = function() {
-          item.style.opacity = '';
-          item.style.animation = 'fadeUp .35s ease both';
-        };
-        thumbImg.onerror = function() {
-          item.style.opacity = '';
-          item.style.animation = 'fadeUp .35s ease both';
-        };
-        item.querySelector('.logo-list-thumb').appendChild(thumbImg);
-
-        (function(idx) {
-          item.querySelector('.logo-list-info').addEventListener('click', function(e) {
-            e.stopPropagation();
-            openLightbox(lbFileList, idx, 'logos');
-          });
-          item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
-            e.stopPropagation();
-            openLightbox(lbFileList, idx, 'logos');
-          });
-        })(i);
-
-        item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
-          e.stopPropagation();
-          forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
-        });
-
-        listContainer.appendChild(item);
-      });
     }
 
-    /* ── Lightbox ── */
-    var lb       = document.getElementById('lightbox');
-    var lbImg    = document.getElementById('lightbox-img');
-    var lbName   = document.getElementById('lightbox-name');
-    var lbClose  = document.getElementById('lightbox-close');
-    var lbCanvas = document.getElementById('lightbox-canvas');
+    /* ════════════════════════════════════════════════
+       LIGHTBOX
+    ════════════════════════════════════════════════ */
+    var lb         = document.getElementById('lightbox');
+    var lbImg      = document.getElementById('lightbox-img');
+    var lbVideo    = document.getElementById('lightbox-video');
+    var lbName     = document.getElementById('lightbox-name');
+    var lbClose    = document.getElementById('lightbox-close');
+    var lbCanvas   = document.getElementById('lightbox-canvas');
     var lbCanvasBg = document.querySelector('#lb-canvas-bg rect');
-    var lbFooter = document.getElementById('lightbox-footer');
-    var lbBgBtns = document.querySelectorAll('.lb-bg-btn');
-    var lbDlBtn  = document.getElementById('lightbox-dl');
-    var lbPrev   = document.getElementById('lb-prev');
-    var lbNext   = document.getElementById('lb-next');
+    var lbBgBtns   = document.querySelectorAll('.lb-bg-btn');
+    var lbDlBtn    = document.getElementById('lightbox-dl');
+    var lbPrev     = document.getElementById('lb-prev');
+    var lbNext     = document.getElementById('lb-next');
 
-    var lbFiles = [];
-    var lbIndex = 0;
+    var lbFiles   = [];
+    var lbIndex   = 0;
+    var lbMode    = 'logos'; // 'logos' | 'photos' | 'videos'
+    var lbCurrent = { url: '', name: '' };
 
+    /* Download from lightbox */
     lbDlBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      var f = lbFiles[lbIndex];
-      if (f) forceDownload(f.url, f.filename, lbDlBtn);
+      if (lbCurrent.url) forceDownload(lbCurrent.url, lbCurrent.name, lbDlBtn);
     });
 
+    /* Arrow navigation */
     lbPrev.addEventListener('click', function(e) {
       e.stopPropagation();
       if (lbIndex > 0) showAtIndex(lbIndex - 1);
@@ -976,31 +1023,39 @@
     function showAtIndex(idx) {
       lbIndex = idx;
       var f = lbFiles[idx];
-      lbImg.style.opacity = '0';
-      setTimeout(function() {
-        lbName.textContent = f.name;
-        lbCurrentFile = { url: f.url, name: f.filename };
-        // Wait for image to actually load before revealing
-        if (lbImg.src === f.url && lbImg.complete) {
-          lbImg.style.opacity = '1';
-        } else {
-          lbImg.onload = function() { lbImg.style.opacity = '1'; };
-          lbImg.src = f.url;
-        }
-      }, 150);
       lbPrev.disabled = (idx === 0);
       lbNext.disabled = (idx === lbFiles.length - 1);
+
+      if (lbMode === 'videos') {
+        lbVideo.pause();
+        lbVideo.removeAttribute('src');
+        lbVideo.load();
+        lbName.textContent = f.name;
+        lbCurrent = { url: f.url, name: f.filename };
+        lbVideo.src = f.url;
+        lbVideo.load();
+      } else {
+        lbImg.style.opacity = '0';
+        setTimeout(function() {
+          lbName.textContent = f.name;
+          lbCurrent = { url: f.url, name: f.filename };
+          lbImg.onload = function() { lbImg.style.opacity = '1'; };
+          if (lbImg.src === f.url && lbImg.complete) {
+            lbImg.style.opacity = '1';
+          } else {
+            lbImg.src = f.url;
+          }
+        }, 150);
+      }
     }
 
-    var lbCurrentFile = { url: '', name: '' };
-
+    /* Background colour switcher (logos only) */
     function setLbBg(color) {
       lbCanvasBg.setAttribute('fill', color);
       lbBgBtns.forEach(function(b) {
         b.classList.toggle('active', b.dataset.bg.toLowerCase() === color.toLowerCase());
       });
     }
-
     lbBgBtns.forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -1008,71 +1063,167 @@
       });
     });
 
+    /* Open lightbox */
     function openLightbox(files, index, mode) {
-      lbMode = mode || 'logos';
+      lbMode  = mode || 'logos';
       lbFiles = files;
 
-      // Clear previous image immediately so it doesn't flash
+      /* Reset */
       lbImg.src = '';
       lbImg.style.opacity = '0';
+      lbVideo.pause();
+      lbVideo.removeAttribute('src');
+      lbVideo.load();
 
-      // Toggle background color buttons visibility and mode class
+      /* Apply mode classes */
+      lb.classList.remove('lb-photo-mode', 'lb-video-mode');
       if (lbMode === 'photos') {
         lb.classList.add('lb-photo-mode');
-        lbBgBtns.forEach(function(b) { b.style.display = 'none'; });
         lbCanvasBg.setAttribute('fill', '#000000');
+      } else if (lbMode === 'videos') {
+        lb.classList.add('lb-video-mode');
       } else {
-        lb.classList.remove('lb-photo-mode');
-        lbBgBtns.forEach(function(b) { b.style.display = ''; });
         setLbBg('#aaaaaa');
       }
 
-      // Open lightbox first, then load the image
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
       history.pushState({ lightbox: true }, '');
 
-      // Load the correct image after lightbox is visible
-      var f = files[index];
       lbIndex = index;
-      lbName.textContent = f.name;
-      lbCurrentFile = { url: f.url, name: f.filename };
       lbPrev.disabled = (index === 0);
       lbNext.disabled = (index === files.length - 1);
-      lbImg.onload = function() { lbImg.style.opacity = '1'; };
-      lbImg.src = f.url;
+
+      var f = files[index];
+      lbName.textContent = f.name;
+      lbCurrent = { url: f.url, name: f.filename };
+
+      if (lbMode === 'videos') {
+        lbVideo.src = f.url;
+        lbVideo.load();
+      } else {
+        lbImg.onload = function() { lbImg.style.opacity = '1'; };
+        lbImg.src = f.url;
+      }
     }
+
+    /* Close lightbox */
     function closeLightbox() {
-      lb.classList.remove('open');
-      lb.classList.remove('lb-photo-mode');
+      lb.classList.remove('open', 'lb-photo-mode', 'lb-video-mode');
       document.body.style.overflow = '';
       lbImg.src = '';
       lbImg.style.opacity = '0';
+      lbVideo.pause();
+      lbVideo.removeAttribute('src');
+      lbVideo.load();
     }
+
     lbClose.addEventListener('click', function() { history.back(); });
     lb.addEventListener('click', function(e) { if (e.target === lb) history.back(); });
     document.addEventListener('keydown', function(e) {
       if (!lb.classList.contains('open')) return;
       if (e.key === 'Escape') history.back();
-      if (e.key === 'ArrowLeft'  && lbIndex > 0) showAtIndex(lbIndex - 1);
-      if (e.key === 'ArrowRight' && lbIndex < lbFiles.length - 1) showAtIndex(lbIndex + 1);
+      if (e.key === 'ArrowLeft'  && lbIndex > 0)                    showAtIndex(lbIndex - 1);
+      if (e.key === 'ArrowRight' && lbIndex < lbFiles.length - 1)   showAtIndex(lbIndex + 1);
     });
     window.addEventListener('popstate', function() {
       if (lb.classList.contains('open')) closeLightbox();
     });
 
-    /* ── renderPhotos with lightbox preview ── */
+    /* ════════════════════════════════════════════════
+       RENDER LOGOS
+    ════════════════════════════════════════════════ */
+    function renderLogos(files, gridContainer, listContainer) {
+      if (!files.length) {
+        var empty = '<div class="state-msg">No logo files found.</div>';
+        gridContainer.innerHTML = empty;
+        listContainer.innerHTML = empty;
+        return;
+      }
+      var lbFileList = files.map(function(f) {
+        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+      });
+
+      /* Desktop grid */
+      gridContainer.innerHTML = '';
+      files.forEach(function(file, i) {
+        var card = document.createElement('div');
+        card.className = 'logo-card';
+        card.style.opacity = '0';
+        card.innerHTML =
+          '<div class="logo-label">' +
+            '<span class="logo-name">' + esc(baseName(file.name)) + '</span>' +
+            '<div class="dl-icon">' + dlIcon + '</div>' +
+          '</div>' +
+          '<div class="logo-img-area"></div>';
+
+        var imgEl = document.createElement('img');
+        imgEl.alt = file.name;
+        imgEl.src = rawUrl(file);
+        imgEl.onload  = function() { card.style.opacity = ''; card.style.animation = 'fadeUp .4s ease both'; };
+        imgEl.onerror = function() { card.style.opacity = ''; card.style.animation = 'fadeUp .4s ease both'; };
+        card.querySelector('.logo-img-area').appendChild(imgEl);
+
+        (function(idx) {
+          card.querySelector('.logo-img-area').addEventListener('click', function(e) {
+            e.stopPropagation();
+            openLightbox(lbFileList, idx, 'logos');
+          });
+        })(i);
+        card.querySelector('.dl-icon').addEventListener('click', function(e) {
+          e.stopPropagation();
+          forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
+        });
+        gridContainer.appendChild(card);
+      });
+
+      /* Mobile list */
+      listContainer.innerHTML = '';
+      files.forEach(function(file, i) {
+        var item = document.createElement('div');
+        item.className = 'logo-list-item';
+        item.style.opacity = '0';
+        item.innerHTML =
+          '<div class="logo-list-info"><div class="logo-list-name">' + esc(baseName(file.name)) + '</div></div>' +
+          '<div class="logo-list-thumb"></div>' +
+          '<div class="logo-list-dl">' + dlIcon + '</div>';
+
+        var thumbImg = document.createElement('img');
+        thumbImg.alt = file.name;
+        thumbImg.src = rawUrl(file);
+        thumbImg.onload  = function() { item.style.opacity = ''; item.style.animation = 'fadeUp .35s ease both'; };
+        thumbImg.onerror = function() { item.style.opacity = ''; item.style.animation = 'fadeUp .35s ease both'; };
+        item.querySelector('.logo-list-thumb').appendChild(thumbImg);
+
+        (function(idx) {
+          item.querySelector('.logo-list-info').addEventListener('click', function(e) {
+            e.stopPropagation();
+            openLightbox(lbFileList, idx, 'logos');
+          });
+          item.querySelector('.logo-list-thumb').addEventListener('click', function(e) {
+            e.stopPropagation();
+            openLightbox(lbFileList, idx, 'logos');
+          });
+        })(i);
+        item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
+          e.stopPropagation();
+          forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
+        });
+        listContainer.appendChild(item);
+      });
+    }
+
+    /* ════════════════════════════════════════════════
+       RENDER PHOTOS
+    ════════════════════════════════════════════════ */
     function renderPhotos(files, container) {
       if (!files.length) {
         container.innerHTML = '<div class="state-msg">No image files found.</div>';
         return;
       }
-
-      // Build lightbox file list for photos
       var photoLbFiles = files.map(function(f) {
         return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
       });
-
       container.innerHTML = '';
       files.forEach(function(file, i) {
         var card = document.createElement('div');
@@ -1092,17 +1243,77 @@
         photoImg.src = rawUrl(file);
         card.insertBefore(photoImg, card.firstChild);
 
-        // Clicking the download icon triggers download
         (function(idx) {
           card.querySelector('.photo-dl-icon').addEventListener('click', function(e) {
             e.stopPropagation();
             forceDownload(rawUrl(file), file.name, card);
           });
-          // Clicking anywhere else on the card opens the lightbox preview
           card.addEventListener('click', function(e) {
-            // Don't open lightbox if the download icon was clicked
             if (e.target.closest('.photo-dl-icon')) return;
             openLightbox(photoLbFiles, idx, 'photos');
+          });
+        })(i);
+        container.appendChild(card);
+      });
+    }
+
+    /* ════════════════════════════════════════════════
+       RENDER VIDEOS
+    ════════════════════════════════════════════════ */
+    function renderVideos(files, container) {
+      if (!files.length) {
+        container.innerHTML = '<div class="state-msg">No video files found.</div>';
+        return;
+      }
+
+      /* Build lightbox file list */
+      var videoLbFiles = files.map(function(f) {
+        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+      });
+
+      container.innerHTML = '';
+      files.forEach(function(file, i) {
+        var card = document.createElement('div');
+        card.className = 'video-card';
+        card.style.animationDelay = (i * 60) + 'ms';
+
+        /* Thumbnail via <video preload="metadata"> — shows first frame */
+        var thumbVideo = document.createElement('video');
+        thumbVideo.className = 'video-thumb';
+        thumbVideo.preload   = 'metadata';
+        thumbVideo.muted     = true;
+        thumbVideo.playsInline = true;
+        thumbVideo.src       = rawUrl(file) + '#t=0.001'; // seek hint for Safari
+        card.appendChild(thumbVideo);
+
+        /* Play overlay */
+        var playOverlay = document.createElement('div');
+        playOverlay.className = 'video-play-overlay';
+        playOverlay.innerHTML =
+          '<div class="play-circle">' +
+            '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
+          '</div>';
+        card.appendChild(playOverlay);
+
+        /* Bottom bar */
+        var bottomBar = document.createElement('div');
+        bottomBar.className = 'video-bottom-bar';
+        bottomBar.innerHTML =
+          '<span class="video-card-name">' + esc(baseName(file.name)) + '</span>' +
+          '<div class="video-card-dl">' + dlIcon + '</div>';
+        card.appendChild(bottomBar);
+
+        /* Download icon click */
+        bottomBar.querySelector('.video-card-dl').addEventListener('click', function(e) {
+          e.stopPropagation();
+          forceDownload(rawUrl(file), file.name, bottomBar.querySelector('.video-card-dl'));
+        });
+
+        /* Card click → lightbox preview */
+        (function(idx) {
+          card.addEventListener('click', function(e) {
+            if (e.target.closest('.video-card-dl')) return;
+            openLightbox(videoLbFiles, idx, 'videos');
           });
         })(i);
 
@@ -1110,31 +1321,9 @@
       });
     }
 
-    function init() {
-      var logosGrid   = document.getElementById('logos-grid');
-      var logosList   = document.getElementById('logos-list');
-      var imagesGrid  = document.getElementById('images-grid');
-
-      Promise.allSettled([fetchFiles(LOGOS_PATH), fetchFiles(IMAGES_PATH)])
-        .then(function(results) {
-          if (results[0].status === 'fulfilled') {
-            renderLogos(results[0].value, logosGrid, logosList);
-            wireDownloadAll('dl-all-logos', results[0].value, 'Avastha_Logos.zip');
-          } else {
-            var err = '<div class="state-msg error">Could not load logos: ' + results[0].reason.message + '</div>';
-            logosGrid.innerHTML = err;
-            logosList.innerHTML = err;
-          }
-          if (results[1].status === 'fulfilled') {
-            renderPhotos(results[1].value, imagesGrid);
-            wireDownloadAll('dl-all-photos', results[1].value, 'Avastha_Photos.zip');
-          } else {
-            imagesGrid.innerHTML = '<div class="state-msg error">Could not load images: ' + results[1].reason.message + '</div>';
-          }
-        });
-    }
-
-    /* ── Pure-JS ZIP builder (no external lib) ── */
+    /* ════════════════════════════════════════════════
+       ZIP BUILDER (pure JS, no external lib)
+    ════════════════════════════════════════════════ */
     function makeCrcTable() {
       var t = new Uint32Array(256);
       for (var i = 0; i < 256; i++) {
@@ -1202,6 +1391,9 @@
       return new Blob([total], { type: 'application/zip' });
     }
 
+    /* ════════════════════════════════════════════════
+       DOWNLOAD ALL (ZIP)
+    ════════════════════════════════════════════════ */
     function wireDownloadAll(btnId, files, zipName) {
       var btn = document.getElementById(btnId);
       if (!files.length) return;
@@ -1217,8 +1409,8 @@
         Promise.all(fetches)
           .then(function(entries) {
             var blob = buildZip(entries);
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
+            var url  = URL.createObjectURL(blob);
+            var a    = document.createElement('a');
             a.href = url; a.download = zipName;
             document.body.appendChild(a); a.click(); a.remove();
             setTimeout(function() { URL.revokeObjectURL(url); }, 8000);
@@ -1231,6 +1423,9 @@
       });
     }
 
+    /* ════════════════════════════════════════════════
+       FORCE DOWNLOAD (single file)
+    ════════════════════════════════════════════════ */
     function forceDownload(url, filename, el) {
       el.style.pointerEvents = 'none';
       el.style.opacity = '0.5';
@@ -1239,17 +1434,17 @@
         .then(function(blob) {
           var blobUrl = URL.createObjectURL(blob);
           var a = document.createElement('a');
-          a.href = blobUrl;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
+          a.href = blobUrl; a.download = filename;
+          document.body.appendChild(a); a.click(); a.remove();
           setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 5000);
         })
         .catch(function() { alert('Download failed. Try right-click and Save As.'); })
         .finally(function() { el.style.pointerEvents = ''; el.style.opacity = ''; });
     }
 
+    /* ════════════════════════════════════════════════
+       NAV INTERSECTION OBSERVER
+    ════════════════════════════════════════════════ */
     var sections = document.querySelectorAll('section[id]');
     var navLinks = document.querySelectorAll('.nav a');
     var observer = new IntersectionObserver(function(entries) {
@@ -1260,8 +1455,51 @@
           });
         }
       });
-    }, { threshold: 0.4 });
+    }, { threshold: 0.3 });
     sections.forEach(function(s) { observer.observe(s); });
+
+    /* ════════════════════════════════════════════════
+       INIT — fetch all three sections in parallel
+    ════════════════════════════════════════════════ */
+    function init() {
+      var logosGrid  = document.getElementById('logos-grid');
+      var logosList  = document.getElementById('logos-list');
+      var imagesGrid = document.getElementById('images-grid');
+      var videosGrid = document.getElementById('videos-grid');
+
+      Promise.allSettled([
+        fetchFiles(LOGOS_PATH,  isImage),
+        fetchFiles(IMAGES_PATH, isImage),
+        fetchFiles(VIDEOS_PATH, isVideo)
+      ]).then(function(results) {
+
+        /* Logos */
+        if (results[0].status === 'fulfilled') {
+          renderLogos(results[0].value, logosGrid, logosList);
+          wireDownloadAll('dl-all-logos', results[0].value, 'Avastha_Logos.zip');
+        } else {
+          var msg = '<div class="state-msg error">Could not load logos: ' + results[0].reason.message + '</div>';
+          logosGrid.innerHTML = msg;
+          logosList.innerHTML = msg;
+        }
+
+        /* Photos */
+        if (results[1].status === 'fulfilled') {
+          renderPhotos(results[1].value, imagesGrid);
+          wireDownloadAll('dl-all-photos', results[1].value, 'Avastha_Photos.zip');
+        } else {
+          imagesGrid.innerHTML = '<div class="state-msg error">Could not load photos: ' + results[1].reason.message + '</div>';
+        }
+
+        /* Videos */
+        if (results[2].status === 'fulfilled') {
+          renderVideos(results[2].value, videosGrid);
+          wireDownloadAll('dl-all-videos', results[2].value, 'Avastha_Videos.zip');
+        } else {
+          videosGrid.innerHTML = '<div class="state-msg error">Could not load videos: ' + results[2].reason.message + '</div>';
+        }
+      });
+    }
 
     init();
   </script>
