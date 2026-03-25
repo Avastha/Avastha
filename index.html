@@ -118,7 +118,33 @@
       z-index: 2;
       padding: 2rem 1.5rem;
       width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
+    /* ── HERO LOGO VIDEO ────────────────────────── */
+    .hero-logo-video-wrap {
+      width: min(520px, 70vw);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.3s;
+      line-height: 0;
+    }
+    .hero-logo-video-wrap video {
+      width: 100%;
+      height: auto;
+      display: block;
+      pointer-events: none;
+    }
+
+    @media (max-width: 480px) {
+      .hero-logo-video-wrap {
+        width: min(320px, 85vw);
+        margin-bottom: 0.3rem;
+      }
+    }
+
     .hero-subtitle {
       font-weight: 300;
       font-size: clamp(0.72rem, 2vw, 1.05rem);
@@ -630,6 +656,11 @@
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
+      <div class="hero-logo-video-wrap">
+        <video autoplay loop muted playsinline disablePictureInPicture>
+          <source src="https://avastha.info/Avashta_Transperent_Logo_Video.webm" type="video/webm" />
+        </video>
+      </div>
       <p class="hero-subtitle">A phase of being where spirit takes form</p>
       <div class="hero-social">
         <a href="https://soundcloud.com/avastha_music" target="_blank" rel="noopener" class="hero-social-link">
