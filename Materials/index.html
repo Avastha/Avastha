@@ -366,6 +366,13 @@
       gap: 16px;
     }
 
+    /* ── ARTWORK GRID ── */
+    .artwork-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
     /* Video card */
     .video-card {
       position: relative;
@@ -722,6 +729,7 @@
       .photo-card { aspect-ratio: 1; }
       .photo-overlay { opacity: 1; }
       .videos-grid { grid-template-columns: 1fr; gap: 12px; }
+      .artwork-grid { grid-template-columns: 1fr; gap: 12px; }
       footer { padding: 24px 20px; }
       .media-banner { grid-template-columns: repeat(3, 1fr); gap: 6px 12px; }
       .media-label { font-size: 9px; letter-spacing: 0.1em; }
@@ -767,6 +775,34 @@
       animation: spin .7s linear infinite;
       flex-shrink: 0;
     }
+
+    /* ── ARTWORK image card (photo-style but in artwork grid) ── */
+    .artwork-img-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: block;
+      background: var(--surface);
+      aspect-ratio: 4/3;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      animation: fadeUp .4s ease both;
+    }
+    .artwork-img-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.6);
+    }
+    .artwork-img-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+    .artwork-img-card:hover img { transform: scale(1.04); }
+    .artwork-img-card .photo-overlay { opacity: 0; }
+    .artwork-img-card:hover .photo-overlay { opacity: 1; }
+
+    /* mobile: always show overlay on artwork image cards */
+    @media (max-width: 768px) {
+      .artwork-img-card .photo-overlay { opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -791,6 +827,7 @@
     <a href="#logos" class="active">Logos</a>
     <a href="#images">Photos</a>
     <a href="#videos">Videos</a>
+    <a href="#artwork">Artwork</a>
     <a href="#media">Media</a>
   </nav>
 
@@ -838,6 +875,20 @@
       </div>
       <div id="videos-grid" class="videos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading videos…</div>
+      </div>
+    </section>
+
+    <!-- ── ARTWORK ── -->
+    <section id="artwork">
+      <div class="section-header">
+        <h2 class="section-title">Artwork</h2>
+        <button class="download-all-btn" id="dl-all-artwork" disabled>
+          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+          Download All
+        </button>
+      </div>
+      <div id="artwork-grid" class="artwork-grid">
+        <div class="state-msg"><div class="spinner"></div><br/>Loading artwork…</div>
       </div>
     </section>
 
@@ -896,9 +947,9 @@
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
-        <!-- Image (logos / photos) -->
+        <!-- Image (logos / photos / artwork images) -->
         <img class="lightbox-img" id="lightbox-img" src="" alt="" />
-        <!-- Video (videos) -->
+        <!-- Video (videos / artwork videos) -->
         <video id="lightbox-video" controls playsinline></video>
         <!-- Next arrow -->
         <button class="lb-arrow lb-arrow-next" id="lb-next">
@@ -944,18 +995,20 @@
     /* ════════════════════════════════════════════════
        CONFIG
     ════════════════════════════════════════════════ */
-    var REPO_OWNER  = 'Avastha';
-    var REPO_NAME   = 'Avastha';
-    var BRANCH      = 'main';
-    var LOGOS_PATH  = 'Materials/Logos';
-    var IMAGES_PATH = 'Materials/Images';
-    var VIDEOS_PATH = 'Materials/Videos';
+    var REPO_OWNER   = 'Avastha';
+    var REPO_NAME    = 'Avastha';
+    var BRANCH       = 'main';
+    var LOGOS_PATH   = 'Materials/Logos';
+    var IMAGES_PATH  = 'Materials/Images';
+    var VIDEOS_PATH  = 'Materials/Videos';
+    var ARTWORK_PATH = 'Materials/Artwork';
 
     var IMAGE_EXTS = ['.png','.jpg','.jpeg','.gif','.webp','.svg','.bmp','.tiff','.ico'];
     var VIDEO_EXTS = ['.mp4','.mov','.webm','.avi','.mkv','.m4v','.ogv','.3gp'];
 
     function isImage(n) { return IMAGE_EXTS.some(function(e){ return n.toLowerCase().endsWith(e); }); }
     function isVideo(n) { return VIDEO_EXTS.some(function(e){ return n.toLowerCase().endsWith(e); }); }
+    function isImageOrVideo(n) { return isImage(n) || isVideo(n); }
     function rawUrl(f)  { return f.download_url; }
     function baseName(n){ return n.replace(/\.[^/.]+$/, '').replace(/_/g, ' '); }
 
@@ -1001,7 +1054,7 @@
 
     var lbFiles   = [];
     var lbIndex   = 0;
-    var lbMode    = 'logos'; // 'logos' | 'photos' | 'videos'
+    var lbMode    = 'logos'; // 'logos' | 'photos' | 'videos' | 'artwork'
     var lbCurrent = { url: '', name: '' };
 
     /* Download from lightbox */
@@ -1020,11 +1073,46 @@
       if (lbIndex < lbFiles.length - 1) showAtIndex(lbIndex + 1);
     });
 
+    /* Determine if a given lightbox entry is a video (used in artwork mixed mode) */
+    function lbEntryIsVideo(f) {
+      return f.filename && isVideo(f.filename);
+    }
+
     function showAtIndex(idx) {
       lbIndex = idx;
       var f = lbFiles[idx];
       lbPrev.disabled = (idx === 0);
       lbNext.disabled = (idx === lbFiles.length - 1);
+
+      /* In artwork mode each item can be image or video — switch dynamically */
+      if (lbMode === 'artwork') {
+        var entryIsVid = lbEntryIsVideo(f);
+        lb.classList.toggle('lb-video-mode', entryIsVid);
+        lb.classList.toggle('lb-photo-mode', !entryIsVid);
+
+        if (entryIsVid) {
+          lbVideo.pause();
+          lbVideo.removeAttribute('src');
+          lbVideo.load();
+          lbName.textContent = f.name;
+          lbCurrent = { url: f.url, name: f.filename };
+          lbVideo.src = f.url;
+          lbVideo.load();
+        } else {
+          lbImg.style.opacity = '0';
+          setTimeout(function() {
+            lbName.textContent = f.name;
+            lbCurrent = { url: f.url, name: f.filename };
+            lbImg.onload = function() { lbImg.style.opacity = '1'; };
+            if (lbImg.src === f.url && lbImg.complete) {
+              lbImg.style.opacity = '1';
+            } else {
+              lbImg.src = f.url;
+            }
+          }, 150);
+        }
+        return;
+      }
 
       if (lbMode === 'videos') {
         lbVideo.pause();
@@ -1082,6 +1170,8 @@
         lbCanvasBg.setAttribute('fill', '#000000');
       } else if (lbMode === 'videos') {
         lb.classList.add('lb-video-mode');
+      } else if (lbMode === 'artwork') {
+        /* classes applied per-item in showAtIndex */
       } else {
         setLbBg('#aaaaaa');
       }
@@ -1097,6 +1187,12 @@
       var f = files[index];
       lbName.textContent = f.name;
       lbCurrent = { url: f.url, name: f.filename };
+
+      if (lbMode === 'artwork') {
+        /* delegate entirely to showAtIndex which handles per-item type */
+        showAtIndex(index);
+        return;
+      }
 
       if (lbMode === 'videos') {
         lbVideo.src = f.url;
@@ -1266,7 +1362,6 @@
         return;
       }
 
-      /* Build lightbox file list */
       var videoLbFiles = files.map(function(f) {
         return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
       });
@@ -1277,16 +1372,14 @@
         card.className = 'video-card';
         card.style.animationDelay = (i * 60) + 'ms';
 
-        /* Thumbnail via <video preload="metadata"> — shows first frame */
         var thumbVideo = document.createElement('video');
         thumbVideo.className = 'video-thumb';
         thumbVideo.preload   = 'metadata';
         thumbVideo.muted     = true;
         thumbVideo.playsInline = true;
-        thumbVideo.src       = rawUrl(file) + '#t=0.001'; // seek hint for Safari
+        thumbVideo.src       = rawUrl(file) + '#t=0.001';
         card.appendChild(thumbVideo);
 
-        /* Play overlay */
         var playOverlay = document.createElement('div');
         playOverlay.className = 'video-play-overlay';
         playOverlay.innerHTML =
@@ -1295,7 +1388,6 @@
           '</div>';
         card.appendChild(playOverlay);
 
-        /* Bottom bar */
         var bottomBar = document.createElement('div');
         bottomBar.className = 'video-bottom-bar';
         bottomBar.innerHTML =
@@ -1303,17 +1395,108 @@
           '<div class="video-card-dl">' + dlIcon + '</div>';
         card.appendChild(bottomBar);
 
-        /* Download icon click */
         bottomBar.querySelector('.video-card-dl').addEventListener('click', function(e) {
           e.stopPropagation();
           forceDownload(rawUrl(file), file.name, bottomBar.querySelector('.video-card-dl'));
         });
 
-        /* Card click → lightbox preview */
         (function(idx) {
           card.addEventListener('click', function(e) {
             if (e.target.closest('.video-card-dl')) return;
             openLightbox(videoLbFiles, idx, 'videos');
+          });
+        })(i);
+
+        container.appendChild(card);
+      });
+    }
+
+    /* ════════════════════════════════════════════════
+       RENDER ARTWORK (mixed images + videos)
+    ════════════════════════════════════════════════ */
+    function renderArtwork(files, container) {
+      if (!files.length) {
+        container.innerHTML = '<div class="state-msg">No artwork files found.</div>';
+        return;
+      }
+
+      /* Build a unified lightbox list — each entry knows its type */
+      var artworkLbFiles = files.map(function(f) {
+        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+      });
+
+      container.innerHTML = '';
+      files.forEach(function(file, i) {
+        var card;
+
+        if (isVideo(file.name)) {
+          /* ── Video card (same as Videos section) ── */
+          card = document.createElement('div');
+          card.className = 'video-card';
+          card.style.animationDelay = (i * 60) + 'ms';
+
+          var thumbVideo = document.createElement('video');
+          thumbVideo.className = 'video-thumb';
+          thumbVideo.preload   = 'metadata';
+          thumbVideo.muted     = true;
+          thumbVideo.playsInline = true;
+          thumbVideo.src       = rawUrl(file) + '#t=0.001';
+          card.appendChild(thumbVideo);
+
+          var playOverlay = document.createElement('div');
+          playOverlay.className = 'video-play-overlay';
+          playOverlay.innerHTML =
+            '<div class="play-circle">' +
+              '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
+            '</div>';
+          card.appendChild(playOverlay);
+
+          var bottomBar = document.createElement('div');
+          bottomBar.className = 'video-bottom-bar';
+          bottomBar.innerHTML =
+            '<span class="video-card-name">' + esc(baseName(file.name)) + '</span>' +
+            '<div class="video-card-dl">' + dlIcon + '</div>';
+          card.appendChild(bottomBar);
+
+          bottomBar.querySelector('.video-card-dl').addEventListener('click', (function(f) {
+            return function(e) {
+              e.stopPropagation();
+              forceDownload(rawUrl(f), f.name, bottomBar.querySelector('.video-card-dl'));
+            };
+          })(file));
+
+        } else {
+          /* ── Image card (photo-style) ── */
+          card = document.createElement('div');
+          card.className = 'artwork-img-card';
+          card.style.animationDelay = (i * 50) + 'ms';
+          card.innerHTML =
+            '<div class="photo-overlay">' +
+              '<div class="photo-meta">' +
+                '<span class="photo-name">' + esc(baseName(file.name)) + '</span>' +
+                '<div class="photo-dl-icon">' + dlIcon + '</div>' +
+              '</div>' +
+            '</div>';
+
+          var artImg = document.createElement('img');
+          artImg.alt = file.name;
+          if (i > 3) artImg.loading = 'lazy';
+          artImg.src = rawUrl(file);
+          card.insertBefore(artImg, card.firstChild);
+
+          card.querySelector('.photo-dl-icon').addEventListener('click', (function(f) {
+            return function(e) {
+              e.stopPropagation();
+              forceDownload(rawUrl(f), f.name, card);
+            };
+          })(file));
+        }
+
+        /* Shared click → open lightbox in artwork mode (navigates full mixed list) */
+        (function(idx) {
+          card.addEventListener('click', function(e) {
+            if (e.target.closest('.photo-dl-icon') || e.target.closest('.video-card-dl')) return;
+            openLightbox(artworkLbFiles, idx, 'artwork');
           });
         })(i);
 
@@ -1459,18 +1642,20 @@
     sections.forEach(function(s) { observer.observe(s); });
 
     /* ════════════════════════════════════════════════
-       INIT — fetch all three sections in parallel
+       INIT — fetch all four sections in parallel
     ════════════════════════════════════════════════ */
     function init() {
-      var logosGrid  = document.getElementById('logos-grid');
-      var logosList  = document.getElementById('logos-list');
-      var imagesGrid = document.getElementById('images-grid');
-      var videosGrid = document.getElementById('videos-grid');
+      var logosGrid   = document.getElementById('logos-grid');
+      var logosList   = document.getElementById('logos-list');
+      var imagesGrid  = document.getElementById('images-grid');
+      var videosGrid  = document.getElementById('videos-grid');
+      var artworkGrid = document.getElementById('artwork-grid');
 
       Promise.allSettled([
-        fetchFiles(LOGOS_PATH,  isImage),
-        fetchFiles(IMAGES_PATH, isImage),
-        fetchFiles(VIDEOS_PATH, isVideo)
+        fetchFiles(LOGOS_PATH,   isImage),
+        fetchFiles(IMAGES_PATH,  isImage),
+        fetchFiles(VIDEOS_PATH,  isVideo),
+        fetchFiles(ARTWORK_PATH, isImageOrVideo)
       ]).then(function(results) {
 
         /* Logos */
@@ -1497,6 +1682,14 @@
           wireDownloadAll('dl-all-videos', results[2].value, 'Avastha_Videos.zip');
         } else {
           videosGrid.innerHTML = '<div class="state-msg error">Could not load videos: ' + results[2].reason.message + '</div>';
+        }
+
+        /* Artwork */
+        if (results[3].status === 'fulfilled') {
+          renderArtwork(results[3].value, artworkGrid);
+          wireDownloadAll('dl-all-artwork', results[3].value, 'Avastha_Artwork.zip');
+        } else {
+          artworkGrid.innerHTML = '<div class="state-msg error">Could not load artwork: ' + results[3].reason.message + '</div>';
         }
       });
     }
