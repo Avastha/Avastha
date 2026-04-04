@@ -776,6 +776,64 @@
       flex-shrink: 0;
     }
 
+    /* ── LOAD MORE ── */
+    .load-more-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 28px 0 4px;
+    }
+    .load-more-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 28px;
+      background: transparent;
+      border: 1px solid var(--gold-dim);
+      border-radius: 40px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color .2s, border-color .2s, background .2s, transform .2s, box-shadow .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .load-more-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 120%, rgba(201,169,110,0.12) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .load-more-btn:hover {
+      color: var(--gold);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(201,169,110,0.12);
+    }
+    .load-more-btn:hover::before { opacity: 1; }
+    .load-more-btn:active { transform: translateY(0); }
+    .load-more-btn svg {
+      width: 13px; height: 13px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      transition: transform .3s;
+    }
+    .load-more-btn:hover svg { transform: translateY(2px); }
+    .load-more-count {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--gold-dim);
+      transition: color .2s;
+    }
+    .load-more-btn:hover .load-more-count { color: var(--gold); }
+
     /* ── ARTWORK image card (photo-style but in artwork grid) ── */
     .artwork-img-card {
       position: relative;
@@ -1015,6 +1073,42 @@
     var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
 
     /* ════════════════════════════════════════════════
+       LOAD MORE HELPER
+       pairs: array of { container: Element, cards: Element[] }
+       insertAfter: Element — where to place the load-more button
+    ════════════════════════════════════════════════ */
+    var LOAD_MORE_LIMIT = 8;
+
+    function applyLoadMore(pairs, insertAfter) {
+      /* Count how many items remain across all pairs (they're parallel — same count) */
+      var remaining = pairs[0].cards.length;
+      if (remaining === 0) return;
+
+      var wrap = document.createElement('div');
+      wrap.className = 'load-more-wrap';
+
+      var btn = document.createElement('button');
+      btn.className = 'load-more-btn';
+      btn.innerHTML =
+        '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
+        '<span>Load More</span>' +
+        '<span class="load-more-count">+' + remaining + '</span>';
+
+      btn.addEventListener('click', function() {
+        pairs.forEach(function(pair) {
+          pair.cards.forEach(function(card) {
+            card.style.animationDelay = '0ms';
+            pair.container.appendChild(card);
+          });
+        });
+        wrap.remove();
+      });
+
+      wrap.appendChild(btn);
+      insertAfter.parentNode.insertBefore(wrap, insertAfter.nextSibling);
+    }
+
+    /* ════════════════════════════════════════════════
        HTML ESCAPE
     ════════════════════════════════════════════════ */
     function esc(s) {
@@ -1240,9 +1334,9 @@
         return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
       });
 
-      /* Desktop grid */
+      /* Build all grid cards */
       gridContainer.innerHTML = '';
-      files.forEach(function(file, i) {
+      var gridCards = files.map(function(file, i) {
         var card = document.createElement('div');
         card.className = 'logo-card';
         card.style.opacity = '0';
@@ -1270,12 +1364,12 @@
           e.stopPropagation();
           forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
         });
-        gridContainer.appendChild(card);
+        return card;
       });
 
-      /* Mobile list */
+      /* Build all list items */
       listContainer.innerHTML = '';
-      files.forEach(function(file, i) {
+      var listCards = files.map(function(file, i) {
         var item = document.createElement('div');
         item.className = 'logo-list-item';
         item.style.opacity = '0';
@@ -1305,8 +1399,24 @@
           e.stopPropagation();
           forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
         });
-        listContainer.appendChild(item);
+        return item;
       });
+
+      /* Append first LOAD_MORE_LIMIT to each container immediately */
+      gridCards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { gridContainer.appendChild(c); });
+      listCards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { listContainer.appendChild(c); });
+
+      /* If more remain, show one Load More button (after listContainer, visible on mobile;
+         on desktop the grid container is shown instead, so we insert after gridContainer too) */
+      if (files.length > LOAD_MORE_LIMIT) {
+        applyLoadMore(
+          [
+            { container: gridContainer, cards: gridCards.slice(LOAD_MORE_LIMIT) },
+            { container: listContainer, cards: listCards.slice(LOAD_MORE_LIMIT) }
+          ],
+          listContainer   /* button inserted after the last logos container in the DOM */
+        );
+      }
     }
 
     /* ════════════════════════════════════════════════
@@ -1321,7 +1431,8 @@
         return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
       });
       container.innerHTML = '';
-      files.forEach(function(file, i) {
+
+      var cards = files.map(function(file, i) {
         var card = document.createElement('div');
         card.className = 'photo-card';
         card.style.animationDelay = (i * 50) + 'ms';
@@ -1349,8 +1460,17 @@
             openLightbox(photoLbFiles, idx, 'photos');
           });
         })(i);
-        container.appendChild(card);
+        return card;
       });
+
+      cards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { container.appendChild(c); });
+
+      if (files.length > LOAD_MORE_LIMIT) {
+        applyLoadMore(
+          [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
+          container
+        );
+      }
     }
 
     /* ════════════════════════════════════════════════
@@ -1367,7 +1487,8 @@
       });
 
       container.innerHTML = '';
-      files.forEach(function(file, i) {
+
+      var cards = files.map(function(file, i) {
         var card = document.createElement('div');
         card.className = 'video-card';
         card.style.animationDelay = (i * 60) + 'ms';
@@ -1407,8 +1528,17 @@
           });
         })(i);
 
-        container.appendChild(card);
+        return card;
       });
+
+      cards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { container.appendChild(c); });
+
+      if (files.length > LOAD_MORE_LIMIT) {
+        applyLoadMore(
+          [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
+          container
+        );
+      }
     }
 
     /* ════════════════════════════════════════════════
@@ -1420,17 +1550,17 @@
         return;
       }
 
-      /* Build a unified lightbox list — each entry knows its type */
       var artworkLbFiles = files.map(function(f) {
         return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
       });
 
       container.innerHTML = '';
-      files.forEach(function(file, i) {
+
+      var cards = files.map(function(file, i) {
         var card;
 
         if (isVideo(file.name)) {
-          /* ── Video card (same as Videos section) ── */
+          /* ── Video card ── */
           card = document.createElement('div');
           card.className = 'video-card';
           card.style.animationDelay = (i * 60) + 'ms';
@@ -1466,7 +1596,7 @@
           })(file));
 
         } else {
-          /* ── Image card (photo-style) ── */
+          /* ── Image card ── */
           card = document.createElement('div');
           card.className = 'artwork-img-card';
           card.style.animationDelay = (i * 50) + 'ms';
@@ -1492,7 +1622,7 @@
           })(file));
         }
 
-        /* Shared click → open lightbox in artwork mode (navigates full mixed list) */
+        /* Shared click → lightbox */
         (function(idx) {
           card.addEventListener('click', function(e) {
             if (e.target.closest('.photo-dl-icon') || e.target.closest('.video-card-dl')) return;
@@ -1500,8 +1630,17 @@
           });
         })(i);
 
-        container.appendChild(card);
+        return card;
       });
+
+      cards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { container.appendChild(c); });
+
+      if (files.length > LOAD_MORE_LIMIT) {
+        applyLoadMore(
+          [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
+          container
+        );
+      }
     }
 
     /* ════════════════════════════════════════════════
