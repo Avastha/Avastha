@@ -1068,7 +1068,7 @@
     function isVideo(n) { return VIDEO_EXTS.some(function(e){ return n.toLowerCase().endsWith(e); }); }
     function isImageOrVideo(n) { return isImage(n) || isVideo(n); }
     function rawUrl(f)  { return f.download_url; }
-    function baseName(n){ return n.replace(/\.[^/.]+$/, '').replace(/_/g, ' '); }
+    function baseName(n){ return n.replace(/\.[^/.]+$/, '').replace(/^\d+_/, '').replace(/_/g, ' '); }
 
     var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
 
@@ -1127,7 +1127,7 @@
           return res.json();
         })
         .then(function(data) {
-          return data.filter(function(f) { return f.type === 'file' && filterFn(f.name); });
+          return data.filter(function(f) { return f.type === 'file' && filterFn(f.name); }).sort(function(a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true }); });
         });
     }
 
