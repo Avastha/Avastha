@@ -1,0 +1,253 @@
+/* Avastha Materials worker — auth + R2 video storage for avastha.info/Materials.
+   Same pattern as the cue-counter relay: a Cloudflare Worker that keeps every
+   secret OFF the public repo.
+
+   What it does:
+   1) AUTH: user registry (salted PBKDF2 password hashes) + session tokens live
+      in Cloudflare KV. Login, change-password and logout all verify here —
+      the browser never sees a hash. The registry seeds itself on first login
+      from the DEFAULT_PASS variable (so no password ever appears in this file).
+   2) VIDEOS: lists / uploads / deletes objects under "videos/" in the R2
+      bucket. Listing is public (the site needs it to render); upload and
+      delete require a valid session token. Files are served to visitors
+      straight from the bucket's public r2.dev URL, not through this worker.
+
+   Setup (one time, dash.cloudflare.com):
+   A. Storage & Databases → KV → Create namespace → name: avastha-auth
+   B. Workers & Pages → Create → Worker → name it exactly: avastha-materials
+      (that makes the URL https://avastha-materials.adidatabase.workers.dev,
+      which is what Materials/index.html expects) → paste this whole file
+      as the worker code → Deploy.
+   C. Worker → Settings → Bindings → Add:
+        KV namespace  → Variable name: AUTH_KV          → Namespace: avastha-auth
+        R2 bucket     → Variable name: MATERIALS_BUCKET → your public bucket
+   D. Worker → Settings → Variables and Secrets → Add:
+        DEFAULT_PASS (type Secret) = the initial admin password.
+        Used only to create the "avastha" user on the very first login;
+        after you change the password on the site it is ignored.
+        ALLOW_ORIGIN (optional, plain text) = https://avastha.info  (* if unset)
+   E. R2 bucket → Settings → CORS policy → add (lets the site fetch files
+      for the download / zip buttons; the bucket is already public-read):
+        [
+          {
+            "AllowedOrigins": ["*"],
+            "AllowedMethods": ["GET", "HEAD"],
+            "AllowedHeaders": ["*"],
+            "MaxAgeSeconds": 3600
+          }
+        ]
+
+   Forgot the password? Delete the "registry" key in the KV namespace —
+   the next login re-seeds it from DEFAULT_PASS.
+*/
+
+const PREFIX = 'videos/';
+const VIDEO_EXTS = ['.mp4', '.mov', '.webm', '.m4v', '.avi', '.mkv', '.ogv', '.3gp'];
+const PBKDF2_ITER = 100000;           // Workers cap PBKDF2 at 100k iterations
+const SESSION_TTL = 60 * 60 * 24 * 7; // 7 days
+const MAX_UPLOAD = 95 * 1024 * 1024;  // stay under the 100 MB request limit
+
+export default {
+  async fetch(req, env) {
+    const cors = {
+      'Access-Control-Allow-Origin': env.ALLOW_ORIGIN || '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400'
+    };
+    const json = (obj, status) => new Response(JSON.stringify(obj), {
+      status: status || 200, headers: { 'Content-Type': 'application/json', ...cors }
+    });
+    if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
+    if (req.method !== 'POST') return json({ message: 'POST only' }, 405);
+
+    try {
+      const url = new URL(req.url);
+
+      /* ---------------- binary upload: POST /upload?key=videos/name.mp4 ---------------- */
+      if (url.pathname === '/upload') {
+        if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
+        const user = await sessionUser(env, bearerToken(req));
+        if (!user) return json({ ok: false, message: 'unauthorized' }, 401);
+        const key = url.searchParams.get('key') || '';
+        if (!validKey(key)) return json({ ok: false, message: 'bad key (videos/… with a video extension)' }, 400);
+        const len = parseInt(req.headers.get('Content-Length') || '0', 10);
+        if (len > MAX_UPLOAD) return json({ ok: false, message: 'file too large (max ~95 MB per upload)' }, 413);
+        await env.MATERIALS_BUCKET.put(key, req.body, {
+          httpMetadata: { contentType: req.headers.get('Content-Type') || 'application/octet-stream' }
+        });
+        return json({ ok: true, key });
+      }
+
+      /* ---------------- JSON ops ---------------- */
+      let b;
+      try { b = await req.json(); } catch { return json({ message: 'bad json' }, 400); }
+      const op = b && b.op;
+      const token = bearerToken(req) || String((b && b.token) || '');
+
+      if (op === 'debug') {
+        const reg = await getRegistry(env);
+        return json({
+          version: 'v1.0', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
+          hasDefaultPass: !!env.DEFAULT_PASS, seeded: !!reg
+        });
+      }
+
+      if (op === 'list') {
+        if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
+        const files = [];
+        let cursor;
+        do {
+          const page = await env.MATERIALS_BUCKET.list({ prefix: PREFIX, cursor });
+          for (const o of page.objects) {
+            const name = o.key.slice(PREFIX.length);
+            if (!name || name.includes('/')) continue;
+            if (!VIDEO_EXTS.some(e => name.toLowerCase().endsWith(e))) continue;
+            files.push({ key: o.key, name, size: o.size, uploaded: o.uploaded });
+          }
+          cursor = page.truncated ? page.cursor : null;
+        } while (cursor);
+        files.sort((a, b2) => a.name.localeCompare(b2.name, undefined, { numeric: true }));
+        return json({ ok: true, files });
+      }
+
+      if (op === 'login') {
+        if (!env.AUTH_KV) return json({ ok: false, message: 'AUTH_KV not bound' }, 500);
+        const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
+        const failKey = 'fail:' + ip;
+        const fails = parseInt((await env.AUTH_KV.get(failKey)) || '0', 10);
+        if (fails >= 8) return json({ ok: false, message: 'too many attempts — try again in 10 minutes' }, 429);
+        const reg = await getOrSeedRegistry(env);
+        if (!reg) return json({ ok: false, message: 'not configured: set the DEFAULT_PASS variable' }, 500);
+        const id = String(b.user || '').trim().toLowerCase();
+        const u = reg.users.find(x => x.id === id);
+        if (u && await verifyPass(String(b.pass || ''), u.salt, u.hash, reg)) {
+          const tok = await newSession(env, u.id);
+          return json({ ok: true, token: tok, user: { id: u.id, label: u.label } });
+        }
+        await env.AUTH_KV.put(failKey, String(fails + 1), { expirationTtl: 600 });
+        return json({ ok: false, message: 'wrong username or password' });
+      }
+
+      if (op === 'check') {
+        const user = await sessionUser(env, token);
+        return json({ ok: !!user, user: user || undefined });
+      }
+
+      if (op === 'logout') {
+        if (env.AUTH_KV && token) await env.AUTH_KV.delete('token:' + token);
+        return json({ ok: true });
+      }
+
+      if (op === 'changepass') {
+        const user = await sessionUser(env, token);
+        if (!user) return json({ ok: false, message: 'unauthorized' }, 401);
+        const reg = await getRegistry(env);
+        const u = reg && reg.users.find(x => x.id === user);
+        if (!u || !(await verifyPass(String(b.oldPass || ''), u.salt, u.hash, reg)))
+          return json({ ok: false, message: 'current password is incorrect' }, 403);
+        const np = String(b.newPass || '');
+        if (np.length < 6) return json({ ok: false, message: 'new password too short (min 6 characters)' }, 400);
+        const cred = await makeCred(np, reg);
+        u.salt = cred.salt; u.hash = cred.hash;
+        await putRegistry(env, reg);
+        await deleteAllSessions(env);            // sign out every device…
+        const tok = await newSession(env, user); // …but keep this one signed in
+        return json({ ok: true, token: tok });
+      }
+
+      if (op === 'delete') {
+        if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
+        const user = await sessionUser(env, token);
+        if (!user) return json({ ok: false, message: 'unauthorized' }, 401);
+        const key = String(b.key || '');
+        if (!validKey(key)) return json({ ok: false, message: 'bad key' }, 400);
+        await env.MATERIALS_BUCKET.delete(key);
+        return json({ ok: true });
+      }
+
+      return json({ message: 'bad op' }, 400);
+    } catch (e) {
+      return json({ message: 'worker error: ' + ((e && e.message) || String(e)) }, 500);
+    }
+  }
+};
+
+/* ---------------- keys ---------------- */
+function validKey(k) {
+  if (typeof k !== 'string' || !k.startsWith(PREFIX) || k.length > 180) return false;
+  const name = k.slice(PREFIX.length);
+  if (!name || name.includes('/') || name.includes('..')) return false;
+  if (!/^[\w .,()&+'\-\[\]]+$/.test(name)) return false;
+  return VIDEO_EXTS.some(e => name.toLowerCase().endsWith(e));
+}
+
+/* ---------------- sessions (KV, auto-expiring) ---------------- */
+function bearerToken(req) {
+  const h = req.headers.get('Authorization') || '';
+  return h.startsWith('Bearer ') ? h.slice(7).trim() : '';
+}
+async function newSession(env, user) {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  const tok = [...bytes].map(x => x.toString(16).padStart(2, '0')).join('');
+  await env.AUTH_KV.put('token:' + tok, JSON.stringify({ user }), { expirationTtl: SESSION_TTL });
+  return tok;
+}
+async function sessionUser(env, token) {
+  if (!env.AUTH_KV || !token || token.length < 32) return null;
+  const s = await env.AUTH_KV.get('token:' + token);
+  if (!s) return null;
+  try { return JSON.parse(s).user; } catch { return null; }
+}
+async function deleteAllSessions(env) {
+  let cursor;
+  do {
+    const page = await env.AUTH_KV.list({ prefix: 'token:', cursor });
+    for (const k of page.keys) await env.AUTH_KV.delete(k.name);
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+}
+
+/* ---------------- registry (users + hashes in KV) ---------------- */
+async function getRegistry(env) {
+  if (!env.AUTH_KV) return null;
+  const s = await env.AUTH_KV.get('registry');
+  if (!s) return null;
+  try { return JSON.parse(s); } catch { return null; }
+}
+function putRegistry(env, reg) { return env.AUTH_KV.put('registry', JSON.stringify(reg)); }
+async function getOrSeedRegistry(env) {
+  let reg = await getRegistry(env);
+  if (reg) return reg;
+  if (!env.AUTH_KV || !env.DEFAULT_PASS) return null;
+  reg = { kdf: { iterations: PBKDF2_ITER }, users: [] };
+  const cred = await makeCred(env.DEFAULT_PASS, reg);
+  reg.users.push({ id: 'avastha', label: 'Avastha', admin: true, ...cred });
+  await putRegistry(env, reg);
+  return reg;
+}
+
+/* ---------------- crypto ---------------- */
+function iterOf(reg) { return (reg && reg.kdf && reg.kdf.iterations) || PBKDF2_ITER; }
+async function verifyPass(pass, saltB64, hashB64, reg) {
+  if (typeof pass !== 'string' || !pass || !saltB64 || !hashB64) return false;
+  const got = await pbkdf2b64(pass, saltB64, iterOf(reg));
+  return timingEq(got, hashB64);
+}
+async function makeCred(pass, reg) {
+  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+  const salt = btoa(String.fromCharCode(...saltBytes));
+  return { salt, hash: await pbkdf2b64(pass, salt, iterOf(reg)) };
+}
+async function pbkdf2b64(pass, saltB64, iterations) {
+  const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, km, 256);
+  return btoa(String.fromCharCode(...new Uint8Array(bits)));
+}
+function timingEq(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
