@@ -173,15 +173,16 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 2;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      justify-content: center;
       gap: 0.9rem;
-      width: max-content;
-      max-width: 96vw;
+      width: min(96vw, 640px);
       opacity: 0;
       animation: fadeIn 1s ease forwards 0.9s;
     }
+    .hero-bottom .btn:first-child { justify-self: end; }
+    .hero-bottom .btn:last-child { justify-self: start; }
     .hero-bottom .btn {
       border: 0;
       background: transparent;
@@ -203,8 +204,8 @@
       top: calc(100% + 5px);
       left: 50%;
       transform: translateX(-50%);
-      font-size: 0.58rem;
-      letter-spacing: 0.3em;
+      font-size: 0.62rem;
+      letter-spacing: 0.35em;
       color: var(--text-dim);
       text-transform: uppercase;
       white-space: nowrap;
@@ -259,19 +260,7 @@
       section { padding: 3rem 1.4rem; }
     }
 
-    /* ── ABOUT (original artwork as background) ── */
-    #about {
-      background:
-        linear-gradient(rgba(10,15,30,0.86), rgba(10,15,30,0.93)),
-        url('https://raw.githubusercontent.com/Avastha/Avastha/main/desktop_backround.png') center / cover no-repeat;
-    }
-    @media (max-width: 768px) {
-      #about {
-        background:
-          linear-gradient(rgba(10,15,30,0.88), rgba(10,15,30,0.94)),
-          url('https://raw.githubusercontent.com/Avastha/Avastha/main/mobile_Backround.png') center / cover no-repeat;
-      }
-    }
+    #about { background: var(--dark2); }
     .about-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -354,7 +343,19 @@
     }
 
     /* ── RELEASES ───────────────────────────────── */
-    #releases { background: var(--dark); }
+    /* ── RELEASES (original artwork as background) ── */
+    #releases {
+      background:
+        linear-gradient(rgba(5,8,16,0.72), rgba(5,8,16,0.85)),
+        url('https://raw.githubusercontent.com/Avastha/Avastha/main/desktop_backround.png') center / cover no-repeat;
+    }
+    @media (max-width: 768px) {
+      #releases {
+        background:
+          linear-gradient(rgba(5,8,16,0.74), rgba(5,8,16,0.86)),
+          url('https://raw.githubusercontent.com/Avastha/Avastha/main/mobile_Backround.png') center / cover no-repeat;
+      }
+    }
     .release-card {
       display: grid;
       grid-template-columns: auto 1fr;
