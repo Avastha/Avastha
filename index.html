@@ -176,7 +176,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 1.1rem;
+      gap: 0.9rem;
       width: max-content;
       max-width: 96vw;
       opacity: 0;
@@ -187,7 +187,8 @@
       background: transparent;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-      padding: 0.4rem 0.3rem;
+      padding: 0.2rem 0;
+      letter-spacing: 0.22em;
     }
     .hero-bottom .btn:hover {
       background: transparent;
@@ -195,26 +196,27 @@
       transform: translateY(-2px);
       text-shadow: 0 0 16px currentColor;
     }
-    .scroll-hint {
-      display: flex;
-      flex-direction: column-reverse; /* line above the word */
-      align-items: center;
-      gap: 0.4rem;
-    }
+    /* the | sits inline between the two links; SCROLL hangs right below it */
+    .scroll-hint { position: relative; display: flex; }
     .scroll-hint span {
-      font-size: 0.62rem;
-      letter-spacing: 0.35em;
+      position: absolute;
+      top: calc(100% + 5px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
       color: var(--text-dim);
       text-transform: uppercase;
+      white-space: nowrap;
     }
     .scroll-line {
       width: 1px;
-      height: 34px;
+      height: 26px;
       background: linear-gradient(to bottom, var(--teal), transparent);
       animation: scrollPulse 2s ease-in-out infinite;
     }
     @media (max-width: 600px) {
-      .hero-bottom { bottom: 1.3rem; gap: 0.9rem; }
+      .hero-bottom { bottom: 1.6rem; gap: 0.7rem; }
       .scroll-line { height: 24px; }
     }
 
