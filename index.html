@@ -120,7 +120,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-end; /* content sits in the dark bottom band, never on faces */
+      justify-content: flex-start; /* logo up top, above the faces */
       text-align: center;
       overflow: hidden;
     }
@@ -140,7 +140,7 @@
     .hero-content {
       position: relative;
       z-index: 2;
-      padding: clamp(1.5rem, 4vw, 2.5rem) 1.5rem 110px;
+      padding: clamp(5rem, 11vh, 7.5rem) 1.5rem 0;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -165,57 +165,24 @@
       50%      { filter: drop-shadow(0 6px 26px rgba(0,0,0,0.7)) drop-shadow(0 0 24px rgba(201,168,76,0.30)); }
     }
 
-    .hero-subtitle {
-      font-weight: 300;
-      font-size: clamp(0.72rem, 2vw, 1.05rem);
-      letter-spacing: 0.22em;
-      color: var(--text);
-      text-shadow: 0 1px 14px rgba(0,0,0,0.9);
-      text-transform: uppercase;
-      margin-top: 1.1rem;
-      opacity: 0;
-      animation: fadeUp 1s ease forwards 0.6s;
-    }
-
+    /* CTA buttons sit at the very bottom of the hero (where the scroll hint was) */
     .hero-cta {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 2.4rem;
-      opacity: 0;
-      animation: fadeUp 1s ease forwards 0.9s;
-    }
-
-    .scroll-hint {
       position: absolute;
-      bottom: 2rem;
+      bottom: 2.2rem;
       left: 50%;
       transform: translateX(-50%);
       z-index: 2;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: max-content;
+      max-width: 92vw;
       opacity: 0;
-      animation: fadeIn 1s ease forwards 2s;
+      animation: fadeIn 1s ease forwards 0.9s;
     }
-    .scroll-hint span {
-      font-size: 0.62rem;
-      letter-spacing: 0.35em;
-      color: var(--text-dim);
-      text-transform: uppercase;
-    }
-    .scroll-line {
-      width: 1px;
-      height: 40px;
-      background: linear-gradient(to bottom, var(--teal), transparent);
-      animation: scrollPulse 2s ease-in-out infinite;
-    }
-
     @media (max-width: 600px) {
-      .scroll-hint { bottom: 1.2rem; }
-      .scroll-line { height: 28px; }
+      .hero-cta { bottom: 1.4rem; }
     }
 
     /* ── SECTIONS ───────────────────────────────── */
@@ -724,15 +691,10 @@
              alt="Avastha"
              onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_logo.png';" />
       </div>
-      <p class="hero-subtitle">A phase of being where spirit takes form</p>
-      <div class="hero-cta">
-        <a href="#releases" class="btn btn-teal">▶ &nbsp;Latest Release</a>
-        <a href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf" target="_blank" rel="noopener" class="btn btn-ghost">↓ &nbsp;Press Kit</a>
-      </div>
     </div>
-    <div class="scroll-hint">
-      <span>Scroll</span>
-      <div class="scroll-line"></div>
+    <div class="hero-cta">
+      <a href="#releases" class="btn btn-teal">▶ &nbsp;Latest Release</a>
+      <a href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf" target="_blank" rel="noopener" class="btn btn-ghost">↓ &nbsp;Press Kit</a>
     </div>
   </section>
 
