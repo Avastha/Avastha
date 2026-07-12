@@ -58,7 +58,7 @@ export default {
   async fetch(req, env) {
     const cors = {
       'Access-Control-Allow-Origin': env.ALLOW_ORIGIN || '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Max-Age': '86400'
     };
@@ -66,10 +66,31 @@ export default {
       status: status || 200, headers: { 'Content-Type': 'application/json', ...cors }
     });
     if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
-    if (req.method !== 'POST') return json({ message: 'POST only' }, 405);
 
     try {
       const url = new URL(req.url);
+
+      /* ---------------- public file read: GET /file?key=<category>/name.ext ----------------
+         The site's "Download All" zip fetches through here instead of the public
+         r2.dev URL, because r2.dev rate-limits bursts of requests. The bucket is
+         public-read anyway, so no auth is needed. */
+      if (req.method === 'GET' && url.pathname === '/file') {
+        if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
+        const key = url.searchParams.get('key') || '';
+        if (!validKey(key)) return json({ ok: false, message: 'bad key' }, 400);
+        const obj = await env.MATERIALS_BUCKET.get(key);
+        if (!obj) return json({ ok: false, message: 'not found' }, 404);
+        return new Response(obj.body, {
+          headers: {
+            ...cors,
+            'Content-Type': (obj.httpMetadata && obj.httpMetadata.contentType) || 'application/octet-stream',
+            'Content-Length': String(obj.size),
+            'Cache-Control': 'public, max-age=3600'
+          }
+        });
+      }
+
+      if (req.method !== 'POST') return json({ message: 'POST only' }, 405);
 
       /* ---------------- binary upload: POST /upload?key=<category>/name.ext ---------------- */
       if (url.pathname === '/upload') {
@@ -95,7 +116,7 @@ export default {
       if (op === 'debug') {
         const reg = await getRegistry(env);
         return json({
-          version: 'v2.1', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
+          version: 'v2.2', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
           hasDefaultPass: !!env.DEFAULT_PASS, seeded: !!reg
         });
       }
