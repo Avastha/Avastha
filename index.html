@@ -572,6 +572,31 @@
       .artist-bio { font-size: 0.78rem; }
     }
 
+    /* ── PRESS KIT (page images + PDF download, like the Materials site) ── */
+    #presskit { background: var(--dark); }
+    .presskit-pages {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 440px));
+      justify-content: center;
+      gap: 1.4rem;
+      margin-top: 2.5rem;
+    }
+    .presskit-page {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      display: block;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+    }
+    .presskit-page:hover {
+      transform: translateY(-4px);
+      border-color: rgba(201,168,76,0.5);
+      box-shadow: var(--glow-gold);
+    }
+    .presskit-page img { width: 100%; display: block; }
+    .presskit-dl { text-align: center; margin-top: 2.2rem; }
+
     /* ── FOOTER (logo · socials · links · copyright) ── */
     footer {
       background: var(--dark2);
@@ -717,7 +742,7 @@
         <span>Scroll</span>
         <div class="scroll-line"></div>
       </div>
-      <a href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf" target="_blank" rel="noopener" class="btn btn-ghost">↓ &nbsp;Press Kit</a>
+      <a href="#presskit" class="btn btn-ghost">↓ &nbsp;Press Kit</a>
     </div>
   </section>
 
@@ -735,7 +760,7 @@
           <p>Rooted in <strong>original, performance-driven material</strong>, Avastha delivers precise, high-energy psytrance crafted for the live experience. By fusing their original productions with enhanced tracks from leading artists through custom edits and additions, the duo ensures a unique experience tailored for any dance floor.</p>
           <p>The name itself — <em>Avastha</em> — speaks to the shifting landscape of life: wakefulness, dreams, deep sleep, and the awakening beyond. Every set is that journey.</p>
           <div class="presskit-row">
-            <a href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf" target="_blank" class="btn btn-ghost">↓ &nbsp;Download Press Kit</a>
+            <a href="#presskit" class="btn btn-ghost">↓ &nbsp;Press Kit</a>
           </div>
         </div>
         <div class="meaning-img-wrap reveal">
@@ -811,6 +836,30 @@
     </div>
   </section>
 
+  <div class="rule"></div>
+
+  <!-- PRESS KIT -->
+  <section id="presskit">
+    <div class="container">
+      <div class="reveal centered">
+        <p class="section-label">For Promoters &amp; Media</p>
+        <h2 class="section-title">Press Kit</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="presskit-pages">
+        <a class="presskit-page reveal" href="/Materials/avastha_presskit-1.png" target="_blank" rel="noopener">
+          <img src="/Materials/avastha_presskit-1.png" alt="Avastha press kit — page 1" loading="lazy" />
+        </a>
+        <a class="presskit-page reveal" href="/Materials/avastha_presskit-2.png" target="_blank" rel="noopener">
+          <img src="/Materials/avastha_presskit-2.png" alt="Avastha press kit — page 2" loading="lazy" />
+        </a>
+      </div>
+      <div class="presskit-dl reveal">
+        <a href="/Materials/avastha_presskit.pdf" download="avastha_presskit.pdf" class="btn btn-ghost">↓ &nbsp;Download Press Kit (PDF)</a>
+      </div>
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer>
     <p class="footer-logo">AVASTHA</p>
@@ -847,7 +896,7 @@
     <div class="footer-links">
       <a href="/Materials/">Brand Materials</a>
       <span class="dot">·</span>
-      <a href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf" target="_blank" rel="noopener">Press Kit</a>
+      <a href="#presskit">Press Kit</a>
     </div>
     <p class="footer-text">© 2026 Avastha Music &nbsp;·&nbsp; All Rights Reserved</p>
   </footer>
