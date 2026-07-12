@@ -924,6 +924,7 @@
 
     /* ── DOWNLOAD ALL ── */
     .download-all-btn {
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -1525,7 +1526,7 @@
        pairs: array of { container: Element, cards: Element[] }
        insertAfter: Element — where to place the load-more button
     ════════════════════════════════════════════════ */
-    var LOAD_MORE_LIMIT = 8;
+    var LOAD_MORE_LIMIT = 4;
 
     function applyLoadMore(pairs, footerId) {
       /* Count how many items remain across all pairs (they're parallel — same count) */
