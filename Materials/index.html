@@ -882,18 +882,64 @@
     .video-card-del:hover { transform: scale(1.15); background: #c06060; }
     .video-card-del svg { width: 12px; height: 12px; fill: #0d0d0d; }
 
-    /* Upload progress */
-    .upload-status {
+    /* Delete button on logo cards (admin only) */
+    .logo-del {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(192,96,96,0.15);
+      border: 1px solid rgba(192,96,96,0.35);
+      align-items: center; justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .logo-del:hover { background: rgba(192,96,96,0.9); }
+    .logo-del svg { width: 12px; height: 12px; fill: #c06060; transition: fill .2s; }
+    .logo-del:hover svg { fill: #0d0d0d; }
+
+    .logo-list-del {
+      width: 44px;
+      flex-shrink: 0;
+      align-items: center; justify-content: center;
+      cursor: pointer;
+      border-right: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .logo-list-del:hover, .logo-list-del:active { background: rgba(192,96,96,0.15); }
+    .logo-list-del svg { width: 14px; height: 14px; fill: #c06060; }
+
+    /* Delete button on photo/artwork overlays (admin only) */
+    .photo-del-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(192,96,96,0.9);
+      align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-left: 12px;
+      cursor: pointer;
+    }
+    .photo-del-icon svg { width: 14px; height: 14px; fill: #0d0d0d; }
+
+    /* Upload progress toast */
+    .upload-toast {
+      position: fixed;
+      left: 50%; bottom: 24px;
+      transform: translateX(-50%);
+      z-index: 9600;
       display: none;
-      width: 100%;
-      max-width: 480px;
+      background: var(--surface);
+      border: 1px solid var(--gold-dim);
+      border-radius: 10px;
+      padding: 12px 18px;
+      min-width: 280px; max-width: 90vw;
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--text);
+      box-shadow: 0 12px 48px rgba(0,0,0,.65);
     }
-    .upload-status.active { display: block; }
-    .upload-status.error { color: #c06060; }
+    .upload-toast.active { display: block; }
+    .upload-toast.error { border-color: #c06060; color: #c06060; }
     .upload-bar {
       height: 3px;
       background: var(--border);
@@ -988,10 +1034,16 @@
     <section id="logos">
       <div class="section-header">
         <h2 class="section-title">Logos</h2>
-        <button class="download-all-btn" id="dl-all-logos" disabled>
-          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
-          Download All
-        </button>
+        <div class="section-controls">
+          <button class="download-all-btn" id="dl-all-logos" disabled>
+            <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+            Download All
+          </button>
+          <button class="download-all-btn admin-only upload-btn" data-cat="logos">
+            <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
+            Upload
+          </button>
+        </div>
       </div>
       <div id="logos-grid" class="logos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading logos…</div>
@@ -1005,10 +1057,16 @@
     <section id="images">
       <div class="section-header">
         <h2 class="section-title">Photos</h2>
-        <button class="download-all-btn" id="dl-all-photos" disabled>
-          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
-          Download All
-        </button>
+        <div class="section-controls">
+          <button class="download-all-btn" id="dl-all-photos" disabled>
+            <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+            Download All
+          </button>
+          <button class="download-all-btn admin-only upload-btn" data-cat="images">
+            <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
+            Upload
+          </button>
+        </div>
       </div>
       <div id="images-grid" class="photos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading photos…</div>
@@ -1024,16 +1082,11 @@
             <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
             Download All
           </button>
-          <button class="download-all-btn admin-only" id="upload-videos-btn">
+          <button class="download-all-btn admin-only upload-btn" data-cat="videos">
             <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
-            Upload Videos
+            Upload
           </button>
         </div>
-        <div class="upload-status" id="upload-status">
-          <span id="upload-status-text"></span>
-          <div class="upload-bar"><div class="upload-bar-fill" id="upload-bar-fill"></div></div>
-        </div>
-        <input type="file" id="upload-input" multiple accept="video/*,.mp4,.mov,.webm,.m4v,.mkv,.avi" style="display:none" />
       </div>
       <div id="videos-grid" class="videos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading videos…</div>
@@ -1044,10 +1097,16 @@
     <section id="artwork">
       <div class="section-header">
         <h2 class="section-title">Artwork</h2>
-        <button class="download-all-btn" id="dl-all-artwork" disabled>
-          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
-          Download All
-        </button>
+        <div class="section-controls">
+          <button class="download-all-btn" id="dl-all-artwork" disabled>
+            <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+            Download All
+          </button>
+          <button class="download-all-btn admin-only upload-btn" data-cat="artwork">
+            <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
+            Upload
+          </button>
+        </div>
       </div>
       <div id="artwork-grid" class="artwork-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading artwork…</div>
@@ -1159,6 +1218,13 @@
     </div>
   </footer>
 
+  <!-- ── UPLOAD PROGRESS TOAST + shared file input ── -->
+  <div class="upload-toast" id="upload-toast">
+    <span id="upload-toast-text"></span>
+    <div class="upload-bar"><div class="upload-bar-fill" id="upload-bar-fill"></div></div>
+  </div>
+  <input type="file" id="upload-input" multiple style="display:none" />
+
   <!-- ── ADMIN SIGN IN ── -->
   <div class="auth-modal" id="login-modal">
     <div class="auth-box">
@@ -1193,20 +1259,14 @@
     /* ════════════════════════════════════════════════
        CONFIG
     ════════════════════════════════════════════════ */
-    var REPO_OWNER   = 'Avastha';
-    var REPO_NAME    = 'Avastha';
-    var BRANCH       = 'main';
-    var LOGOS_PATH   = 'Materials/Logos';
-    var IMAGES_PATH  = 'Materials/Images';
-    var ARTWORK_PATH = 'Materials/Artwork';
-
-    /* Videos live in Cloudflare R2, managed through the avastha-materials worker
+    /* All assets live in Cloudflare R2 under logos/, images/, videos/ and
+       artwork/, managed through the avastha-materials worker
        (see Materials/worker/avastha-materials-worker.js for the one-time setup). */
     var WORKER_URL   = 'https://avastha-materials.adidatabase.workers.dev';
     var R2_PUBLIC    = 'https://pub-bda38e7b052e4947825df1d0a165dedf.r2.dev';
     var TOKEN_LS_KEY = 'avastha_admin_token';
     var adminToken   = null;
-    var currentVideoFiles = [];
+    var currentFiles = { logos: [], images: [], videos: [], artwork: [] };
 
     var IMAGE_EXTS = ['.png','.jpg','.jpeg','.gif','.webp','.svg','.bmp','.tiff','.ico'];
     var VIDEO_EXTS = ['.mp4','.mov','.webm','.avi','.mkv','.m4v','.ogv','.3gp'];
@@ -1263,20 +1323,6 @@
       var d = document.createElement('div');
       d.textContent = s;
       return d.innerHTML;
-    }
-
-    /* ════════════════════════════════════════════════
-       GITHUB FETCH
-    ════════════════════════════════════════════════ */
-    function fetchFiles(path, filterFn) {
-      return fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + path + '?ref=' + BRANCH)
-        .then(function(res) {
-          if (!res.ok) throw new Error('GitHub API error: ' + res.status);
-          return res.json();
-        })
-        .then(function(data) {
-          return data.filter(function(f) { return f.type === 'file' && filterFn(f.name); }).sort(function(a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true }); });
-        });
     }
 
     /* ════════════════════════════════════════════════
@@ -1491,6 +1537,7 @@
         card.innerHTML =
           '<div class="logo-label">' +
             '<span class="logo-name">' + esc(baseName(file.name)) + '</span>' +
+            '<div class="logo-del admin-only" title="Delete logo">' + trashIcon + '</div>' +
             '<div class="dl-icon">' + dlIcon + '</div>' +
           '</div>' +
           '<div class="logo-img-area"></div>';
@@ -1512,6 +1559,10 @@
           e.stopPropagation();
           forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
         });
+        card.querySelector('.logo-del').addEventListener('click', function(e) {
+          e.stopPropagation();
+          deleteAsset('logos', file);
+        });
         return card;
       });
 
@@ -1524,6 +1575,7 @@
         item.innerHTML =
           '<div class="logo-list-info"><div class="logo-list-name">' + esc(baseName(file.name)) + '</div></div>' +
           '<div class="logo-list-thumb"></div>' +
+          '<div class="logo-list-del admin-only">' + trashIcon + '</div>' +
           '<div class="logo-list-dl">' + dlIcon + '</div>';
 
         var thumbImg = document.createElement('img');
@@ -1546,6 +1598,10 @@
         item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
           e.stopPropagation();
           forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
+        });
+        item.querySelector('.logo-list-del').addEventListener('click', function(e) {
+          e.stopPropagation();
+          deleteAsset('logos', file);
         });
         return item;
       });
@@ -1588,6 +1644,7 @@
           '<div class="photo-overlay">' +
             '<div class="photo-meta">' +
               '<span class="photo-name">' + esc(baseName(file.name)) + '</span>' +
+              '<div class="photo-del-icon admin-only" title="Delete photo">' + trashIcon + '</div>' +
               '<div class="photo-dl-icon">' + dlIcon + '</div>' +
             '</div>' +
           '</div>';
@@ -1603,8 +1660,12 @@
             e.stopPropagation();
             forceDownload(rawUrl(file), file.name, card);
           });
+          card.querySelector('.photo-del-icon').addEventListener('click', function(e) {
+            e.stopPropagation();
+            deleteAsset('images', file);
+          });
           card.addEventListener('click', function(e) {
-            if (e.target.closest('.photo-dl-icon')) return;
+            if (e.target.closest('.photo-dl-icon') || e.target.closest('.photo-del-icon')) return;
             openLightbox(photoLbFiles, idx, 'photos');
           });
         })(i);
@@ -1671,7 +1732,7 @@
         });
         bottomBar.querySelector('.video-card-del').addEventListener('click', function(e) {
           e.stopPropagation();
-          deleteVideo(file);
+          deleteAsset('videos', file);
         });
 
         (function(idx) {
@@ -1738,6 +1799,7 @@
           bottomBar.className = 'video-bottom-bar';
           bottomBar.innerHTML =
             '<span class="video-card-name">' + esc(baseName(file.name)) + '</span>' +
+            '<div class="video-card-del admin-only" title="Delete">' + trashIcon + '</div>' +
             '<div class="video-card-dl">' + dlIcon + '</div>';
           card.appendChild(bottomBar);
 
@@ -1745,6 +1807,12 @@
             return function(e) {
               e.stopPropagation();
               forceDownload(rawUrl(f), f.name, bottomBar.querySelector('.video-card-dl'));
+            };
+          })(file));
+          bottomBar.querySelector('.video-card-del').addEventListener('click', (function(f) {
+            return function(e) {
+              e.stopPropagation();
+              deleteAsset('artwork', f);
             };
           })(file));
 
@@ -1757,6 +1825,7 @@
             '<div class="photo-overlay">' +
               '<div class="photo-meta">' +
                 '<span class="photo-name">' + esc(baseName(file.name)) + '</span>' +
+                '<div class="photo-del-icon admin-only" title="Delete">' + trashIcon + '</div>' +
                 '<div class="photo-dl-icon">' + dlIcon + '</div>' +
               '</div>' +
             '</div>';
@@ -1773,12 +1842,19 @@
               forceDownload(rawUrl(f), f.name, card);
             };
           })(file));
+          card.querySelector('.photo-del-icon').addEventListener('click', (function(f) {
+            return function(e) {
+              e.stopPropagation();
+              deleteAsset('artwork', f);
+            };
+          })(file));
         }
 
         /* Shared click → lightbox */
         (function(idx) {
           card.addEventListener('click', function(e) {
-            if (e.target.closest('.photo-dl-icon') || e.target.closest('.video-card-dl')) return;
+            if (e.target.closest('.photo-dl-icon') || e.target.closest('.video-card-dl') ||
+                e.target.closest('.photo-del-icon') || e.target.closest('.video-card-del')) return;
             openLightbox(artworkLbFiles, idx, 'artwork');
           });
         })(i);
@@ -1896,12 +1972,6 @@
         });
     }
 
-    function wireDownloadAll(btnId, files, zipName) {
-      var btn = document.getElementById(btnId);
-      if (!files.length) return;
-      btn.disabled = false;
-      btn.addEventListener('click', function() { zipAndDownload(files, zipName, btn); });
-    }
 
     /* ════════════════════════════════════════════════
        FORCE DOWNLOAD (single file)
@@ -1923,8 +1993,15 @@
     }
 
     /* ════════════════════════════════════════════════
-       R2 VIDEOS + ADMIN (Cloudflare worker)
+       R2 ASSETS + ADMIN (Cloudflare worker)
     ════════════════════════════════════════════════ */
+    var CATEGORY_META = {
+      logos:   { check: isImage,        accept: 'image/*',         dlBtn: 'dl-all-logos',   zip: 'Avastha_Logos.zip' },
+      images:  { check: isImage,        accept: 'image/*',         dlBtn: 'dl-all-photos',  zip: 'Avastha_Photos.zip' },
+      videos:  { check: isVideo,        accept: 'video/*',         dlBtn: 'dl-all-videos',  zip: 'Avastha_Videos.zip' },
+      artwork: { check: isImageOrVideo, accept: 'image/*,video/*', dlBtn: 'dl-all-artwork', zip: 'Avastha_Artwork.zip' }
+    };
+
     function workerOp(body) {
       return fetch(WORKER_URL, {
         method: 'POST',
@@ -1937,32 +2014,58 @@
       return R2_PUBLIC + '/' + key.split('/').map(encodeURIComponent).join('/');
     }
 
-    function fetchVideosFromR2() {
+    function fetchAllFromR2() {
       return workerOp({ op: 'list' }).then(function(res) {
-        if (!res || !res.ok) throw new Error((res && res.message) || 'video list failed');
-        return res.files.map(function(f) {
-          return { name: f.name, filename: f.name, download_url: r2Url(f.key), key: f.key, size: f.size };
+        if (!res || !res.ok) throw new Error((res && res.message) || 'list failed');
+        var out = {};
+        Object.keys(CATEGORY_META).forEach(function(cat) {
+          out[cat] = ((res.categories && res.categories[cat]) || []).map(function(f) {
+            return { name: f.name, filename: f.name, download_url: r2Url(f.key), key: f.key, size: f.size };
+          });
+        });
+        return out;
+      });
+    }
+
+    function renderCategory(cat) {
+      var files = currentFiles[cat];
+      if (cat === 'logos') {
+        renderLogos(files, document.getElementById('logos-grid'), document.getElementById('logos-list'));
+      } else if (cat === 'images') {
+        renderPhotos(files, document.getElementById('images-grid'));
+      } else if (cat === 'videos') {
+        renderVideos(files, document.getElementById('videos-grid'));
+      } else {
+        renderArtwork(files, document.getElementById('artwork-grid'));
+      }
+      document.getElementById(CATEGORY_META[cat].dlBtn).disabled = (files.length === 0);
+    }
+
+    function loadAll() {
+      fetchAllFromR2().then(function(all) {
+        currentFiles = all;
+        Object.keys(CATEGORY_META).forEach(renderCategory);
+      }).catch(function(err) {
+        var msg = '<div class="state-msg error">Could not load: ' + esc(err.message) + '</div>';
+        ['logos-grid', 'logos-list', 'images-grid', 'videos-grid', 'artwork-grid'].forEach(function(id) {
+          document.getElementById(id).innerHTML = msg;
         });
       });
     }
 
-    function loadVideosSection() {
-      var grid = document.getElementById('videos-grid');
-      grid.innerHTML = '<div class="state-msg"><div class="spinner"></div><br/>Loading videos…</div>';
-      fetchVideosFromR2().then(function(files) {
-        currentVideoFiles = files;
-        document.getElementById('dl-all-videos').disabled = (files.length === 0);
-        renderVideos(files, grid);
-      }).catch(function(err) {
-        currentVideoFiles = [];
-        document.getElementById('dl-all-videos').disabled = true;
-        grid.innerHTML = '<div class="state-msg error">Could not load videos: ' + esc(err.message) + '</div>';
-      });
+    function reloadCategory(cat) {
+      fetchAllFromR2().then(function(all) {
+        currentFiles = all;
+        renderCategory(cat);
+      }).catch(function() { loadAll(); });
     }
 
-    /* Download All for videos always zips the CURRENT list (it changes after uploads/deletes) */
-    document.getElementById('dl-all-videos').addEventListener('click', function() {
-      if (currentVideoFiles.length) zipAndDownload(currentVideoFiles, 'Avastha_Videos.zip', this);
+    /* Download All buttons zip the CURRENT list (it changes after uploads/deletes) */
+    Object.keys(CATEGORY_META).forEach(function(cat) {
+      var btn = document.getElementById(CATEGORY_META[cat].dlBtn);
+      btn.addEventListener('click', function() {
+        if (currentFiles[cat].length) zipAndDownload(currentFiles[cat], CATEGORY_META[cat].zip, btn);
+      });
     });
 
     /* ── Admin session ── */
@@ -2075,51 +2178,58 @@
     }
     document.getElementById('pass-submit').addEventListener('click', doChangePass);
 
-    /* ── Upload ── */
+    /* ── Upload (per category) ── */
     var uploadInput = document.getElementById('upload-input');
-    document.getElementById('upload-videos-btn').addEventListener('click', function() { uploadInput.click(); });
+    var uploadCat = null;
+    document.querySelectorAll('.upload-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        uploadCat = btn.dataset.cat;
+        uploadInput.accept = CATEGORY_META[uploadCat].accept;
+        uploadInput.click();
+      });
+    });
     uploadInput.addEventListener('change', function() {
       var files = Array.prototype.slice.call(uploadInput.files);
       uploadInput.value = '';
-      if (files.length) uploadVideos(files);
+      if (files.length && uploadCat) uploadAssets(uploadCat, files);
     });
 
     /* Keep only characters the worker accepts in object keys */
-    function safeVideoName(name) {
-      return name.replace(/[^\w .,()&+'\-]+/g, '_').replace(/ {2,}/g, ' ').trim() || 'video.mp4';
+    function safeAssetName(name) {
+      return name.replace(/[^\w .,()&+'\-]+/g, '_').replace(/ {2,}/g, ' ').trim() || 'file';
     }
 
-    function uploadVideos(files) {
+    function uploadAssets(cat, files) {
       if (!adminToken) return;
-      var status = document.getElementById('upload-status');
-      var text   = document.getElementById('upload-status-text');
-      var fill   = document.getElementById('upload-bar-fill');
-      var total  = files.length, idx = 0, failed = [];
-      status.classList.add('active');
-      status.classList.remove('error');
+      var toast = document.getElementById('upload-toast');
+      var text  = document.getElementById('upload-toast-text');
+      var fill  = document.getElementById('upload-bar-fill');
+      var total = files.length, idx = 0, failed = [];
+      toast.classList.add('active');
+      toast.classList.remove('error');
       fill.style.width = '0%';
 
       function next() {
         if (idx >= total) {
           fill.style.width = '100%';
           if (failed.length) {
-            status.classList.add('error');
+            toast.classList.add('error');
             text.textContent = 'Failed: ' + failed.join(', ');
           } else {
-            text.textContent = 'Uploaded ' + total + ' video' + (total > 1 ? 's' : '') + ' ✓';
+            text.textContent = 'Uploaded ' + total + ' file' + (total > 1 ? 's' : '') + ' ✓';
           }
-          setTimeout(function() { status.classList.remove('active'); }, failed.length ? 12000 : 4000);
-          loadVideosSection();
+          setTimeout(function() { toast.classList.remove('active'); }, failed.length ? 12000 : 4000);
+          reloadCategory(cat);
           return;
         }
         var f = files[idx];
-        var name = safeVideoName(f.name);
-        if (!isVideo(name)) {
-          failed.push(f.name + ' (not a video)');
+        var name = safeAssetName(f.name);
+        if (!CATEGORY_META[cat].check(name)) {
+          failed.push(f.name + ' (wrong file type)');
           idx++; next(); return;
         }
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', WORKER_URL + '/upload?key=' + encodeURIComponent('videos/' + name));
+        xhr.open('POST', WORKER_URL + '/upload?key=' + encodeURIComponent(cat + '/' + name));
         xhr.setRequestHeader('Authorization', 'Bearer ' + adminToken);
         xhr.upload.onprogress = function(e) {
           if (e.lengthComputable) {
@@ -2130,7 +2240,7 @@
           var res = {};
           try { res = JSON.parse(xhr.responseText); } catch (e2) {}
           if (xhr.status === 401) {
-            status.classList.remove('active');
+            toast.classList.remove('active');
             adminSessionExpired();
             return;
           }
@@ -2147,11 +2257,11 @@
     }
 
     /* ── Delete ── */
-    function deleteVideo(file) {
+    function deleteAsset(cat, file) {
       if (!adminToken) return;
       if (!confirm('Delete "' + file.name + '" permanently from storage?')) return;
       workerOp({ op: 'delete', token: adminToken, key: file.key }).then(function(res) {
-        if (res && res.ok) loadVideosSection();
+        if (res && res.ok) reloadCategory(cat);
         else if (res && res.message === 'unauthorized') adminSessionExpired();
         else alert((res && res.message) || 'Delete failed.');
       }).catch(function() { alert('Could not reach the server.'); });
@@ -2177,47 +2287,8 @@
        INIT — fetch all four sections in parallel
     ════════════════════════════════════════════════ */
     function init() {
-      var logosGrid   = document.getElementById('logos-grid');
-      var logosList   = document.getElementById('logos-list');
-      var imagesGrid  = document.getElementById('images-grid');
-      var artworkGrid = document.getElementById('artwork-grid');
-
-      /* Videos come from R2 through the worker; the rest still comes from GitHub */
-      loadVideosSection();
+      loadAll();
       initAdmin();
-
-      Promise.allSettled([
-        fetchFiles(LOGOS_PATH,   isImage),
-        fetchFiles(IMAGES_PATH,  isImage),
-        fetchFiles(ARTWORK_PATH, isImageOrVideo)
-      ]).then(function(results) {
-
-        /* Logos */
-        if (results[0].status === 'fulfilled') {
-          renderLogos(results[0].value, logosGrid, logosList);
-          wireDownloadAll('dl-all-logos', results[0].value, 'Avastha_Logos.zip');
-        } else {
-          var msg = '<div class="state-msg error">Could not load logos: ' + results[0].reason.message + '</div>';
-          logosGrid.innerHTML = msg;
-          logosList.innerHTML = msg;
-        }
-
-        /* Photos */
-        if (results[1].status === 'fulfilled') {
-          renderPhotos(results[1].value, imagesGrid);
-          wireDownloadAll('dl-all-photos', results[1].value, 'Avastha_Photos.zip');
-        } else {
-          imagesGrid.innerHTML = '<div class="state-msg error">Could not load photos: ' + results[1].reason.message + '</div>';
-        }
-
-        /* Artwork */
-        if (results[2].status === 'fulfilled') {
-          renderArtwork(results[2].value, artworkGrid);
-          wireDownloadAll('dl-all-artwork', results[2].value, 'Avastha_Artwork.zip');
-        } else {
-          artworkGrid.innerHTML = '<div class="state-msg error">Could not load artwork: ' + results[2].reason.message + '</div>';
-        }
-      });
     }
 
     init();

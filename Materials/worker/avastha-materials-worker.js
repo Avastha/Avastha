@@ -1,4 +1,4 @@
-/* Avastha Materials worker — auth + R2 video storage for avastha.info/Materials.
+/* Avastha Materials worker — auth + R2 asset storage for avastha.info/Materials.
    Same pattern as the cue-counter relay: a Cloudflare Worker that keeps every
    secret OFF the public repo.
 
@@ -7,10 +7,11 @@
       in Cloudflare KV. Login, change-password and logout all verify here —
       the browser never sees a hash. The registry seeds itself on first login
       from the DEFAULT_PASS variable (so no password ever appears in this file).
-   2) VIDEOS: lists / uploads / deletes objects under "videos/" in the R2
-      bucket. Listing is public (the site needs it to render); upload and
-      delete require a valid session token. Files are served to visitors
-      straight from the bucket's public r2.dev URL, not through this worker.
+   2) ASSETS: lists / uploads / deletes objects in the R2 bucket under the four
+      category folders — logos/, images/, videos/, artwork/. Listing is public
+      (the site needs it to render); upload and delete require a valid session
+      token. Files are served to visitors straight from the bucket's public
+      r2.dev URL, not through this worker.
 
    Setup (one time, dash.cloudflare.com):
    A. Storage & Databases → KV → Create namespace → name: avastha-auth
@@ -41,8 +42,14 @@
    the next login re-seeds it from DEFAULT_PASS.
 */
 
-const PREFIX = 'videos/';
+const IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico'];
 const VIDEO_EXTS = ['.mp4', '.mov', '.webm', '.m4v', '.avi', '.mkv', '.ogv', '.3gp'];
+const CATEGORIES = {
+  'logos/':   IMAGE_EXTS,
+  'images/':  IMAGE_EXTS,
+  'videos/':  VIDEO_EXTS,
+  'artwork/': IMAGE_EXTS.concat(VIDEO_EXTS)
+};
 const PBKDF2_ITER = 100000;           // Workers cap PBKDF2 at 100k iterations
 const SESSION_TTL = 60 * 60 * 24 * 7; // 7 days
 const MAX_UPLOAD = 95 * 1024 * 1024;  // stay under the 100 MB request limit
@@ -64,13 +71,13 @@ export default {
     try {
       const url = new URL(req.url);
 
-      /* ---------------- binary upload: POST /upload?key=videos/name.mp4 ---------------- */
+      /* ---------------- binary upload: POST /upload?key=<category>/name.ext ---------------- */
       if (url.pathname === '/upload') {
         if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
         const user = await sessionUser(env, bearerToken(req));
         if (!user) return json({ ok: false, message: 'unauthorized' }, 401);
         const key = url.searchParams.get('key') || '';
-        if (!validKey(key)) return json({ ok: false, message: 'bad key (videos/… with a video extension)' }, 400);
+        if (!validKey(key)) return json({ ok: false, message: 'bad key (category folder + matching file type)' }, 400);
         const len = parseInt(req.headers.get('Content-Length') || '0', 10);
         if (len > MAX_UPLOAD) return json({ ok: false, message: 'file too large (max ~95 MB per upload)' }, 413);
         await env.MATERIALS_BUCKET.put(key, req.body, {
@@ -88,27 +95,32 @@ export default {
       if (op === 'debug') {
         const reg = await getRegistry(env);
         return json({
-          version: 'v1.0', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
+          version: 'v2.0', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
           hasDefaultPass: !!env.DEFAULT_PASS, seeded: !!reg
         });
       }
 
       if (op === 'list') {
         if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
-        const files = [];
-        let cursor;
-        do {
-          const page = await env.MATERIALS_BUCKET.list({ prefix: PREFIX, cursor });
-          for (const o of page.objects) {
-            const name = o.key.slice(PREFIX.length);
-            if (!name || name.includes('/')) continue;
-            if (!VIDEO_EXTS.some(e => name.toLowerCase().endsWith(e))) continue;
-            files.push({ key: o.key, name, size: o.size, uploaded: o.uploaded });
-          }
-          cursor = page.truncated ? page.cursor : null;
-        } while (cursor);
-        files.sort((a, b2) => a.name.localeCompare(b2.name, undefined, { numeric: true }));
-        return json({ ok: true, files });
+        const categories = {};
+        for (const prefix of Object.keys(CATEGORIES)) {
+          const exts = CATEGORIES[prefix];
+          const files = [];
+          let cursor;
+          do {
+            const page = await env.MATERIALS_BUCKET.list({ prefix, cursor });
+            for (const o of page.objects) {
+              const name = o.key.slice(prefix.length);
+              if (!name || name.includes('/')) continue;
+              if (!exts.some(e => name.toLowerCase().endsWith(e))) continue;
+              files.push({ key: o.key, name, size: o.size, uploaded: o.uploaded });
+            }
+            cursor = page.truncated ? page.cursor : null;
+          } while (cursor);
+          files.sort((a, b2) => a.name.localeCompare(b2.name, undefined, { numeric: true }));
+          categories[prefix.slice(0, -1)] = files;
+        }
+        return json({ ok: true, categories });
       }
 
       if (op === 'login') {
@@ -175,11 +187,13 @@ export default {
 
 /* ---------------- keys ---------------- */
 function validKey(k) {
-  if (typeof k !== 'string' || !k.startsWith(PREFIX) || k.length > 180) return false;
-  const name = k.slice(PREFIX.length);
+  if (typeof k !== 'string' || k.length > 180) return false;
+  const prefix = Object.keys(CATEGORIES).find(p => k.startsWith(p));
+  if (!prefix) return false;
+  const name = k.slice(prefix.length);
   if (!name || name.includes('/') || name.includes('..')) return false;
   if (!/^[\w .,()&+'\-\[\]]+$/.test(name)) return false;
-  return VIDEO_EXTS.some(e => name.toLowerCase().endsWith(e));
+  return CATEGORIES[prefix].some(e => name.toLowerCase().endsWith(e));
 }
 
 /* ---------------- sessions (KV, auto-expiring) ---------------- */
