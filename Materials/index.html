@@ -659,20 +659,49 @@
       padding-bottom: max(13px, env(safe-area-inset-bottom));
     }
 
-    .lb-bg-btn {
-      width: 22px; height: 22px;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: transform .2s;
-      display: block;
-      overflow: visible;
+    /* ── Background colour slider (logos) ──
+       Left quarter: white → grey → black. Rest: the full hue wheel. */
+    .lb-bg-slider-wrap {
+      display: flex;
+      align-items: center;
+      flex: 0 1 280px;
+      min-width: 130px;
+      padding: 0 4px;
     }
-    .lb-bg-btn:hover { transform: scale(1.25); }
-    .lb-bg-btn.active {
-      filter: drop-shadow(0 0 0 #fff);
-      outline: 2.5px solid #ffffff;
-      outline-offset: 2.5px;
+    #lb-bg-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 10px;
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.25);
+      --thumb-color: #adadad;
+      background: linear-gradient(to right,
+        #ffffff 0%, #888888 12%, #000000 25%,
+        hsl(0,65%,55%) 25.5%, hsl(45,65%,55%) 34.4%,
+        hsl(90,65%,55%) 43.8%, hsl(135,65%,55%) 53.1%,
+        hsl(180,65%,55%) 62.5%, hsl(225,65%,55%) 71.9%,
+        hsl(270,65%,55%) 81.3%, hsl(315,65%,55%) 90.6%,
+        hsl(360,65%,55%) 100%);
+    }
+    #lb-bg-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
       border-radius: 50%;
+      background: var(--thumb-color, #adadad);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 6px rgba(0,0,0,0.6);
+      cursor: pointer;
+    }
+    #lb-bg-slider::-moz-range-thumb {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--thumb-color, #adadad);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 6px rgba(0,0,0,0.6);
+      cursor: pointer;
     }
     .lightbox-close {
       position: fixed; top: 20px; right: 20px;
@@ -727,7 +756,7 @@
       .lightbox.lb-video-mode .lightbox-canvas { aspect-ratio: 16/9; }
       .lightbox-img { max-width: 88%; max-height: 88%; }
       .lightbox-footer { padding: 8px 12px; gap: 8px; }
-      .lb-bg-btn { width: 20px; height: 20px; }
+      .lb-bg-slider-wrap { flex-basis: 180px; }
       .lightbox-close { top: 6px; right: 6px; width: 32px; height: 32px; }
       .lb-arrow { width: 30px; height: 30px; }
       .lb-arrow svg { width: 14px; height: 14px; }
@@ -1225,12 +1254,10 @@
       </div>
       <!-- Footer: colour swatches + download -->
       <div class="lightbox-footer" id="lightbox-footer">
-        <!-- Colour swatches — hidden in photo & video modes via CSS -->
-        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#aaaaaa" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#aaaaaa"/></svg>
-        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#ffffff" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#ffffff" stroke="#999" stroke-width="0.5"/></svg>
-        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#111111" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#111111" stroke="#555" stroke-width="0.5"/></svg>
-        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#c9a96e" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c9a96e"/></svg>
-        <svg class="lb-bg-btn lb-bg-swatch" data-bg="#c0151a" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c0151a"/></svg>
+        <!-- Background colour slider (logos only) — hidden in photo & video modes via CSS -->
+        <div class="lb-bg-slider-wrap lb-bg-swatch" title="Background colour">
+          <input type="range" id="lb-bg-slider" min="0" max="100" step="0.5" value="8" />
+        </div>
         <!-- Fullscreen toggle -->
         <div class="lb-fs-btn" id="lightbox-fs" title="Full screen" style="margin-left:10px;">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1385,7 +1412,7 @@
     var lbClose    = document.getElementById('lightbox-close');
     var lbCanvas   = document.getElementById('lightbox-canvas');
     var lbCanvasBg = document.querySelector('#lb-canvas-bg rect');
-    var lbBgBtns   = document.querySelectorAll('.lb-bg-btn');
+    var lbBgSlider = document.getElementById('lb-bg-slider');
     var lbDlBtn    = document.getElementById('lightbox-dl');
     var lbPrev     = document.getElementById('lb-prev');
     var lbNext     = document.getElementById('lb-next');
@@ -1517,19 +1544,25 @@
       }
     }
 
-    /* Background colour switcher (logos only) */
-    function setLbBg(color) {
-      lbCanvasBg.setAttribute('fill', color);
-      lbBgBtns.forEach(function(b) {
-        b.classList.toggle('active', b.dataset.bg.toLowerCase() === color.toLowerCase());
-      });
+    /* Background colour slider (logos only)
+       0–25 → white → grey → black; 25–100 → full hue wheel */
+    var LB_BG_DEFAULT = 8; /* ≈ the old light-grey default */
+    function sliderToColor(v) {
+      v = parseFloat(v);
+      if (v <= 25) {
+        var l = Math.round(100 - (v / 25) * 100);
+        return 'hsl(0, 0%, ' + l + '%)';
+      }
+      var hue = Math.round(((v - 25) / 75) * 360);
+      return 'hsl(' + hue + ', 65%, 55%)';
     }
-    lbBgBtns.forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        setLbBg(btn.dataset.bg);
-      });
-    });
+    function applyLbBg(v) {
+      var c = sliderToColor(v);
+      lbCanvasBg.setAttribute('fill', c);
+      lbBgSlider.style.setProperty('--thumb-color', c);
+    }
+    lbBgSlider.addEventListener('input', function() { applyLbBg(this.value); });
+    lbBgSlider.addEventListener('click', function(e) { e.stopPropagation(); });
 
     /* Open lightbox */
     function openLightbox(files, index, mode) {
@@ -1553,7 +1586,8 @@
       } else if (lbMode === 'artwork') {
         /* classes applied per-item in showAtIndex */
       } else {
-        setLbBg('#aaaaaa');
+        lbBgSlider.value = LB_BG_DEFAULT;
+        applyLbBg(LB_BG_DEFAULT);
       }
 
       lb.classList.add('open');
@@ -1600,6 +1634,7 @@
     document.addEventListener('keydown', function(e) {
       if (!lb.classList.contains('open')) return;
       if (e.key === 'Escape') history.back();
+      if (e.target === lbBgSlider) return; /* arrows move the colour slider, not the gallery */
       if (e.key === 'ArrowLeft'  && lbIndex > 0)                    showAtIndex(lbIndex - 1);
       if (e.key === 'ArrowRight' && lbIndex < lbFiles.length - 1)   showAtIndex(lbIndex + 1);
     });
