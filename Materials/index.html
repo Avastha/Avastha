@@ -1502,6 +1502,9 @@
     function isVideo(n) { return VIDEO_EXTS.some(function(e){ return n.toLowerCase().endsWith(e); }); }
     function isImageOrVideo(n) { return isImage(n) || isVideo(n); }
     function rawUrl(f)  { return f.download_url; }
+    /* Download URL: via the worker — direct r2.dev fetches can hit a CORS-less
+       cache entry left by the <img>/<video> that displayed the same file. */
+    function dlUrl(f) { return f.key ? WORKER_URL + '/file?key=' + encodeURIComponent(f.key) : (f.url || f.download_url); }
     function baseName(n){ return n.replace(/\.[^/.]+$/, '').replace(/^\d+_/, '').replace(/_/g, ' '); }
 
     var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
@@ -1587,7 +1590,7 @@
     /* Download from lightbox */
     lbDlBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      if (lbCurrent.url) forceDownload(lbCurrent.url, lbCurrent.name, lbDlBtn);
+      if (lbCurrent.url) forceDownload(lbCurrent.dl || lbCurrent.url, lbCurrent.name, lbDlBtn);
     });
 
     /* Fullscreen / maximise toggle */
@@ -1669,14 +1672,14 @@
           lbVideo.removeAttribute('src');
           lbVideo.load();
           lbName.textContent = f.name;
-          lbCurrent = { url: f.url, name: f.filename };
+          lbCurrent = { url: f.url, dl: f.dl || f.url, name: f.filename };
           lbVideo.src = f.url;
           lbVideo.load();
         } else {
           lbImg.style.opacity = '0';
           setTimeout(function() {
             lbName.textContent = f.name;
-            lbCurrent = { url: f.url, name: f.filename };
+            lbCurrent = { url: f.url, dl: f.dl || f.url, name: f.filename };
             lbImg.onload = function() { lbImg.style.opacity = '1'; };
             if (lbImg.src === f.url && lbImg.complete) {
               lbImg.style.opacity = '1';
@@ -1693,14 +1696,14 @@
         lbVideo.removeAttribute('src');
         lbVideo.load();
         lbName.textContent = f.name;
-        lbCurrent = { url: f.url, name: f.filename };
+        lbCurrent = { url: f.url, dl: f.dl || f.url, name: f.filename };
         lbVideo.src = f.url;
         lbVideo.load();
       } else {
         lbImg.style.opacity = '0';
         setTimeout(function() {
           lbName.textContent = f.name;
-          lbCurrent = { url: f.url, name: f.filename };
+          lbCurrent = { url: f.url, dl: f.dl || f.url, name: f.filename };
           lbImg.onload = function() { lbImg.style.opacity = '1'; };
           if (lbImg.src === f.url && lbImg.complete) {
             lbImg.style.opacity = '1';
@@ -1771,7 +1774,7 @@
 
       var f = files[index];
       lbName.textContent = f.name;
-      lbCurrent = { url: f.url, name: f.filename };
+      lbCurrent = { url: f.url, dl: f.dl || f.url, name: f.filename };
 
       if (lbMode === 'artwork') {
         /* delegate entirely to showAtIndex which handles per-item type */
@@ -1824,7 +1827,7 @@
         return;
       }
       var lbFileList = files.map(function(f) {
-        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+        return { url: rawUrl(f), dl: dlUrl(f), name: baseName(f.name), filename: f.name };
       });
 
       /* Build all grid cards */
@@ -1858,7 +1861,7 @@
         })(i);
         card.querySelector('.dl-icon').addEventListener('click', function(e) {
           e.stopPropagation();
-          forceDownload(rawUrl(file), file.name, card.querySelector('.dl-icon'));
+          forceDownload(dlUrl(file), file.name, card.querySelector('.dl-icon'));
         });
         card.querySelector('.logo-del').addEventListener('click', function(e) {
           e.stopPropagation();
@@ -1903,7 +1906,7 @@
         })(i);
         item.querySelector('.logo-list-dl').addEventListener('click', function(e) {
           e.stopPropagation();
-          forceDownload(rawUrl(file), file.name, item.querySelector('.logo-list-dl'));
+          forceDownload(dlUrl(file), file.name, item.querySelector('.logo-list-dl'));
         });
         item.querySelector('.logo-list-del').addEventListener('click', function(e) {
           e.stopPropagation();
@@ -1939,7 +1942,7 @@
         return;
       }
       var photoLbFiles = files.map(function(f) {
-        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+        return { url: rawUrl(f), dl: dlUrl(f), name: baseName(f.name), filename: f.name };
       });
       container.innerHTML = '';
 
@@ -1967,7 +1970,7 @@
         (function(idx) {
           card.querySelector('.photo-dl-icon').addEventListener('click', function(e) {
             e.stopPropagation();
-            forceDownload(rawUrl(file), file.name, card);
+            forceDownload(dlUrl(file), file.name, card);
           });
           card.querySelector('.photo-del-icon').addEventListener('click', function(e) {
             e.stopPropagation();
@@ -2002,7 +2005,7 @@
       }
 
       var videoLbFiles = files.map(function(f) {
-        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+        return { url: rawUrl(f), dl: dlUrl(f), name: baseName(f.name), filename: f.name };
       });
 
       container.innerHTML = '';
@@ -2040,7 +2043,7 @@
 
         bottomBar.querySelector('.video-card-dl').addEventListener('click', function(e) {
           e.stopPropagation();
-          forceDownload(rawUrl(file), file.name, bottomBar.querySelector('.video-card-dl'));
+          forceDownload(dlUrl(file), file.name, bottomBar.querySelector('.video-card-dl'));
         });
         bottomBar.querySelector('.video-card-del').addEventListener('click', function(e) {
           e.stopPropagation();
@@ -2078,7 +2081,7 @@
       }
 
       var artworkLbFiles = files.map(function(f) {
-        return { url: rawUrl(f), name: baseName(f.name), filename: f.name };
+        return { url: rawUrl(f), dl: dlUrl(f), name: baseName(f.name), filename: f.name };
       });
 
       container.innerHTML = '';
@@ -2121,7 +2124,7 @@
           bottomBar.querySelector('.video-card-dl').addEventListener('click', (function(f) {
             return function(e) {
               e.stopPropagation();
-              forceDownload(rawUrl(f), f.name, bottomBar.querySelector('.video-card-dl'));
+              forceDownload(dlUrl(f), f.name, bottomBar.querySelector('.video-card-dl'));
             };
           })(file));
           bottomBar.querySelector('.video-card-del').addEventListener('click', (function(f) {
@@ -2157,7 +2160,7 @@
           card.querySelector('.photo-dl-icon').addEventListener('click', (function(f) {
             return function(e) {
               e.stopPropagation();
-              forceDownload(rawUrl(f), f.name, card);
+              forceDownload(dlUrl(f), f.name, card);
             };
           })(file));
           card.querySelector('.photo-del-icon').addEventListener('click', (function(f) {
