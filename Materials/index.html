@@ -35,16 +35,26 @@
       pointer-events: none; z-index: 1000; opacity: .5;
     }
 
-    /* ── HEADER ── */
+    /* ── HEADER / BANNER ── */
     header {
-      padding: 64px 40px 48px;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: space-between;
+      background-image:
+        linear-gradient(to top, rgba(13,13,13,0.96) 0%, rgba(13,13,13,0.45) 40%, rgba(13,13,13,0.30) 100%),
+        linear-gradient(to right, rgba(13,13,13,0.60) 0%, rgba(13,13,13,0.15) 55%, rgba(13,13,13,0.05) 100%),
+        url("https://pub-bda38e7b052e4947825df1d0a165dedf.r2.dev/images/Adi%20and%20Valentin%20Genesis.png");
+      background-size: auto, auto, cover;
+      background-position: center, center, center 55%;
+      background-repeat: no-repeat;
+    }
+    .header-inner {
       max-width: 1400px;
       margin: 0 auto;
+      padding: 170px 40px 36px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
     }
     .header-left { display: flex; flex-direction: column; gap: 12px; }
     .brand {
@@ -55,8 +65,15 @@
       text-transform: uppercase;
       color: var(--gold);
       line-height: 1;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.85), 0 1px 4px rgba(0,0,0,0.6);
     }
-    .tagline { font-size: 12px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); }
+    .tagline {
+      font-size: 12px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: #b8b1a8;
+      text-shadow: 0 1px 12px rgba(0,0,0,0.9);
+    }
 
     /* ── PRESS KIT ── */
     .press-kit-btn {
@@ -64,7 +81,9 @@
       align-items: center;
       gap: 10px;
       padding: 12px 22px;
-      background: transparent;
+      background: rgba(13,13,13,0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       border: 1px solid var(--gold-dim);
       border-radius: 8px;
       color: var(--gold);
@@ -81,7 +100,7 @@
       flex-shrink: 0;
     }
     .press-kit-btn:hover {
-      background: rgba(201,169,110,0.08);
+      background: rgba(23,20,14,0.75);
       border-color: var(--gold);
       box-shadow: 0 4px 24px rgba(201,169,110,0.15);
       transform: translateY(-2px);
@@ -792,7 +811,8 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      header { padding: 40px 20px 32px; flex-direction: column; gap: 24px; }
+      header { background-position: center, center, center 50%; }
+      .header-inner { padding: 130px 20px 26px; flex-direction: column; align-items: flex-start; gap: 18px; }
       .press-kit-btn { align-self: flex-start; }
       .nav { padding: 16px 20px; gap: 16px; flex-wrap: wrap; }
       main { padding: 0 16px 60px; }
@@ -1078,19 +1098,21 @@
 <body>
 
   <header>
-    <div class="header-left">
-      <div class="brand">Avastha</div>
-      <div class="tagline">Brand Materials &amp; Assets</div>
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="brand">Avastha</div>
+        <div class="tagline">Brand Materials &amp; Assets</div>
+      </div>
+      <a class="press-kit-btn"
+         href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf"
+         download="avastha_presskit.pdf"
+         target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
+        </svg>
+        Download Press Kit
+      </a>
     </div>
-    <a class="press-kit-btn"
-       href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf"
-       download="avastha_presskit.pdf"
-       target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
-      </svg>
-      Download Press Kit
-    </a>
   </header>
 
   <nav class="nav">
