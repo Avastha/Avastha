@@ -257,8 +257,19 @@
       section { padding: 3rem 1.4rem; }
     }
 
-    /* ── ABOUT ─────────────────────────────────── */
-    #about { background: var(--dark2); }
+    /* ── ABOUT (original artwork as background) ── */
+    #about {
+      background:
+        linear-gradient(rgba(10,15,30,0.86), rgba(10,15,30,0.93)),
+        url('https://raw.githubusercontent.com/Avastha/Avastha/main/desktop_backround.png') center / cover no-repeat;
+    }
+    @media (max-width: 768px) {
+      #about {
+        background:
+          linear-gradient(rgba(10,15,30,0.88), rgba(10,15,30,0.94)),
+          url('https://raw.githubusercontent.com/Avastha/Avastha/main/mobile_Backround.png') center / cover no-repeat;
+      }
+    }
     .about-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
