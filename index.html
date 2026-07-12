@@ -140,7 +140,7 @@
     .hero-content {
       position: relative;
       z-index: 2;
-      padding: clamp(5rem, 11vh, 7.5rem) 1.5rem 0;
+      padding: clamp(3.6rem, 6.5vh, 4.8rem) 1.5rem 0;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -153,10 +153,11 @@
       opacity: 0;
       animation: fadeUp 1.1s ease forwards 0.25s;
     }
-    .hero-logo img {
+    .hero-logo video {
       width: 100%;
       height: auto;
       display: block;
+      pointer-events: none;
       filter: drop-shadow(0 6px 26px rgba(0,0,0,0.7));
       animation: logoBreathe 8s ease-in-out infinite 2s;
     }
@@ -175,15 +176,28 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: clamp(1.2rem, 4vw, 3rem);
+      gap: 1.1rem;
       width: max-content;
       max-width: 96vw;
       opacity: 0;
       animation: fadeIn 1s ease forwards 0.9s;
     }
+    .hero-bottom .btn {
+      border: 0;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      padding: 0.4rem 0.3rem;
+    }
+    .hero-bottom .btn:hover {
+      background: transparent;
+      box-shadow: none;
+      transform: translateY(-2px);
+      text-shadow: 0 0 16px currentColor;
+    }
     .scroll-hint {
       display: flex;
-      flex-direction: column;
+      flex-direction: column-reverse; /* line above the word */
       align-items: center;
       gap: 0.4rem;
     }
@@ -731,9 +745,10 @@
     <div class="hero-bg"></div>
     <div class="hero-content">
       <div class="hero-logo">
-        <img src="https://pub-bda38e7b052e4947825df1d0a165dedf.r2.dev/logos/2_Avastha_White_Logo.png"
-             alt="Avastha"
-             onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_logo.png';" />
+        <video autoplay loop muted playsinline disablePictureInPicture>
+          <source src="https://avastha.info/Avashta_Transperent_Logo_Video.mov" type='video/mp4; codecs="hvc1"' />
+          <source src="https://avastha.info/Avashta_Transperent_Logo_Video.webm" type="video/webm" />
+        </video>
       </div>
     </div>
     <div class="hero-bottom">
@@ -892,11 +907,6 @@
       </a>
         </div>
       </div>
-    </div>
-    <div class="footer-links">
-      <a href="/Materials/">Brand Materials</a>
-      <span class="dot">·</span>
-      <a href="#presskit">Press Kit</a>
     </div>
     <p class="footer-text">© 2026 Avastha Music &nbsp;·&nbsp; All Rights Reserved</p>
   </footer>
