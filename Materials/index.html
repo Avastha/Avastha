@@ -540,7 +540,7 @@
       overflow: hidden;
       box-shadow: 0 32px 100px rgba(0,0,0,.95);
       width: 88vw;
-      max-width: 480px;
+      max-width: 720px;
       max-height: calc(100vh - 120px);
       max-height: calc(100dvh - 120px);
     }
@@ -549,6 +549,11 @@
     /* ── Video lightbox gets wider inner ── */
     .lightbox.lb-video-mode .lightbox-inner {
       max-width: 820px;
+    }
+
+    /* ── Photo lightbox gets the widest inner ── */
+    .lightbox.lb-photo-mode .lightbox-inner {
+      max-width: 1000px;
     }
 
     .lightbox-canvas {
@@ -579,8 +584,8 @@
     .lightbox-img {
       position: relative;
       z-index: 1;
-      max-width: 85%;
-      max-height: 85%;
+      max-width: 90%;
+      max-height: 90%;
       object-fit: contain;
       display: block;
       transition: opacity .15s ease;
@@ -614,6 +619,45 @@
     /* Hide bg-colour swatches in video and photo modes */
     .lightbox.lb-video-mode .lb-bg-swatch,
     .lightbox.lb-photo-mode .lb-bg-swatch { display: none; }
+
+    /* ── Fullscreen button (photos & logos; videos use their native control) ── */
+    .lb-fs-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background-image: linear-gradient(rgba(201,169,110,0.15), rgba(201,169,110,0.15));
+      border: 1px solid rgba(201,169,110,0.4);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .2s;
+    }
+    .lb-fs-btn:hover { background-color: rgba(201,169,110,0.25); }
+    .lb-fs-btn svg { width: 15px; height: 15px; fill: #c9a96e; }
+
+    /* ── Maximised / fullscreen lightbox ── */
+    .lightbox.lb-max { padding: 14px 0 0; gap: 8px; }
+    .lightbox.lb-max .lightbox-name {
+      padding: 0 56px;
+      font-size: 14px;
+      align-self: center;
+    }
+    .lightbox.lb-max .lightbox-inner {
+      width: 100vw;
+      max-width: none !important;
+      flex: 1 1 auto;
+      max-height: none;
+      min-height: 0;
+      border-radius: 0;
+    }
+    .lightbox.lb-max .lightbox-canvas {
+      aspect-ratio: auto;
+      flex: 1 1 auto;
+    }
+    .lightbox.lb-max .lightbox-img { max-width: 96%; max-height: 96%; }
+    .lightbox.lb-max .lightbox-footer {
+      border-radius: 0;
+      padding-bottom: max(13px, env(safe-area-inset-bottom));
+    }
 
     .lb-bg-btn {
       width: 22px; height: 22px;
@@ -1187,6 +1231,12 @@
         <svg class="lb-bg-btn lb-bg-swatch" data-bg="#111111" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10.5" fill="#111111" stroke="#555" stroke-width="0.5"/></svg>
         <svg class="lb-bg-btn lb-bg-swatch" data-bg="#c9a96e" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c9a96e"/></svg>
         <svg class="lb-bg-btn lb-bg-swatch" data-bg="#c0151a" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="11" fill="#c0151a"/></svg>
+        <!-- Fullscreen toggle -->
+        <div class="lb-fs-btn" id="lightbox-fs" title="Full screen" style="margin-left:10px;">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+          </svg>
+        </div>
         <!-- Download button -->
         <div class="lb-dl-btn" id="lightbox-dl"
              style="margin-left:10px; width:34px; height:34px; border-radius:50%;
@@ -1351,6 +1401,48 @@
       if (lbCurrent.url) forceDownload(lbCurrent.url, lbCurrent.name, lbDlBtn);
     });
 
+    /* Fullscreen / maximise toggle */
+    var lbFsBtn = document.getElementById('lightbox-fs');
+    var FS_ENTER_PATH = 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
+    var FS_EXIT_PATH  = 'M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z';
+    function setFsIcon(on) {
+      lbFsBtn.querySelector('path').setAttribute('d', on ? FS_EXIT_PATH : FS_ENTER_PATH);
+      lbFsBtn.title = on ? 'Exit full screen' : 'Full screen';
+    }
+    function nativeFsElement() {
+      return document.fullscreenElement || document.webkitFullscreenElement || null;
+    }
+    function enterLbFs() {
+      try {
+        if (lb.requestFullscreen) { var p = lb.requestFullscreen(); if (p && p.catch) p.catch(function() {}); }
+        else if (lb.webkitRequestFullscreen) lb.webkitRequestFullscreen();
+      } catch (e) {}
+      /* the lb-max class does the layout work with or without native fullscreen
+         (iPhone Safari has no fullscreen API for regular elements) */
+      lb.classList.add('lb-max');
+      setFsIcon(true);
+    }
+    function exitLbFs() {
+      try {
+        if (nativeFsElement()) {
+          if (document.exitFullscreen) { var q = document.exitFullscreen(); if (q && q.catch) q.catch(function() {}); }
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      } catch (e) {}
+      lb.classList.remove('lb-max');
+      setFsIcon(false);
+    }
+    lbFsBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (lb.classList.contains('lb-max')) exitLbFs(); else enterLbFs();
+    });
+    /* Stay in sync when the browser exits fullscreen by itself (Esc key) */
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function(ev) {
+      document.addEventListener(ev, function() {
+        if (!nativeFsElement()) { lb.classList.remove('lb-max'); setFsIcon(false); }
+      });
+    });
+
     /* Arrow navigation */
     lbPrev.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -1493,6 +1585,7 @@
 
     /* Close lightbox */
     function closeLightbox() {
+      exitLbFs();
       lb.classList.remove('open', 'lb-photo-mode', 'lb-video-mode');
       document.body.style.overflow = '';
       lbImg.src = '';
