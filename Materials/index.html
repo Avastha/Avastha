@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0d0d0d" />
   <title>Avastha — Materials</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,6 +12,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
+      color-scheme: dark; /* tells Samsung Internet / forced-dark browsers the page is already dark */
       --bg:       #0d0d0d;
       --surface:  #161616;
       --border:   #2a2a2a;
@@ -18,6 +21,25 @@
       --text:     #e8e2d9;
       --muted:    #7a7570;
       --radius:   12px;
+      --gold-glow: rgba(201, 169, 110, 0.20);
+    }
+    /* Wide-gamut (P3) displays get deeper blacks and a more luminous gold */
+    @media (color-gamut: p3) {
+      :root {
+        --bg:       oklch(14% 0.006 75);
+        --surface:  oklch(19% 0.008 75);
+        --gold:     oklch(77% 0.105 80);
+        --gold-dim: oklch(52% 0.07 80);
+        --text:     oklch(91.5% 0.012 85);
+        --gold-glow: oklch(77% 0.13 80 / 0.26);
+      }
+    }
+    /* HDR displays: let the accents genuinely glow */
+    @media (dynamic-range: high) {
+      :root {
+        --gold:      oklch(81% 0.125 80);
+        --gold-glow: oklch(81% 0.16 80 / 0.34);
+      }
     }
     html { scroll-behavior: smooth; }
     body {
@@ -27,6 +49,17 @@
       font-weight: 300;
       min-height: 100vh;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
     }
     body::before {
       content: '';
@@ -35,25 +68,28 @@
       pointer-events: none; z-index: 1000; opacity: .5;
     }
 
-    /* ── HEADER / BANNER ── */
+    /* ── HEADER / BANNER ──
+       Fluid height scales with the window; the title always sits in the
+       bottom band, which is guaranteed dark by the gradient at every size. */
     header {
       border-bottom: 1px solid var(--border);
       background-image:
-        linear-gradient(to top, rgba(13,13,13,0.96) 0%, rgba(13,13,13,0.45) 40%, rgba(13,13,13,0.30) 100%),
-        linear-gradient(to right, rgba(13,13,13,0.60) 0%, rgba(13,13,13,0.15) 55%, rgba(13,13,13,0.05) 100%),
+        linear-gradient(to top, var(--bg) 0%, rgba(13,13,13,0.88) 14%, rgba(13,13,13,0.42) 45%, rgba(13,13,13,0.30) 100%),
+        linear-gradient(to right, rgba(13,13,13,0.55) 0%, rgba(13,13,13,0.12) 55%, rgba(13,13,13,0.05) 100%),
         url("https://pub-bda38e7b052e4947825df1d0a165dedf.r2.dev/images/Adi%20and%20Valentin%20Genesis.png");
       background-size: auto, auto, cover;
-      background-position: center, center, center 55%;
+      background-position: center, center, center 42%;
       background-repeat: no-repeat;
     }
     .header-inner {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 170px 40px 36px;
+      padding: 28px 40px 30px;
+      min-height: clamp(230px, 30vw, 400px);
       display: flex;
       flex-direction: row;
       align-items: flex-end;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 24px;
     }
     .header-left { display: flex; flex-direction: column; gap: 12px; }
@@ -75,46 +111,53 @@
       text-shadow: 0 1px 12px rgba(0,0,0,0.9);
     }
 
-    /* ── PRESS KIT ── */
-    .press-kit-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 22px;
-      background: rgba(13,13,13,0.55);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border: 1px solid var(--gold-dim);
-      border-radius: 8px;
-      color: var(--gold);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 400;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background .25s, border-color .25s, box-shadow .25s, transform .2s;
-      white-space: nowrap;
-      margin-top: 4px;
-      flex-shrink: 0;
+    /* ── PRESS KIT (embedded viewer at the bottom of the page) ── */
+    .presskit-embed { display: none; }
+    .presskit-embed.inline {
+      display: block;
+      height: min(78vh, 900px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.45);
     }
-    .press-kit-btn:hover {
-      background: rgba(23,20,14,0.75);
-      border-color: var(--gold);
-      box-shadow: 0 4px 24px rgba(201,169,110,0.15);
-      transform: translateY(-2px);
+    .presskit-embed.inline iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
     }
-    .press-kit-btn svg { width: 14px; height: 14px; fill: var(--gold); flex-shrink: 0; }
+    .presskit-note {
+      display: none;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      padding: 26px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      max-width: 460px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .presskit-embed.no-inline + .presskit-note { display: block; }
 
-    /* ── NAV ── */
+    /* ── NAV (sticky glass bar) ── */
     .nav {
+      position: sticky;
+      top: 0;
+      z-index: 800;
       display: flex;
       gap: 24px;
-      padding: 24px 40px;
-      max-width: 1400px;
-      margin: 0 auto;
-      border-bottom: 1px solid var(--border);
+      padding: 18px 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+      background: rgba(13, 13, 13, 0.82);
+      backdrop-filter: blur(14px) saturate(1.25);
+      -webkit-backdrop-filter: blur(14px) saturate(1.25);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
     .nav a {
       font-size: 11px;
@@ -136,23 +179,50 @@
     .nav a:hover::before, .nav a.active::before { background: var(--gold); }
 
     /* ── MAIN / SECTIONS ── */
-    main { max-width: 1400px; margin: 0 auto; padding: 0 24px 80px; }
-    section { padding: 60px 0 40px; }
+    main { max-width: 1400px; margin: 0 auto; padding: 0 24px 60px; }
+    section { padding: 44px 0 30px; }
     section + section { border-top: 1px solid var(--border); }
 
+    /* Compact, centered section titles */
     .section-header {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 14px;
-      margin-bottom: 40px;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      margin-bottom: 26px;
     }
     .section-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(28px, 4vw, 44px);
+      font-size: clamp(24px, 3.2vw, 36px);
       font-weight: 300;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
+      position: relative;
+      padding-bottom: 12px;
+    }
+    .section-title::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 64px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+      transform: translateX(-50%) scaleX(0);
+      transform-origin: center;
+      transition: transform 0.8s ease 0.15s;
+    }
+    section.in-view .section-title::after { transform: translateX(-50%) scaleX(1); }
+
+    /* Bottom control lane per section: Load More · Download All · Upload */
+    .section-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 26px 0 4px;
     }
 
     /* ── LOADING ── */
@@ -481,34 +551,40 @@
     .video-card-dl:hover { transform: scale(1.15); background: var(--gold); }
     .video-card-dl svg { width: 12px; height: 12px; fill: #0d0d0d; }
 
-    /* ── MEDIA SECTION ── */
+    /* ── MEDIA SECTION (compact centered row) ── */
     .media-banner {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px 20px;
-      align-items: start;
-      padding: 4px 0 8px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px 36px;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2px 0 6px;
     }
     .media-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      width: 76px;
       text-decoration: none;
       color: var(--muted);
       transition: color .25s, transform .25s;
       animation: fadeUp .4s ease both;
     }
     .media-item:hover { color: var(--gold); transform: translateY(-4px); }
-    .media-icon-wrap { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+    .media-icon-wrap { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; }
     .media-icon-wrap img {
-      width: 72%; height: 72%;
+      width: 100%; height: 100%;
       object-fit: contain;
       filter: grayscale(20%) brightness(0.88);
       transition: filter .25s, transform .25s;
     }
-    .media-item:hover .media-icon-wrap img { filter: grayscale(0%) brightness(1.1); transform: scale(1.08); }
-    .media-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; text-align: center; }
+    .media-item:hover .media-icon-wrap img {
+      filter: grayscale(0%) brightness(1.1) drop-shadow(0 0 12px var(--gold-glow));
+      transform: scale(1.08);
+    }
+    .media-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; }
 
     /* ── LIGHTBOX (base) ── */
     .lightbox {
@@ -811,11 +887,16 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      header { background-position: center, center, center 50%; }
-      .header-inner { padding: 130px 20px 26px; flex-direction: column; align-items: flex-start; gap: 18px; }
-      .press-kit-btn { align-self: flex-start; }
-      .nav { padding: 16px 20px; gap: 16px; flex-wrap: wrap; }
-      main { padding: 0 16px 60px; }
+      header {
+        background-position: center, center, center 45%;
+        background-image:
+          linear-gradient(to top, var(--bg) 0%, rgba(13,13,13,0.92) 18%, rgba(13,13,13,0.50) 52%, rgba(13,13,13,0.32) 100%),
+          linear-gradient(to right, rgba(13,13,13,0.45) 0%, rgba(13,13,13,0.15) 60%, rgba(13,13,13,0.08) 100%),
+          url("https://pub-bda38e7b052e4947825df1d0a165dedf.r2.dev/images/Adi%20and%20Valentin%20Genesis.png");
+      }
+      .header-inner { padding: 20px 20px 22px; min-height: clamp(190px, 52vw, 300px); }
+      .nav { padding: 14px 16px; gap: 14px; }
+      main { padding: 0 16px 48px; }
       .logos-grid { display: none; }
       .logos-list { display: flex; }
       .photos-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -824,9 +905,7 @@
       .videos-grid { grid-template-columns: 1fr; gap: 12px; }
       .artwork-grid { grid-template-columns: 1fr; gap: 12px; }
       footer { padding: 24px 20px; }
-      .media-banner { grid-template-columns: repeat(3, 1fr); gap: 6px 12px; }
-      .media-label { font-size: 9px; letter-spacing: 0.1em; }
-      section { padding: 40px 0 32px; }
+      section { padding: 34px 0 26px; }
       .lightbox.lb-video-mode .lightbox-inner { max-width: 95vw; width: 95vw; }
     }
     @media (max-width: 480px) {
@@ -857,8 +936,13 @@
       transition: background .2s, border-color .2s, opacity .2s;
       white-space: nowrap;
     }
-    .download-all-btn:hover { background: rgba(201,169,110,0.08); border-color: var(--gold); }
-    .download-all-btn:disabled { opacity: 0.4; cursor: default; }
+    .download-all-btn:hover {
+      background: rgba(201,169,110,0.08);
+      border-color: var(--gold);
+      box-shadow: 0 6px 26px var(--gold-glow);
+      transform: translateY(-1px);
+    }
+    .download-all-btn:disabled { opacity: 0.4; cursor: default; box-shadow: none; transform: none; }
     .download-all-btn svg { width: 12px; height: 12px; fill: var(--gold); flex-shrink: 0; }
     .download-all-btn .btn-spinner {
       width: 11px; height: 11px;
@@ -870,11 +954,6 @@
     }
 
     /* ── LOAD MORE ── */
-    .load-more-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 28px 0 4px;
-    }
     .load-more-btn {
       display: inline-flex;
       align-items: center;
@@ -960,8 +1039,6 @@
     body.admin-mode .admin-only { display: inline-flex !important; }
     body.admin-mode #admin-login-link { display: none; }
 
-    .section-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
     /* Delete button on video cards (admin only) */
     .video-card-del {
       width: 28px; height: 28px;
@@ -1000,6 +1077,37 @@
     }
     .logo-list-del:hover, .logo-list-del:active { background: rgba(192,96,96,0.15); }
     .logo-list-del svg { width: 14px; height: 14px; fill: #c06060; }
+
+    /* Reorder buttons (admin only) — ◀ ▶ on cards, ▲ ▼ in the mobile logo list */
+    .asset-move {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.12);
+      border: 1px solid rgba(201,169,110,0.35);
+      align-items: center; justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .asset-move:hover { background: rgba(201,169,110,0.85); transform: scale(1.1); }
+    .asset-move svg { width: 11px; height: 11px; fill: var(--gold); transition: fill .2s; }
+    .asset-move:hover svg { fill: #0d0d0d; }
+    .logo-list-move {
+      width: 34px;
+      flex-direction: column;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+    }
+    .logo-list-move .asset-move {
+      width: 100%; height: 50%;
+      border-radius: 0;
+      border: 0;
+      background: transparent;
+      display: flex;
+    }
+    .logo-list-move .asset-move + .asset-move { border-top: 1px solid var(--border); }
+    .logo-list-move .asset-move:hover { background: rgba(201,169,110,0.2); transform: none; }
+    .logo-list-move .asset-move:hover svg { fill: var(--gold); }
 
     /* Delete button on photo/artwork overlays (admin only) */
     .photo-del-icon {
@@ -1103,15 +1211,6 @@
         <div class="brand">Avastha</div>
         <div class="tagline">Brand Materials &amp; Assets</div>
       </div>
-      <a class="press-kit-btn"
-         href="https://raw.githubusercontent.com/Avastha/Avastha/main/avastha_presskit.pdf"
-         download="avastha_presskit.pdf"
-         target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
-        </svg>
-        Download Press Kit
-      </a>
     </div>
   </header>
 
@@ -1121,6 +1220,7 @@
     <a href="#videos">Videos</a>
     <a href="#artwork">Artwork</a>
     <a href="#media">Media</a>
+    <a href="#presskit">Press Kit</a>
   </nav>
 
   <main>
@@ -1129,16 +1229,6 @@
     <section id="logos">
       <div class="section-header">
         <h2 class="section-title">Logos</h2>
-        <div class="section-controls">
-          <button class="download-all-btn" id="dl-all-logos" disabled>
-            <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
-            Download All
-          </button>
-          <button class="download-all-btn admin-only upload-btn" data-cat="logos">
-            <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
-            Upload
-          </button>
-        </div>
       </div>
       <div id="logos-grid" class="logos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading logos…</div>
@@ -1146,25 +1236,35 @@
       <div id="logos-list" class="logos-list">
         <div class="state-msg"><div class="spinner"></div><br/>Loading logos…</div>
       </div>
+      <div class="section-footer" id="logos-footer">
+        <button class="download-all-btn" id="dl-all-logos" disabled>
+          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+          Download All
+        </button>
+        <button class="download-all-btn admin-only upload-btn" data-cat="logos">
+          <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
+          Upload
+        </button>
+      </div>
     </section>
 
     <!-- ── PHOTOS ── -->
     <section id="images">
       <div class="section-header">
         <h2 class="section-title">Photos</h2>
-        <div class="section-controls">
-          <button class="download-all-btn" id="dl-all-photos" disabled>
-            <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
-            Download All
-          </button>
-          <button class="download-all-btn admin-only upload-btn" data-cat="images">
-            <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
-            Upload
-          </button>
-        </div>
       </div>
       <div id="images-grid" class="photos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading photos…</div>
+      </div>
+      <div class="section-footer" id="images-footer">
+        <button class="download-all-btn" id="dl-all-photos" disabled>
+          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+          Download All
+        </button>
+        <button class="download-all-btn admin-only upload-btn" data-cat="images">
+          <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
+          Upload
+        </button>
       </div>
     </section>
 
@@ -1172,19 +1272,19 @@
     <section id="videos">
       <div class="section-header">
         <h2 class="section-title">Videos</h2>
-        <div class="section-controls">
-          <button class="download-all-btn" id="dl-all-videos" disabled>
-            <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
-            Download All
-          </button>
-          <button class="download-all-btn admin-only upload-btn" data-cat="videos">
-            <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
-            Upload
-          </button>
-        </div>
       </div>
       <div id="videos-grid" class="videos-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading videos…</div>
+      </div>
+      <div class="section-footer" id="videos-footer">
+        <button class="download-all-btn" id="dl-all-videos" disabled>
+          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+          Download All
+        </button>
+        <button class="download-all-btn admin-only upload-btn" data-cat="videos">
+          <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
+          Upload
+        </button>
       </div>
     </section>
 
@@ -1192,19 +1292,19 @@
     <section id="artwork">
       <div class="section-header">
         <h2 class="section-title">Artwork</h2>
-        <div class="section-controls">
-          <button class="download-all-btn" id="dl-all-artwork" disabled>
-            <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
-            Download All
-          </button>
-          <button class="download-all-btn admin-only upload-btn" data-cat="artwork">
-            <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
-            Upload
-          </button>
-        </div>
       </div>
       <div id="artwork-grid" class="artwork-grid">
         <div class="state-msg"><div class="spinner"></div><br/>Loading artwork…</div>
+      </div>
+      <div class="section-footer" id="artwork-footer">
+        <button class="download-all-btn" id="dl-all-artwork" disabled>
+          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+          Download All
+        </button>
+        <button class="download-all-btn admin-only upload-btn" data-cat="artwork">
+          <svg viewBox="0 0 24 24"><path d="M12 8l-5 5h3v7h4v-7h3l-5-5zM5 4h14v2H5V4z"/></svg>
+          Upload
+        </button>
       </div>
     </section>
 
@@ -1237,6 +1337,24 @@
         <a class="media-item" href="/cdn-cgi/l/email-protection#6607100715120e07480b13150f0526010b070f0a4805090b" style="animation-delay:300ms">
           <div class="media-icon-wrap"><img src="https://raw.githubusercontent.com/Avastha/Avastha/main/gmail.png" alt="Gmail" /></div>
           <span class="media-label">Gmail</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ── PRESS KIT ── -->
+    <section id="presskit">
+      <div class="section-header">
+        <h2 class="section-title">Press Kit</h2>
+      </div>
+      <div class="presskit-embed" id="presskit-embed">
+        <iframe id="presskit-frame" title="Avastha Press Kit" loading="lazy"></iframe>
+      </div>
+      <div class="presskit-note">The press kit preview isn't supported on this device — use the download button below.</div>
+      <div class="section-footer">
+        <a class="download-all-btn" id="presskit-download"
+           href="/avastha_presskit.pdf" download="avastha_presskit.pdf">
+          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+          Download Press Kit
         </a>
       </div>
     </section>
@@ -1378,6 +1496,20 @@
 
     var dlIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>';
     var trashIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 3v1H4v2h16V4h-5V3H9zM6 8v13h12V8H6zm3 2h2v9H9v-9zm4 0h2v9h-2v-9z"/></svg>';
+    var moveLeftIcon  = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 5.9L14.1 4.5 6.6 12l7.5 7.5 1.4-1.4L9.4 12z"/></svg>';
+    var moveRightIcon = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 5.9l1.4-1.4L17.4 12l-7.5 7.5-1.4-1.4 6.1-6.1z"/></svg>';
+    var moveUpIcon    = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.9 15.5L4.5 14.1 12 6.6l7.5 7.5-1.4 1.4L12 9.4z"/></svg>';
+    var moveDownIcon  = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.9 8.5L4.5 9.9l7.5 7.5 7.5-7.5-1.4-1.4-6.1 6.1z"/></svg>';
+
+    /* Wire the admin ◀ ▶ / ▲ ▼ reorder buttons inside a card */
+    function wireMoveButtons(rootEl, cat, index) {
+      rootEl.querySelectorAll('.asset-move').forEach(function(mb) {
+        mb.addEventListener('click', function(e) {
+          e.stopPropagation();
+          moveAsset(cat, index, parseInt(mb.dataset.move, 10));
+        });
+      });
+    }
 
     /* ════════════════════════════════════════════════
        LOAD MORE HELPER
@@ -1386,13 +1518,10 @@
     ════════════════════════════════════════════════ */
     var LOAD_MORE_LIMIT = 8;
 
-    function applyLoadMore(pairs, insertAfter) {
+    function applyLoadMore(pairs, footerId) {
       /* Count how many items remain across all pairs (they're parallel — same count) */
       var remaining = pairs[0].cards.length;
       if (remaining === 0) return;
-
-      var wrap = document.createElement('div');
-      wrap.className = 'load-more-wrap';
 
       var btn = document.createElement('button');
       btn.className = 'load-more-btn';
@@ -1408,11 +1537,12 @@
             pair.container.appendChild(card);
           });
         });
-        wrap.remove();
+        btn.remove();
       });
 
-      wrap.appendChild(btn);
-      insertAfter.parentNode.insertBefore(wrap, insertAfter.nextSibling);
+      /* Load More lives in the section's bottom control lane, first in line */
+      var footer = document.getElementById(footerId);
+      footer.insertBefore(btn, footer.firstChild);
     }
 
     /* ════════════════════════════════════════════════
@@ -1461,35 +1591,40 @@
     function nativeFsElement() {
       return document.fullscreenElement || document.webkitFullscreenElement || null;
     }
-    function enterLbFs() {
+    function tryNativeFs() {
       try {
         if (lb.requestFullscreen) { var p = lb.requestFullscreen(); if (p && p.catch) p.catch(function() {}); }
         else if (lb.webkitRequestFullscreen) lb.webkitRequestFullscreen();
       } catch (e) {}
-      /* the lb-max class does the layout work with or without native fullscreen
-         (iPhone Safari has no fullscreen API for regular elements) */
-      lb.classList.add('lb-max');
-      setFsIcon(true);
     }
-    function exitLbFs() {
+    function exitNativeFs() {
       try {
-        if (nativeFsElement()) {
-          if (document.exitFullscreen) { var q = document.exitFullscreen(); if (q && q.catch) q.catch(function() {}); }
-          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        }
+        if (document.exitFullscreen) { var q = document.exitFullscreen(); if (q && q.catch) q.catch(function() {}); }
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       } catch (e) {}
+    }
+    function exitLbFs() { /* full cleanup — used when the lightbox closes */
+      if (nativeFsElement()) exitNativeFs();
       lb.classList.remove('lb-max');
       setFsIcon(false);
     }
     lbFsBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      if (lb.classList.contains('lb-max')) exitLbFs(); else enterLbFs();
+      if (nativeFsElement()) {
+        /* leave true fullscreen but keep the maximised layout */
+        exitNativeFs();
+        setFsIcon(false);
+      } else {
+        /* maximise (if not already) and try the browser's true fullscreen
+           (iPhone Safari has no fullscreen API for regular elements —
+           there the maximised layout IS the fullscreen) */
+        lb.classList.add('lb-max');
+        tryNativeFs();
+      }
     });
-    /* Stay in sync when the browser exits fullscreen by itself (Esc key) */
+    /* The icon mirrors the native fullscreen state (Esc exits it) */
     ['fullscreenchange', 'webkitfullscreenchange'].forEach(function(ev) {
-      document.addEventListener(ev, function() {
-        if (!nativeFsElement()) { lb.classList.remove('lb-max'); setFsIcon(false); }
-      });
+      document.addEventListener(ev, function() { setFsIcon(!!nativeFsElement()); });
     });
 
     /* Arrow navigation */
@@ -1612,6 +1747,10 @@
         applyLbBg(LB_BG_DEFAULT);
       }
 
+      /* photos & logos skip the windowed stage — straight to the full-screen view;
+         the browser Back button (or ✕ / Esc) leaves the preview */
+      if (lbMode === 'photos' || lbMode === 'logos') lb.classList.add('lb-max');
+
       lb.classList.add('open');
       document.body.style.overflow = 'hidden';
       history.pushState({ lightbox: true }, '');
@@ -1687,6 +1826,8 @@
         card.innerHTML =
           '<div class="logo-label">' +
             '<span class="logo-name">' + esc(baseName(file.name)) + '</span>' +
+            '<div class="asset-move admin-only" data-move="-1" title="Move earlier">' + moveLeftIcon + '</div>' +
+            '<div class="asset-move admin-only" data-move="1" title="Move later">' + moveRightIcon + '</div>' +
             '<div class="logo-del admin-only" title="Delete logo">' + trashIcon + '</div>' +
             '<div class="dl-icon">' + dlIcon + '</div>' +
           '</div>' +
@@ -1713,6 +1854,7 @@
           e.stopPropagation();
           deleteAsset('logos', file);
         });
+        wireMoveButtons(card, 'logos', i);
         return card;
       });
 
@@ -1725,6 +1867,10 @@
         item.innerHTML =
           '<div class="logo-list-info"><div class="logo-list-name">' + esc(baseName(file.name)) + '</div></div>' +
           '<div class="logo-list-thumb"></div>' +
+          '<div class="logo-list-move admin-only">' +
+            '<div class="asset-move" data-move="-1" title="Move up">' + moveUpIcon + '</div>' +
+            '<div class="asset-move" data-move="1" title="Move down">' + moveDownIcon + '</div>' +
+          '</div>' +
           '<div class="logo-list-del admin-only">' + trashIcon + '</div>' +
           '<div class="logo-list-dl">' + dlIcon + '</div>';
 
@@ -1753,6 +1899,7 @@
           e.stopPropagation();
           deleteAsset('logos', file);
         });
+        wireMoveButtons(item, 'logos', i);
         return item;
       });
 
@@ -1768,7 +1915,7 @@
             { container: gridContainer, cards: gridCards.slice(LOAD_MORE_LIMIT) },
             { container: listContainer, cards: listCards.slice(LOAD_MORE_LIMIT) }
           ],
-          listContainer   /* button inserted after the last logos container in the DOM */
+          'logos-footer'
         );
       }
     }
@@ -1794,6 +1941,8 @@
           '<div class="photo-overlay">' +
             '<div class="photo-meta">' +
               '<span class="photo-name">' + esc(baseName(file.name)) + '</span>' +
+              '<div class="asset-move admin-only" data-move="-1" title="Move earlier">' + moveLeftIcon + '</div>' +
+              '<div class="asset-move admin-only" data-move="1" title="Move later">' + moveRightIcon + '</div>' +
               '<div class="photo-del-icon admin-only" title="Delete photo">' + trashIcon + '</div>' +
               '<div class="photo-dl-icon">' + dlIcon + '</div>' +
             '</div>' +
@@ -1814,8 +1963,9 @@
             e.stopPropagation();
             deleteAsset('images', file);
           });
+          wireMoveButtons(card, 'images', idx);
           card.addEventListener('click', function(e) {
-            if (e.target.closest('.photo-dl-icon') || e.target.closest('.photo-del-icon')) return;
+            if (e.target.closest('.photo-dl-icon') || e.target.closest('.photo-del-icon') || e.target.closest('.asset-move')) return;
             openLightbox(photoLbFiles, idx, 'photos');
           });
         })(i);
@@ -1827,7 +1977,7 @@
       if (files.length > LOAD_MORE_LIMIT) {
         applyLoadMore(
           [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
-          container
+          'images-footer'
         );
       }
     }
@@ -1872,6 +2022,8 @@
         bottomBar.className = 'video-bottom-bar';
         bottomBar.innerHTML =
           '<span class="video-card-name">' + esc(baseName(file.name)) + '</span>' +
+          '<div class="asset-move admin-only" data-move="-1" title="Move earlier">' + moveLeftIcon + '</div>' +
+          '<div class="asset-move admin-only" data-move="1" title="Move later">' + moveRightIcon + '</div>' +
           '<div class="video-card-del admin-only" title="Delete video">' + trashIcon + '</div>' +
           '<div class="video-card-dl">' + dlIcon + '</div>';
         card.appendChild(bottomBar);
@@ -1884,10 +2036,11 @@
           e.stopPropagation();
           deleteAsset('videos', file);
         });
+        wireMoveButtons(bottomBar, 'videos', i);
 
         (function(idx) {
           card.addEventListener('click', function(e) {
-            if (e.target.closest('.video-card-dl') || e.target.closest('.video-card-del')) return;
+            if (e.target.closest('.video-card-dl') || e.target.closest('.video-card-del') || e.target.closest('.asset-move')) return;
             openLightbox(videoLbFiles, idx, 'videos');
           });
         })(i);
@@ -1900,7 +2053,7 @@
       if (files.length > LOAD_MORE_LIMIT) {
         applyLoadMore(
           [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
-          container
+          'videos-footer'
         );
       }
     }
@@ -1949,6 +2102,8 @@
           bottomBar.className = 'video-bottom-bar';
           bottomBar.innerHTML =
             '<span class="video-card-name">' + esc(baseName(file.name)) + '</span>' +
+            '<div class="asset-move admin-only" data-move="-1" title="Move earlier">' + moveLeftIcon + '</div>' +
+            '<div class="asset-move admin-only" data-move="1" title="Move later">' + moveRightIcon + '</div>' +
             '<div class="video-card-del admin-only" title="Delete">' + trashIcon + '</div>' +
             '<div class="video-card-dl">' + dlIcon + '</div>';
           card.appendChild(bottomBar);
@@ -1965,6 +2120,7 @@
               deleteAsset('artwork', f);
             };
           })(file));
+          wireMoveButtons(bottomBar, 'artwork', i);
 
         } else {
           /* ── Image card ── */
@@ -1975,6 +2131,8 @@
             '<div class="photo-overlay">' +
               '<div class="photo-meta">' +
                 '<span class="photo-name">' + esc(baseName(file.name)) + '</span>' +
+                '<div class="asset-move admin-only" data-move="-1" title="Move earlier">' + moveLeftIcon + '</div>' +
+                '<div class="asset-move admin-only" data-move="1" title="Move later">' + moveRightIcon + '</div>' +
                 '<div class="photo-del-icon admin-only" title="Delete">' + trashIcon + '</div>' +
                 '<div class="photo-dl-icon">' + dlIcon + '</div>' +
               '</div>' +
@@ -1998,13 +2156,15 @@
               deleteAsset('artwork', f);
             };
           })(file));
+          wireMoveButtons(card, 'artwork', i);
         }
 
         /* Shared click → lightbox */
         (function(idx) {
           card.addEventListener('click', function(e) {
             if (e.target.closest('.photo-dl-icon') || e.target.closest('.video-card-dl') ||
-                e.target.closest('.photo-del-icon') || e.target.closest('.video-card-del')) return;
+                e.target.closest('.photo-del-icon') || e.target.closest('.video-card-del') ||
+                e.target.closest('.asset-move')) return;
             openLightbox(artworkLbFiles, idx, 'artwork');
           });
         })(i);
@@ -2017,7 +2177,7 @@
       if (files.length > LOAD_MORE_LIMIT) {
         applyLoadMore(
           [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
-          container
+          'artwork-footer'
         );
       }
     }
@@ -2095,19 +2255,39 @@
     /* ════════════════════════════════════════════════
        DOWNLOAD ALL (ZIP)
     ════════════════════════════════════════════════ */
+    /* Fetch with retries \u2014 the public r2.dev URL is rate-limited, so a burst of
+       parallel downloads can get throttled; back off and try again. */
+    function fetchWithRetry(url, attempts) {
+      return fetch(url).then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.arrayBuffer();
+      }).catch(function(err) {
+        if (attempts <= 1) throw err;
+        return new Promise(function(resolve) { setTimeout(resolve, 800 * (4 - attempts)); })
+          .then(function() { return fetchWithRetry(url, attempts - 1); });
+      });
+    }
+
     function zipAndDownload(files, zipName, btn) {
       btn.disabled = true;
       btn.innerHTML = '<div class="btn-spinner"></div> Zipping\u2026';
-      var fetches = files.map(function(f) {
-        return fetch(f.download_url)
-          .then(function(res) {
-            if (!res.ok) throw new Error('fetch ' + res.status);
-            return res.arrayBuffer();
-          })
-          .then(function(buf) { return { name: f.name, data: new Uint8Array(buf) }; });
-      });
-      Promise.all(fetches)
-        .then(function(entries) {
+      var entries = new Array(files.length);
+      var cursor = 0, failedName = null;
+
+      function lane() {
+        if (failedName || cursor >= files.length) return Promise.resolve();
+        var i = cursor++;
+        var f = files[i];
+        return fetchWithRetry(f.download_url, 3).then(function(buf) {
+          entries[i] = { name: f.name, data: new Uint8Array(buf) };
+          return lane();
+        }).catch(function() { failedName = f.name; });
+      }
+
+      /* at most 3 downloads in flight \u2014 keeps r2.dev happy */
+      Promise.all([lane(), lane(), lane()])
+        .then(function() {
+          if (failedName) throw new Error(failedName);
           var blob = buildZip(entries);
           var url  = URL.createObjectURL(blob);
           var a    = document.createElement('a');
@@ -2115,7 +2295,9 @@
           document.body.appendChild(a); a.click(); a.remove();
           setTimeout(function() { URL.revokeObjectURL(url); }, 8000);
         })
-        .catch(function() { alert('Zip failed. Please try again.'); })
+        .catch(function(e) {
+          alert('Zip failed while downloading "' + ((e && e.message) || '?') + '" \u2014 please try again in a moment.');
+        })
         .finally(function() {
           btn.disabled = false;
           btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/><\/svg> Download All';
@@ -2146,10 +2328,10 @@
        R2 ASSETS + ADMIN (Cloudflare worker)
     ════════════════════════════════════════════════ */
     var CATEGORY_META = {
-      logos:   { check: isImage,        accept: 'image/*',         dlBtn: 'dl-all-logos',   zip: 'Avastha_Logos.zip' },
-      images:  { check: isImage,        accept: 'image/*',         dlBtn: 'dl-all-photos',  zip: 'Avastha_Photos.zip' },
-      videos:  { check: isVideo,        accept: 'video/*',         dlBtn: 'dl-all-videos',  zip: 'Avastha_Videos.zip' },
-      artwork: { check: isImageOrVideo, accept: 'image/*,video/*', dlBtn: 'dl-all-artwork', zip: 'Avastha_Artwork.zip' }
+      logos:   { check: isImage,        accept: 'image/*',         dlBtn: 'dl-all-logos',   zip: 'Avastha_Logos.zip',   footer: 'logos-footer' },
+      images:  { check: isImage,        accept: 'image/*',         dlBtn: 'dl-all-photos',  zip: 'Avastha_Photos.zip',  footer: 'images-footer' },
+      videos:  { check: isVideo,        accept: 'video/*',         dlBtn: 'dl-all-videos',  zip: 'Avastha_Videos.zip',  footer: 'videos-footer' },
+      artwork: { check: isImageOrVideo, accept: 'image/*,video/*', dlBtn: 'dl-all-artwork', zip: 'Avastha_Artwork.zip', footer: 'artwork-footer' }
     };
 
     function workerOp(body) {
@@ -2179,6 +2361,9 @@
 
     function renderCategory(cat) {
       var files = currentFiles[cat];
+      /* a re-render rebuilds pagination — drop the stale Load More button */
+      var staleBtn = document.querySelector('#' + CATEGORY_META[cat].footer + ' .load-more-btn');
+      if (staleBtn) staleBtn.remove();
       if (cat === 'logos') {
         renderLogos(files, document.getElementById('logos-grid'), document.getElementById('logos-list'));
       } else if (cat === 'images') {
@@ -2417,6 +2602,28 @@
       }).catch(function() { alert('Could not reach the server.'); });
     }
 
+    /* ── Reorder (admin) — order is saved on the server and shown to everyone ── */
+    function moveAsset(cat, index, delta) {
+      var files = currentFiles[cat];
+      var j = index + delta;
+      if (!adminToken || j < 0 || j >= files.length) return;
+      var tmp = files[index]; files[index] = files[j]; files[j] = tmp;
+      renderCategory(cat);
+      saveOrder(cat);
+    }
+    var saveOrderTimers = {};
+    function saveOrder(cat) {
+      clearTimeout(saveOrderTimers[cat]);
+      saveOrderTimers[cat] = setTimeout(function() {
+        workerOp({
+          op: 'setorder', token: adminToken, cat: cat,
+          keys: currentFiles[cat].map(function(f) { return f.key; })
+        }).then(function(res) {
+          if (res && !res.ok && res.message === 'unauthorized') adminSessionExpired();
+        }).catch(function() {});
+      }, 500);
+    }
+
     /* ════════════════════════════════════════════════
        NAV INTERSECTION OBSERVER
     ════════════════════════════════════════════════ */
@@ -2432,6 +2639,32 @@
       });
     }, { threshold: 0.3 });
     sections.forEach(function(s) { observer.observe(s); });
+
+    /* Reveal animation: sections get .in-view as they enter the viewport */
+    var revealObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    sections.forEach(function(s) { revealObserver.observe(s); });
+
+    /* ════════════════════════════════════════════════
+       PRESS KIT — inline preview where the browser can show PDFs
+    ════════════════════════════════════════════════ */
+    (function() {
+      var embed = document.getElementById('presskit-embed');
+      var frame = document.getElementById('presskit-frame');
+      var canInline = (navigator.pdfViewerEnabled !== false) && !window.matchMedia('(pointer: coarse)').matches;
+      if (canInline) {
+        frame.src = '/avastha_presskit.pdf#view=FitH';
+        embed.classList.add('inline');
+      } else {
+        embed.classList.add('no-inline');
+      }
+    })();
 
     /* ════════════════════════════════════════════════
        INIT — fetch all four sections in parallel

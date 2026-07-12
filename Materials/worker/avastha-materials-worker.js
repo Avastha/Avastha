@@ -95,7 +95,7 @@ export default {
       if (op === 'debug') {
         const reg = await getRegistry(env);
         return json({
-          version: 'v2.0', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
+          version: 'v2.1', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
           hasDefaultPass: !!env.DEFAULT_PASS, seeded: !!reg
         });
       }
@@ -118,9 +118,36 @@ export default {
             cursor = page.truncated ? page.cursor : null;
           } while (cursor);
           files.sort((a, b2) => a.name.localeCompare(b2.name, undefined, { numeric: true }));
-          categories[prefix.slice(0, -1)] = files;
+          const cat = prefix.slice(0, -1);
+          /* apply the admin-saved display order; unknown files keep name order at the end */
+          if (env.AUTH_KV) {
+            const saved = await env.AUTH_KV.get('order:' + cat);
+            if (saved) {
+              try {
+                const pos = new Map(JSON.parse(saved).map((k, i) => [k, i]));
+                files.sort((x, y) => {
+                  const px = pos.has(x.key) ? pos.get(x.key) : 1e9;
+                  const py = pos.has(y.key) ? pos.get(y.key) : 1e9;
+                  return (px - py) || x.name.localeCompare(y.name, undefined, { numeric: true });
+                });
+              } catch {}
+            }
+          }
+          categories[cat] = files;
         }
         return json({ ok: true, categories });
+      }
+
+      if (op === 'setorder') {
+        if (!env.AUTH_KV) return json({ ok: false, message: 'AUTH_KV not bound' }, 500);
+        const user = await sessionUser(env, token);
+        if (!user) return json({ ok: false, message: 'unauthorized' }, 401);
+        const cat = String(b.cat || '');
+        if (!CATEGORIES[cat + '/']) return json({ ok: false, message: 'bad category' }, 400);
+        const keys = Array.isArray(b.keys) ? b.keys.filter(k => typeof k === 'string' && validKey(k)) : null;
+        if (!keys || keys.length > 500) return json({ ok: false, message: 'bad keys' }, 400);
+        await env.AUTH_KV.put('order:' + cat, JSON.stringify(keys));
+        return json({ ok: true });
       }
 
       if (op === 'login') {
