@@ -2601,6 +2601,62 @@
       return name.replace(/[^\w .,()&+'\-]+/g, '_').replace(/ {2,}/g, ' ').trim() || 'file';
     }
 
+    var SINGLE_MAX = 95 * 1024 * 1024;        /* one-request limit */
+    var TOTAL_MAX  = 3 * 1024 * 1024 * 1024;  /* 3 GB via chunked upload */
+    var CHUNK      = 50 * 1024 * 1024;
+
+    function xhrPost(urlStr, body, contentType, onProgress) {
+      return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', urlStr);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + adminToken);
+        if (contentType) xhr.setRequestHeader('Content-Type', contentType);
+        if (onProgress) xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(e.loaded / e.total); };
+        xhr.onload = function () {
+          var res = {};
+          try { res = JSON.parse(xhr.responseText); } catch (e2) {}
+          if (xhr.status === 401) { var err = new Error('unauthorized'); err.auth = true; reject(err); return; }
+          if (xhr.status >= 200 && xhr.status < 300 && res.ok) resolve(res);
+          else reject(new Error(res.message || ('HTTP ' + xhr.status)));
+        };
+        xhr.onerror = function () { reject(new Error('network error — connection dropped mid-upload')); };
+        xhr.send(body);
+      });
+    }
+
+    function putSingle(key, f, onProgress) {
+      return xhrPost(WORKER_URL + '/upload?key=' + encodeURIComponent(key), f, f.type || 'application/octet-stream', onProgress);
+    }
+
+    /* Files over ~95 MB go up in 50 MB parts (R2 multipart), up to 3 GB.
+       Each part retries twice with backoff; any failure aborts the upload. */
+    function putChunked(key, f, onProgress) {
+      var q = 'key=' + encodeURIComponent(key);
+      return xhrPost(WORKER_URL + '/mpu/create?' + q + '&size=' + f.size + '&type=' + encodeURIComponent(f.type || ''), null).then(function (c) {
+        var uploadId = c.uploadId, parts = [], n = Math.ceil(f.size / CHUNK), i = 0;
+        var uq = q + '&uploadId=' + encodeURIComponent(uploadId);
+        function nextPart() {
+          if (i >= n) return xhrPost(WORKER_URL + '/mpu/complete?' + uq, JSON.stringify({ parts: parts }), 'application/json');
+          var pi = i++;
+          var blob = f.slice(pi * CHUNK, Math.min(f.size, (pi + 1) * CHUNK));
+          var attempt = 0;
+          function tryPart() {
+            return xhrPost(WORKER_URL + '/mpu/part?' + uq + '&part=' + (pi + 1), blob, 'application/octet-stream',
+              function (fr) { onProgress((pi * CHUNK + fr * blob.size) / f.size); })
+              .catch(function (err) {
+                if (err.auth || ++attempt >= 3) throw err;
+                return new Promise(function (rs) { setTimeout(rs, 1500 * attempt); }).then(tryPart);
+              });
+          }
+          return tryPart().then(function (p) { parts.push({ partNumber: p.part, etag: p.etag }); return nextPart(); });
+        }
+        return nextPart().catch(function (err) {
+          fetch(WORKER_URL + '/mpu/abort?' + uq, { method: 'POST', headers: { Authorization: 'Bearer ' + adminToken } }).catch(function () {});
+          throw err;
+        });
+      });
+    }
+
     function uploadAssets(cat, files) {
       if (!adminToken) { alert('You are signed out — tap Admin at the bottom of the page to sign in, then try again.'); return; }
       var toast = document.getElementById('upload-toast');
@@ -2630,34 +2686,21 @@
           failed.push(f.name + ' (wrong file type)');
           idx++; next(); return;
         }
-        if (f.size > 95 * 1024 * 1024) {
-          failed.push(f.name + ' (too large — max ~95 MB through the site; use the R2 dashboard for bigger files)');
+        if (f.size > TOTAL_MAX) {
+          failed.push(f.name + ' (too large — max 3 GB)');
           idx++; next(); return;
         }
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', WORKER_URL + '/upload?key=' + encodeURIComponent(cat + '/' + name));
-        xhr.setRequestHeader('Authorization', 'Bearer ' + adminToken);
-        xhr.upload.onprogress = function(e) {
-          if (e.lengthComputable) {
-            fill.style.width = Math.round(((idx + e.loaded / e.total) / total) * 100) + '%';
-          }
-        };
-        xhr.onload = function() {
-          var res = {};
-          try { res = JSON.parse(xhr.responseText); } catch (e2) {}
-          if (xhr.status === 401) {
-            toast.classList.remove('active');
-            adminSessionExpired();
-            return;
-          }
-          if (!(xhr.status >= 200 && xhr.status < 300 && res.ok)) {
-            failed.push(name + (res.message ? ' (' + res.message + ')' : ''));
-          }
-          idx++; next();
-        };
-        xhr.onerror = function() { failed.push(name + ' (network error — connection dropped mid-upload)'); idx++; next(); };
         text.textContent = 'Uploading ' + (idx + 1) + '/' + total + ' — ' + name;
-        xhr.send(f);
+        var put = f.size > SINGLE_MAX ? putChunked : putSingle;
+        put(cat + '/' + name, f, function (frac) {
+          fill.style.width = Math.round(((idx + frac) / total) * 100) + '%';
+        }).then(function () {
+          idx++; next();
+        }).catch(function (err) {
+          if (err && err.auth) { toast.classList.remove('active'); adminSessionExpired(); return; }
+          failed.push(name + ' (' + err.message + ')');
+          idx++; next();
+        });
       }
       next();
     }

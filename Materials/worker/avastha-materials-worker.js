@@ -52,7 +52,8 @@ const CATEGORIES = {
 };
 const PBKDF2_ITER = 100000;           // Workers cap PBKDF2 at 100k iterations
 const SESSION_TTL = 60 * 60 * 24 * 7; // 7 days
-const MAX_UPLOAD = 95 * 1024 * 1024;  // stay under the 100 MB request limit
+const MAX_UPLOAD = 95 * 1024 * 1024;       // per-request cap (Cloudflare edge limit)
+const MAX_TOTAL = 3 * 1024 * 1024 * 1024;  // 3 GB per file via multipart
 
 export default {
   async fetch(req, env) {
@@ -92,6 +93,48 @@ export default {
 
       if (req.method !== 'POST') return json({ message: 'POST only' }, 405);
 
+      /* ---------------- multipart upload: big files (≤3 GB) arrive in ~50 MB parts ----------------
+         POST /mpu/create?key=&size=&type=  →  { uploadId }
+         POST /mpu/part?key=&uploadId=&part=N   (raw body)  →  { part, etag }
+         POST /mpu/complete?key=&uploadId=      body {parts:[{partNumber,etag}]}
+         POST /mpu/abort?key=&uploadId=                                            */
+      if (url.pathname.startsWith('/mpu/')) {
+        if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
+        const user = await sessionUser(env, bearerToken(req));
+        if (!user) return json({ ok: false, message: 'unauthorized' }, 401);
+        const key = url.searchParams.get('key') || '';
+        if (!validKey(key)) return json({ ok: false, message: 'bad key' }, 400);
+        const action = url.pathname.slice(5);
+        if (action === 'create') {
+          const size = parseInt(url.searchParams.get('size') || '0', 10);
+          if (!(size > 0) || size > MAX_TOTAL) return json({ ok: false, message: 'file too large (max 3 GB)' }, 413);
+          const mpu = await env.MATERIALS_BUCKET.createMultipartUpload(key, {
+            httpMetadata: { contentType: url.searchParams.get('type') || 'application/octet-stream' }
+          });
+          return json({ ok: true, uploadId: mpu.uploadId });
+        }
+        const uploadId = url.searchParams.get('uploadId') || '';
+        if (!uploadId || uploadId.length > 512) return json({ ok: false, message: 'uploadId required' }, 400);
+        const mpu = env.MATERIALS_BUCKET.resumeMultipartUpload(key, uploadId);
+        if (action === 'part') {
+          const part = parseInt(url.searchParams.get('part') || '0', 10);
+          if (!(part >= 1) || part > 1024) return json({ ok: false, message: 'bad part number' }, 400);
+          const len = parseInt(req.headers.get('Content-Length') || '0', 10);
+          if (len > MAX_UPLOAD) return json({ ok: false, message: 'part too large' }, 413);
+          const p = await mpu.uploadPart(part, req.body);
+          return json({ ok: true, part: p.partNumber, etag: p.etag });
+        }
+        if (action === 'complete') {
+          let body; try { body = await req.json(); } catch { return json({ ok: false, message: 'bad json' }, 400); }
+          const parts = Array.isArray(body && body.parts) ? body.parts : null;
+          if (!parts || !parts.length || parts.length > 1024) return json({ ok: false, message: 'bad parts' }, 400);
+          await mpu.complete(parts);
+          return json({ ok: true, key });
+        }
+        if (action === 'abort') { try { await mpu.abort(); } catch {} return json({ ok: true }); }
+        return json({ ok: false, message: 'bad action' }, 400);
+      }
+
       /* ---------------- binary upload: POST /upload?key=<category>/name.ext ---------------- */
       if (url.pathname === '/upload') {
         if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
@@ -116,7 +159,7 @@ export default {
       if (op === 'debug') {
         const reg = await getRegistry(env);
         return json({
-          version: 'v2.3', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
+          version: 'v2.4', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
           hasDefaultPass: !!env.DEFAULT_PASS, seeded: !!reg
         });
       }
