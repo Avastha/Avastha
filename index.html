@@ -653,9 +653,8 @@
     .footer-track {
       display: flex;
       width: max-content;
-      animation: footerMarquee 24s linear infinite;
+      will-change: transform;
     }
-    .footer-marquee:hover .footer-track { animation-play-state: paused; }
     .footer-set {
       display: flex;
       gap: 2.4rem;
@@ -926,14 +925,69 @@
     }, { threshold: 0.12 });
     reveals.forEach(el => observer.observe(el));
 
-    /* footer social marquee — duplicate the set for a seamless loop; touch-hold pauses */
-    const track = document.getElementById('footer-track');
-    const setClone = track.querySelector('.footer-set').cloneNode(true);
-    setClone.setAttribute('aria-hidden', 'true');
-    setClone.querySelectorAll('a').forEach(a => { a.tabIndex = -1; });
-    track.appendChild(setClone);
-    track.addEventListener('touchstart', () => { track.style.animationPlayState = 'paused'; }, { passive: true });
-    track.addEventListener('touchend', () => { setTimeout(() => { track.style.animationPlayState = ''; }, 1200); });
+    /* footer social marquee — drifting icons; drag to fling, click to open */
+    /* Marquee engine: JS-driven drift (immune to reduced-motion / CSS-animation
+       quirks that froze it on some PCs), drag-to-fling, clicks still open links */
+    function initMarquee(wrapSel, trackSel, setSel, secondsPerLoop) {
+      var wrap = document.querySelector(wrapSel), track = document.querySelector(trackSel);
+      if (!wrap || !track) return;
+      var clone = track.querySelector(setSel).cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      clone.querySelectorAll('a').forEach(function (a) { a.tabIndex = -1; });
+      track.appendChild(clone);
+      track.style.animation = 'none';
+      wrap.style.cursor = 'grab';
+      wrap.style.touchAction = 'pan-y';
+
+      var x = 0, extra = 0, dragging = false, moved = 0, lastX = 0, lastT = 0, setW = 0, lastTs = null;
+      function measure() { setW = track.scrollWidth / 2; }
+      measure();
+      window.addEventListener('resize', measure);
+      window.addEventListener('load', measure);
+
+      function apply() {
+        if (setW > 0) x = ((x % setW) + setW) % setW;
+        track.style.transform = 'translate3d(' + (-x) + 'px,0,0)';
+      }
+      function step(ts) {
+        if (lastTs == null) lastTs = ts;
+        var dt = Math.min((ts - lastTs) / 1000, 0.1);
+        lastTs = ts;
+        if (!dragging && setW > 0) {
+          x += (setW / secondsPerLoop + extra) * dt; /* base drift + fling momentum */
+          extra *= Math.pow(0.04, dt);               /* momentum decays back to normal */
+          if (Math.abs(extra) < 1) extra = 0;
+          apply();
+        }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+
+      wrap.addEventListener('pointerdown', function (e) {
+        if (setW <= 0) measure();
+        dragging = true; moved = 0; lastX = e.clientX; lastT = performance.now(); extra = 0;
+        wrap.style.cursor = 'grabbing';
+      });
+      wrap.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        var dx = e.clientX - lastX; lastX = e.clientX;
+        moved += Math.abs(dx);
+        var now = performance.now(), ms = Math.max(now - lastT, 1); lastT = now;
+        x -= dx; extra = -dx * 1000 / ms; /* finger velocity becomes the fling */
+        apply();
+        if (moved > 6) e.preventDefault();
+      });
+      function endDrag() { dragging = false; wrap.style.cursor = 'grab'; }
+      wrap.addEventListener('pointerup', endDrag);
+      wrap.addEventListener('pointercancel', endDrag);
+      wrap.addEventListener('pointerleave', endDrag);
+      /* a real drag must not trigger the link underneath */
+      wrap.addEventListener('click', function (e) {
+        if (moved > 6) { e.preventDefault(); e.stopPropagation(); }
+      }, true);
+      wrap.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    }
+    initMarquee('.footer-marquee', '#footer-track', '.footer-set', 24);
   </script>
 </body>
 </html>

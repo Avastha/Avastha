@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="color-scheme" content="dark">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Avastha</title>
+<script>
+(function () {
+  var p = location.pathname;
+  var m = p.match(/^\/materials(\/.*)?$/i);
+  if (m) { location.replace('/Materials' + (m[1] || '/') + location.search + location.hash); return; }
+  location.replace('/');
+})();
+</script></head>
+<body style="background:#050810;color:#8899b8;font-family:sans-serif;text-align:center;padding-top:20vh">Redirecting…</body></html>
