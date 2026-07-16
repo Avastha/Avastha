@@ -2550,7 +2550,7 @@
     }
 
     function uploadAssets(cat, files) {
-      if (!adminToken) return;
+      if (!adminToken) { alert('You are signed out — tap Admin at the bottom of the page to sign in, then try again.'); return; }
       var toast = document.getElementById('upload-toast');
       var text  = document.getElementById('upload-toast-text');
       var fill  = document.getElementById('upload-bar-fill');
@@ -2608,7 +2608,7 @@
 
     /* ── Delete ── */
     function deleteAsset(cat, file) {
-      if (!adminToken) return;
+      if (!adminToken) { alert('You are signed out — tap Admin at the bottom of the page to sign in, then try again.'); return; }
       if (!confirm('Delete "' + file.name + '" permanently from storage?')) return;
       workerOp({ op: 'delete', token: adminToken, key: file.key }).then(function(res) {
         if (res && res.ok) reloadCategory(cat);
