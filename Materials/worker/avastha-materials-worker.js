@@ -116,13 +116,15 @@ export default {
       if (op === 'debug') {
         const reg = await getRegistry(env);
         return json({
-          version: 'v2.2', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
+          version: 'v2.3', hasKV: !!env.AUTH_KV, hasBucket: !!env.MATERIALS_BUCKET,
           hasDefaultPass: !!env.DEFAULT_PASS, seeded: !!reg
         });
       }
 
       if (op === 'list') {
         if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
+        let previews = {};
+        if (env.AUTH_KV) { try { previews = JSON.parse(await env.AUTH_KV.get('previews')) || {}; } catch {} }
         const categories = {};
         for (const prefix of Object.keys(CATEGORIES)) {
           const exts = CATEGORIES[prefix];
@@ -134,7 +136,7 @@ export default {
               const name = o.key.slice(prefix.length);
               if (!name || name.includes('/')) continue;
               if (!exts.some(e => name.toLowerCase().endsWith(e))) continue;
-              files.push({ key: o.key, name, size: o.size, uploaded: o.uploaded });
+              files.push({ key: o.key, name, size: o.size, uploaded: o.uploaded, preview: previews[o.key] });
             }
             cursor = page.truncated ? page.cursor : null;
           } while (cursor);
@@ -216,6 +218,21 @@ export default {
         return json({ ok: true, token: tok });
       }
 
+      /* admin: choose which moment of a video is its thumbnail frame */
+      if (op === 'setpreview') {
+        if (!env.AUTH_KV) return json({ ok: false, message: 'AUTH_KV not bound' }, 500);
+        const user = await sessionUser(env, token);
+        if (!user) return json({ ok: false, message: 'unauthorized' }, 401);
+        const key = String(b.key || '');
+        const t = Number(b.t);
+        if (!validKey(key) || !(t >= 0) || t > 86400) return json({ ok: false, message: 'bad request' }, 400);
+        let previews = {};
+        try { previews = JSON.parse(await env.AUTH_KV.get('previews')) || {}; } catch {}
+        previews[key] = Math.round(t * 10) / 10;
+        await env.AUTH_KV.put('previews', JSON.stringify(previews));
+        return json({ ok: true });
+      }
+
       if (op === 'delete') {
         if (!env.MATERIALS_BUCKET) return json({ ok: false, message: 'MATERIALS_BUCKET not bound' }, 500);
         const user = await sessionUser(env, token);
@@ -223,6 +240,12 @@ export default {
         const key = String(b.key || '');
         if (!validKey(key)) return json({ ok: false, message: 'bad key' }, 400);
         await env.MATERIALS_BUCKET.delete(key);
+        if (env.AUTH_KV) {
+          try {
+            const p = JSON.parse(await env.AUTH_KV.get('previews')) || {};
+            if (key in p) { delete p[key]; await env.AUTH_KV.put('previews', JSON.stringify(p)); }
+          } catch {}
+        }
         return json({ ok: true });
       }
 
