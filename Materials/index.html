@@ -102,6 +102,11 @@
       color: var(--gold);
       line-height: 1;
       text-shadow: 0 2px 24px rgba(0,0,0,0.85), 0 1px 4px rgba(0,0,0,0.6);
+      animation: brandBloom 5.5s ease-in-out infinite;
+    }
+    @keyframes brandBloom {
+      0%, 100% { text-shadow: 0 2px 24px rgba(0,0,0,0.85), 0 0 16px rgba(201,169,110,0.20); }
+      50%      { text-shadow: 0 2px 24px rgba(0,0,0,0.85), 0 0 32px rgba(201,169,110,0.55), 0 0 64px rgba(201,169,110,0.28); }
     }
     .tagline {
       font-size: 12px;
@@ -554,6 +559,7 @@
       display: flex;
       width: max-content;
       will-change: transform;
+      padding: 22px 0; /* room for the hover halo inside the clipped marquee */
     }
     .media-set {
       display: flex;
@@ -577,7 +583,17 @@
       animation: fadeUp .4s ease both;
     }
     .media-item:hover { color: var(--gold); transform: translateY(-4px); }
-    .media-icon-wrap { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; }
+    .media-icon-wrap { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .media-icon-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -24px;
+      background: radial-gradient(circle, var(--gold-glow) 0%, transparent 62%);
+      opacity: 0;
+      transition: opacity .4s ease;
+      pointer-events: none;
+    }
+    .media-item:hover .media-icon-wrap::before { opacity: 1; }
     .media-icon-wrap img {
       width: 100%; height: 100%;
       object-fit: contain;
@@ -585,7 +601,7 @@
       transition: filter .25s, transform .25s;
     }
     .media-item:hover .media-icon-wrap img {
-      filter: grayscale(0%) brightness(1.1) drop-shadow(0 0 12px var(--gold-glow));
+      filter: grayscale(0%) brightness(1.1);
       transform: scale(1.08);
     }
     .media-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; }
@@ -904,7 +920,8 @@
         background-size: cover;
         background-position: center 40%;
       }
-      .header-inner { padding: 14px 20px 16px; min-height: 0; }
+      .header-inner { padding: 14px 20px 16px; min-height: 0; justify-content: center; }
+      .header-left { align-items: center; text-align: center; }
       .nav { padding: 14px 16px; gap: 14px; }
       main { padding: 0 16px 48px; }
       .logos-grid { display: none; }
@@ -1568,7 +1585,9 @@
        pairs: array of { container: Element, cards: Element[] }
        insertAfter: Element — where to place the load-more button
     ════════════════════════════════════════════════ */
-    var LOAD_MORE_LIMIT = 4;
+    var LOAD_MORE_LIMIT = 4;            /* items shown per section by default */
+    var RENDER_LIMIT = LOAD_MORE_LIMIT; /* effective limit for the current render */
+    var visibleCount = {};              /* how many items the user expanded to, per category */
 
     function applyLoadMore(pairs, footerId) {
       /* Count how many items remain across all pairs (they're parallel — same count) */
@@ -1589,6 +1608,7 @@
             pair.container.appendChild(card);
           });
         });
+        visibleCount[footerId.replace('-footer', '')] = 1e9; /* stay expanded across re-renders */
         btn.remove();
       });
 
@@ -1970,17 +1990,17 @@
         return item;
       });
 
-      /* Append first LOAD_MORE_LIMIT to each container immediately */
-      gridCards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { gridContainer.appendChild(c); });
-      listCards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { listContainer.appendChild(c); });
+      /* Append first RENDER_LIMIT to each container immediately */
+      gridCards.slice(0, RENDER_LIMIT).forEach(function(c) { gridContainer.appendChild(c); });
+      listCards.slice(0, RENDER_LIMIT).forEach(function(c) { listContainer.appendChild(c); });
 
       /* If more remain, show one Load More button (after listContainer, visible on mobile;
          on desktop the grid container is shown instead, so we insert after gridContainer too) */
-      if (files.length > LOAD_MORE_LIMIT) {
+      if (files.length > RENDER_LIMIT) {
         applyLoadMore(
           [
-            { container: gridContainer, cards: gridCards.slice(LOAD_MORE_LIMIT) },
-            { container: listContainer, cards: listCards.slice(LOAD_MORE_LIMIT) }
+            { container: gridContainer, cards: gridCards.slice(RENDER_LIMIT) },
+            { container: listContainer, cards: listCards.slice(RENDER_LIMIT) }
           ],
           'logos-footer'
         );
@@ -2039,11 +2059,11 @@
         return card;
       });
 
-      cards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { container.appendChild(c); });
+      cards.slice(0, RENDER_LIMIT).forEach(function(c) { container.appendChild(c); });
 
-      if (files.length > LOAD_MORE_LIMIT) {
+      if (files.length > RENDER_LIMIT) {
         applyLoadMore(
-          [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
+          [{ container: container, cards: cards.slice(RENDER_LIMIT) }],
           'images-footer'
         );
       }
@@ -2114,11 +2134,11 @@
         return card;
       });
 
-      cards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { container.appendChild(c); });
+      cards.slice(0, RENDER_LIMIT).forEach(function(c) { container.appendChild(c); });
 
-      if (files.length > LOAD_MORE_LIMIT) {
+      if (files.length > RENDER_LIMIT) {
         applyLoadMore(
-          [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
+          [{ container: container, cards: cards.slice(RENDER_LIMIT) }],
           'videos-footer'
         );
       }
@@ -2237,11 +2257,11 @@
         return card;
       });
 
-      cards.slice(0, LOAD_MORE_LIMIT).forEach(function(c) { container.appendChild(c); });
+      cards.slice(0, RENDER_LIMIT).forEach(function(c) { container.appendChild(c); });
 
-      if (files.length > LOAD_MORE_LIMIT) {
+      if (files.length > RENDER_LIMIT) {
         applyLoadMore(
-          [{ container: container, cards: cards.slice(LOAD_MORE_LIMIT) }],
+          [{ container: container, cards: cards.slice(RENDER_LIMIT) }],
           'artwork-footer'
         );
       }
@@ -2428,7 +2448,9 @@
 
     function renderCategory(cat) {
       var files = currentFiles[cat];
-      /* a re-render rebuilds pagination — drop the stale Load More button */
+      /* re-renders keep the user's expanded view and scroll position (reorder must not jump) */
+      RENDER_LIMIT = Math.max(LOAD_MORE_LIMIT, Math.min(files.length, visibleCount[cat] || 0));
+      var keepY = window.scrollY;
       var staleBtn = document.querySelector('#' + CATEGORY_META[cat].footer + ' .load-more-btn');
       if (staleBtn) staleBtn.remove();
       if (cat === 'logos') {
@@ -2441,6 +2463,8 @@
         renderArtwork(files, document.getElementById('artwork-grid'));
       }
       document.getElementById(CATEGORY_META[cat].dlBtn).disabled = (files.length === 0);
+      RENDER_LIMIT = LOAD_MORE_LIMIT;
+      window.scrollTo(0, keepY);
     }
 
     function loadAll() {
