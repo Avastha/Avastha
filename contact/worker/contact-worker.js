@@ -42,7 +42,7 @@ export default {
           from: "AVASTHA Website <contact@avastha.info>",
           to: ["avastha.music@gmail.com", "studio@avastha.info", "office@adiariel.com"],
           reply_to: email,
-          subject: `[AVASTHA] 🔊 NEW | ${subject} | From: ${name}`,
+          subject: `[AVASTHA] 🔊 NEW | ${iso(subject)} | From: ${iso(name)}`,
           html: brandedEmail({ name, email, subject, message }),
         }),
       });
@@ -62,6 +62,12 @@ function esc(s) {
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
   ));
 }
+
+/* Wrap a dynamic value in a Unicode directional isolate (First-Strong Isolate
+   … Pop Directional Isolate). This stops a Hebrew name/subject from reordering
+   the surrounding English/brackets/pipes in Gmail's inbox list (BiDi fix). */
+const FSI = "\u2068", PDI = "\u2069";
+function iso(s) { return FSI + String(s) + PDI; }
 
 /* Branded, email-client-safe HTML (tables + inline CSS, hex colours only —
    no oklch/color-mix/backdrop-filter/web-fonts, which most clients strip).
@@ -83,7 +89,7 @@ function brandedEmail({ name, email, subject, message }) {
 <title>New message — AVASTHA</title>
 </head>
 <body style="margin:0;padding:0;background-color:${BG};">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:${BG};">New ${S} from ${N} — reply to reach them directly.</div>
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:${BG};">New ${iso(S)} from ${iso(N)} — reply to reach them directly.</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${BG};padding:28px 14px;">
     <tr><td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background-color:${CARD};border:1px solid ${LINE};border-radius:16px;overflow:hidden;">
@@ -103,7 +109,7 @@ function brandedEmail({ name, email, subject, message }) {
         <!-- subject badge -->
         <tr>
           <td style="padding:30px 32px 6px 32px;">
-            <span style="display:inline-block;background-color:${FIELD};border:1px solid ${VIOLET};border-radius:999px;padding:7px 16px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${BLUE};font-weight:bold;">${S}</span>
+            <span dir="auto" style="display:inline-block;background-color:${FIELD};border:1px solid ${VIOLET};border-radius:999px;padding:7px 16px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${BLUE};font-weight:bold;text-align:start;">${S}</span>
           </td>
         </tr>
 
@@ -114,13 +120,13 @@ function brandedEmail({ name, email, subject, message }) {
               <tr>
                 <td style="padding-bottom:14px;">
                   <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:${DIM};padding-bottom:4px;">From</div>
-                  <div style="font-family:Arial,Helvetica,sans-serif;font-size:17px;color:${TEXT};font-weight:bold;">${N}</div>
+                  <div dir="auto" style="font-family:Arial,Helvetica,sans-serif;font-size:17px;color:${TEXT};font-weight:bold;text-align:start;">${N}</div>
                 </td>
               </tr>
               <tr>
                 <td style="padding-bottom:6px;">
                   <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:${DIM};padding-bottom:4px;">Email</div>
-                  <a href="mailto:${E}" style="font-family:Arial,Helvetica,sans-serif;font-size:16px;color:${BLUE};text-decoration:none;">${E}</a>
+                  <a href="mailto:${E}" dir="ltr" style="font-family:Arial,Helvetica,sans-serif;font-size:16px;color:${BLUE};text-decoration:none;text-align:start;display:inline-block;">${E}</a>
                 </td>
               </tr>
             </table>
@@ -131,14 +137,14 @@ function brandedEmail({ name, email, subject, message }) {
         <tr>
           <td style="padding:16px 32px 8px 32px;">
             <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:${DIM};padding-bottom:8px;">Message</div>
-            <div style="background-color:${FIELD};border:1px solid ${LINE};border-radius:12px;padding:18px 20px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${TEXT};">${M}</div>
+            <div dir="auto" style="background-color:${FIELD};border:1px solid ${LINE};border-radius:12px;padding:18px 20px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:${TEXT};text-align:start;">${M}</div>
           </td>
         </tr>
 
         <!-- reply button -->
         <tr>
           <td style="padding:22px 32px 30px 32px;" align="center">
-            <a href="mailto:${E}?subject=${encodeURIComponent("RE: " + subject + " — AVASTHA")}" style="display:inline-block;background-color:${VIOLET};background-image:linear-gradient(120deg,${VIOLET},${BLUE});color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:14px 40px;border-radius:10px;">Reply to ${N}</a>
+            <a href="mailto:${E}?subject=${encodeURIComponent("RE: " + iso(subject) + " — AVASTHA")}" dir="ltr" style="display:inline-block;direction:ltr;background-color:${VIOLET};background-image:linear-gradient(120deg,${VIOLET},${BLUE});color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:14px 40px;border-radius:10px;">Reply to sender</a>
           </td>
         </tr>
 
