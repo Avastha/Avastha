@@ -116,10 +116,10 @@ function brandedEmail({ name, email, subject, message }) {
           </td>
         </tr>
 
-        <!-- subject badge — big, centered, green -->
+        <!-- subject banner — full-width rectangular green strip (pronounced, not a floating tag) -->
         <tr>
-          <td align="center" style="padding:30px 24px 10px 24px;">
-            <span dir="auto" style="display:inline-block;background-color:${GREEN_BG};border:1px solid ${GREEN};border-radius:999px;padding:12px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;letter-spacing:2.5px;text-transform:uppercase;color:${GREEN};font-weight:bold;text-align:center;">${badge}</span>
+          <td style="padding:18px 0 4px 0;">
+            <div dir="auto" style="background-color:${GREEN_BG};border-top:1px solid ${GREEN};border-bottom:1px solid ${GREEN};padding:16px 22px;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:17px;letter-spacing:3px;text-transform:uppercase;color:${GREEN};font-weight:bold;">${badge}</div>
           </td>
         </tr>
 
