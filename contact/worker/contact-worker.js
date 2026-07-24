@@ -102,14 +102,14 @@ function brandedEmail({ name, email, subject, message }) {
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:${BG};">New ${iso(S)} from ${iso(N)} — reply to reach them directly.</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${BG};padding:28px 14px;">
     <tr><td align="center">
-      <table role="presentation" dir="${DIR}" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background-color:${CARD};border:1px solid ${LINE};border-radius:16px;overflow:hidden;">
+      <table role="presentation" dir="${DIR}" width="100%" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background-color:${CARD};border:1px solid ${LINE};border-radius:16px;overflow:hidden;">
 
         <!-- header band -->
         <tr>
-          <td style="background-color:${VIOLET};background-image:linear-gradient(120deg,${VIOLET},${BLUE});padding:26px 32px;">
+          <td style="background-color:${VIOLET};background-image:linear-gradient(120deg,${VIOLET},${BLUE});padding:22px 24px;">
             <table role="presentation" dir="${DIR}" width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="font-family:Georgia,'Times New Roman',serif;font-size:22px;letter-spacing:6px;color:#ffffff;font-weight:bold;text-align:start;">A V A S T H A</td>
+                <td style="font-family:Georgia,'Times New Roman',serif;font-size:20px;letter-spacing:4px;color:#ffffff;font-weight:bold;text-align:start;">A V A S T H A</td>
                 <td style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;color:#ffffff;text-transform:uppercase;text-align:end;">${L.newmsg}</td>
               </tr>
             </table>
