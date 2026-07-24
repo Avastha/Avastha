@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#05060a" />
+  <meta name="description" content="Contact AVASTHA — booking, collaborations and inquiries." />
+  <title>AVASTHA | Contact</title>
+  <link rel="icon" href="/avastha_logo_transparent.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Heebo:wght@300;400;500;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg:        #05060a;
+      --bg2:       #0b0d16;
+      --card:      #12141f;
+      --field:     #0c0e17;
+      --line:      rgba(255,255,255,0.09);
+      --text:      #eceeffa8;
+      --text-full: #f2f3fb;
+      --dim:       #8b8fa6;
+      --accent:    #7c5cff;   /* electric violet */
+      --accent2:   #3aa0ff;   /* electric blue   */
+      --accent-soft: rgba(124,92,255,0.16);
+      --err:       #ff6b7d;
+      --ok:        #45e0a8;
+      --glow:      0 0 22px rgba(124,92,255,0.45), 0 0 54px rgba(124,92,255,0.22);
+      --radius:    16px;
+    }
+    /* Wide-gamut screens: push the neon past sRGB */
+    @media (color-gamut: p3) {
+      :root {
+        --accent:  oklch(62% 0.24 285);
+        --accent2: oklch(68% 0.19 245);
+        --accent-soft: oklch(62% 0.24 285 / 0.18);
+        --glow: 0 0 22px oklch(65% 0.28 285 / 0.5), 0 0 56px oklch(65% 0.28 285 / 0.25);
+      }
+    }
+    @media (dynamic-range: high) {
+      :root { --glow: 0 0 24px oklch(70% 0.3 285 / 0.6), 0 0 64px oklch(70% 0.3 285 / 0.32); }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--bg);
+      color: var(--text-full);
+      min-height: 100vh;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 18px calc(40px + env(safe-area-inset-bottom));
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+    /* Hebrew swaps to a font with real Hebrew glyphs */
+    html[lang="he"] body,
+    html[lang="he"] input,
+    html[lang="he"] select,
+    html[lang="he"] textarea,
+    html[lang="he"] button { font-family: 'Heebo', 'Raleway', sans-serif; }
+
+    /* aurora backdrop */
+    .aurora {
+      position: fixed; inset: 0; z-index: -1; overflow: hidden;
+      background:
+        radial-gradient(60vw 60vw at 18% 12%, rgba(124,92,255,0.20), transparent 60%),
+        radial-gradient(55vw 55vw at 85% 88%, rgba(58,160,255,0.16), transparent 62%),
+        linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+    }
+    .aurora::after {
+      content: ''; position: absolute; inset: -40%;
+      background: radial-gradient(closest-side, rgba(124,92,255,0.10), transparent);
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    @keyframes drift { from { transform: translate(-6%, -4%) scale(1); } to { transform: translate(8%, 6%) scale(1.15); } }
+    @media (prefers-reduced-motion: reduce) {
+      .aurora::after { animation: none; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+
+    /* card */
+    .card {
+      width: 100%;
+      max-width: 440px;
+      background: color-mix(in srgb, var(--card) 88%, transparent);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: clamp(24px, 5vw, 38px);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+      position: relative;
+      animation: rise .7s cubic-bezier(.2,.7,.2,1) both;
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* top row: brand + language toggle */
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+    .brand {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem; letter-spacing: 0.42em; text-indent: 0.42em;
+      background: linear-gradient(120deg, var(--accent2), var(--accent));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+    }
+    html[lang="he"] .brand { letter-spacing: 0.3em; text-indent: 0.3em; }
+    .langtoggle {
+      flex: none;
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--field); color: var(--text-full);
+      border: 1px solid var(--line); border-radius: 999px;
+      padding: 7px 14px; cursor: pointer;
+      font-size: 0.72rem; letter-spacing: 0.08em; font-weight: 600;
+      transition: border-color .25s, box-shadow .25s, transform .2s;
+    }
+    .langtoggle:hover { border-color: var(--accent); box-shadow: var(--glow); transform: translateY(-1px); }
+    .langtoggle svg { width: 15px; height: 15px; stroke: var(--accent); fill: none; stroke-width: 1.7; }
+
+    .headline { font-family: 'Cinzel', serif; font-size: clamp(1.7rem, 6vw, 2.3rem); font-weight: 600; color: var(--text-full); line-height: 1.1; }
+    .sub { color: var(--dim); font-size: 0.9rem; margin-top: 8px; margin-bottom: 26px; line-height: 1.5; }
+
+    /* fields */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 7px; font-weight: 600;
+    }
+    .field .req { color: var(--accent); }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 13px 15px;
+      color: var(--text-full);
+      font: inherit; font-size: 0.95rem;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      outline: none;
+    }
+    .field textarea { resize: vertical; min-height: 128px; line-height: 1.55; }
+    .field input::placeholder, .field textarea::placeholder { color: color-mix(in srgb, var(--dim) 70%, transparent); }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      background: color-mix(in srgb, var(--field) 80%, #000);
+    }
+    .field select {
+      appearance: none; -webkit-appearance: none; cursor: pointer;
+      background-image: linear-gradient(45deg, transparent 50%, var(--dim) 50%), linear-gradient(135deg, var(--dim) 50%, transparent 50%);
+      background-position: right 18px center, right 13px center;
+      background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    }
+    /* flip the select arrow to the left in RTL */
+    html[dir="rtl"] .field select {
+      background-position: left 18px center, left 13px center;
+    }
+    .field select option { background: var(--card); color: var(--text-full); }
+
+    /* submit */
+    .submit {
+      width: 100%;
+      margin-top: 8px;
+      padding: 15px;
+      border: 0; border-radius: 12px;
+      background: linear-gradient(120deg, var(--accent), var(--accent2));
+      color: #fff; font: inherit; font-weight: 700;
+      font-size: 0.82rem; letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .25s, filter .2s;
+    }
+    .submit:hover { transform: translateY(-2px); box-shadow: var(--glow); filter: brightness(1.08); }
+    .submit:active { transform: translateY(0); }
+    .submit:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+
+    /* status message */
+    .status { margin-top: 16px; font-size: 0.86rem; text-align: center; line-height: 1.5; min-height: 1.2em; }
+    .status.ok  { color: var(--ok); }
+    .status.err { color: var(--err); }
+
+    .backlink { display: block; text-align: center; margin-top: 22px; color: var(--dim); font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; transition: color .2s; }
+    .backlink:hover { color: var(--accent); }
+
+    .hp { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="aurora"></div>
+
+  <main class="card">
+    <div class="top">
+      <span class="brand">AVASTHA</span>
+      <button type="button" class="langtoggle" id="langToggle" aria-label="Switch language">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
+        <span id="langLabel">עברית</span>
+      </button>
+    </div>
+
+    <h1 class="headline" data-i18n="headline">Contact</h1>
+    <p class="sub" data-i18n="sub">Booking, collaborations, or just to say hi — send us a message.</p>
+
+    <form id="contactForm" action="https://formspree.io/f/mvzewvqo" method="POST">
+      <!-- honeypot: bots fill this, humans never see it -->
+      <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+      <div class="field">
+        <label for="name"><span data-i18n="nameLabel">Full Name</span> <span class="req">*</span></label>
+        <input type="text" id="name" name="name" required autocomplete="name" data-i18n-ph="namePh" placeholder="Your name" />
+      </div>
+
+      <div class="field">
+        <label for="email"><span data-i18n="emailLabel">Email Address</span> <span class="req">*</span></label>
+        <input type="email" id="email" name="email" required autocomplete="email" data-i18n-ph="emailPh" placeholder="you@example.com" />
+      </div>
+
+      <div class="field">
+        <label for="subject" data-i18n="subjectLabel">Subject</label>
+        <select id="subject" name="_subject">
+          <option value="Booking Request"  data-i18n="optBooking">Booking Request</option>
+          <option value="General Inquiry"   data-i18n="optGeneral">General Inquiry</option>
+          <option value="Collaboration"     data-i18n="optCollab">Collaboration</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="message"><span data-i18n="messageLabel">Message</span> <span class="req">*</span></label>
+        <textarea id="message" name="message" required data-i18n-ph="messagePh" placeholder="Tell us about your event, idea, or question…"></textarea>
+      </div>
+
+      <button type="submit" class="submit" id="submitBtn" data-i18n="submit">Send Message</button>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+
+    <a class="backlink" href="https://avastha.info" data-i18n="back">← Back to avastha.info</a>
+  </main>
+
+  <script>
+    'use strict';
+
+    var I18N = {
+      en: {
+        _dir: 'ltr',
+        title: 'AVASTHA | Contact',
+        headline: 'Contact',
+        sub: 'Booking, collaborations, or just to say hi — send us a message.',
+        nameLabel: 'Full Name',  namePh: 'Your name',
+        emailLabel: 'Email Address', emailPh: 'you@example.com',
+        subjectLabel: 'Subject',
+        optBooking: 'Booking Request', optGeneral: 'General Inquiry', optCollab: 'Collaboration',
+        messageLabel: 'Message', messagePh: 'Tell us about your event, idea, or question…',
+        submit: 'Send Message', sending: 'Sending…',
+        ok: 'Thank you! Your message has been sent — we’ll be in touch soon.',
+        err: 'Something went wrong. Please try again, or email us directly.',
+        errFields: 'Please fill in all required fields with a valid email.',
+        back: '← Back to avastha.info',
+        toggle: 'עברית'
+      },
+      he: {
+        _dir: 'rtl',
+        title: 'AVASTHA | צור קשר',
+        headline: 'צור קשר',
+        sub: 'הזמנות, שיתופי פעולה, או סתם להגיד שלום — שלחו לנו הודעה.',
+        nameLabel: 'שם מלא',  namePh: 'השם שלך',
+        emailLabel: 'כתובת אימייל', emailPh: 'you@example.com',
+        subjectLabel: 'נושא',
+        optBooking: 'הזמנת הופעה', optGeneral: 'פנייה כללית', optCollab: 'שיתוף פעולה',
+        messageLabel: 'הודעה', messagePh: 'ספרו לנו על האירוע, הרעיון או השאלה שלכם…',
+        submit: 'שליחת הודעה', sending: 'שולח…',
+        ok: 'תודה! ההודעה נשלחה — נחזור אליכם בקרוב.',
+        err: 'משהו השתבש. נסו שוב, או שלחו לנו אימייל ישירות.',
+        errFields: 'נא למלא את כל שדות החובה עם אימייל תקין.',
+        back: 'חזרה ל-avastha.info →',
+        toggle: 'English'
+      }
+    };
+
+    var LS_KEY = 'avastha_contact_lang';
+    var form = document.getElementById('contactForm');
+    var statusEl = document.getElementById('status');
+    var submitBtn = document.getElementById('submitBtn');
+    var lang = 'en';
+
+    function applyLang(l) {
+      lang = I18N[l] ? l : 'en';
+      var t = I18N[lang];
+      var html = document.documentElement;
+      html.setAttribute('lang', lang);
+      html.setAttribute('dir', t._dir);
+      document.title = t.title;
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        var k = el.getAttribute('data-i18n'); if (t[k] != null) el.textContent = t[k];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+        var k = el.getAttribute('data-i18n-ph'); if (t[k] != null) el.setAttribute('placeholder', t[k]);
+      });
+      document.getElementById('langLabel').textContent = t.toggle;
+      statusEl.textContent = '';
+      statusEl.className = 'status';
+      try { localStorage.setItem(LS_KEY, lang); } catch (e) {}
+    }
+
+    document.getElementById('langToggle').addEventListener('click', function () {
+      applyLang(lang === 'en' ? 'he' : 'en');
+    });
+
+    /* AJAX submit → stay on the page and show a themed confirmation */
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var t = I18N[lang];
+      if (!form.checkValidity()) {
+        statusEl.textContent = t.errFields; statusEl.className = 'status err';
+        form.reportValidity();
+        return;
+      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = t.sending;
+      statusEl.textContent = ''; statusEl.className = 'status';
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+      }).then(function (res) {
+        if (res.ok) {
+          form.reset();
+          statusEl.textContent = t.ok; statusEl.className = 'status ok';
+        } else {
+          return res.json().then(function (d) {
+            var msg = (d && d.errors && d.errors.map(function (x) { return x.message; }).join(', ')) || t.err;
+            statusEl.textContent = msg; statusEl.className = 'status err';
+          });
+        }
+      }).catch(function () {
+        statusEl.textContent = t.err; statusEl.className = 'status err';
+      }).finally(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = I18N[lang].submit;
+      });
+    });
+
+    /* boot: saved choice → else browser Hebrew → else English */
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem(LS_KEY); } catch (e) {}
+      if (!saved) saved = (navigator.language || '').toLowerCase().indexOf('he') === 0 ? 'he' : 'en';
+      applyLang(saved);
+    })();
+  </script>
+</body>
+</html>
