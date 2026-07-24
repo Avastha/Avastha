@@ -88,6 +88,7 @@ function brandedEmail({ name, email, subject, message }) {
   const LINE = "#23263a", TEXT = "#f2f3fb", DIM = "#8b8fa6";
   const VIOLET = "#7c5cff", BLUE = "#3aa0ff";
   const GREEN = "#2fe6a4", GREEN_BG = "#0b1d16";
+  const LOGO = "https://pub-bda38e7b052e4947825df1d0a165dedf.r2.dev/logos/2_Avastha_White_Logo.png";
 
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${DIR}">
@@ -106,13 +107,8 @@ function brandedEmail({ name, email, subject, message }) {
 
         <!-- header band -->
         <tr>
-          <td style="background-color:${VIOLET};background-image:linear-gradient(120deg,${VIOLET},${BLUE});padding:22px 24px;">
-            <table role="presentation" dir="${DIR}" width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td style="font-family:Georgia,'Times New Roman',serif;font-size:20px;letter-spacing:4px;color:#ffffff;font-weight:bold;text-align:start;">A V A S T H A</td>
-                <td style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;color:#ffffff;text-transform:uppercase;text-align:end;">${L.newmsg}</td>
-              </tr>
-            </table>
+          <td align="center" style="background-color:${VIOLET};background-image:linear-gradient(120deg,${VIOLET},${BLUE});padding:26px 24px;">
+            <img src="${LOGO}" alt="AVASTHA" width="210" style="display:inline-block;width:210px;max-width:66%;height:auto;border:0;" />
           </td>
         </tr>
 
