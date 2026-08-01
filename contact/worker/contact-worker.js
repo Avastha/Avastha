@@ -3,8 +3,8 @@
    sends a branded HTML email to the band's inboxes, and sets reply-to so a
    reply goes straight back to the sender.
 
-   Cloudflare setup: Worker name → contact-avastha (URL
-   https://contact-avastha.adidatabase.workers.dev/), Settings → Variables and
+   Cloudflare setup: Worker name → contact (URL
+   https://contact.avastha-music.workers.dev/), Settings → Variables and
    Secrets → RESEND_API_KEY (secret). Optional ALLOW_ORIGIN = https://avastha.info
 */
 export default {
@@ -88,7 +88,7 @@ function brandedEmail({ name, email, subject, message }) {
   const LINE = "#23263a", TEXT = "#f2f3fb", DIM = "#8b8fa6";
   const VIOLET = "#7c5cff", BLUE = "#3aa0ff";
   const GREEN = "#2fe6a4", GREEN_BG = "#0b1d16";
-  const LOGO = "https://pub-bda38e7b052e4947825df1d0a165dedf.r2.dev/logos/2_Avastha_White_Logo.png";
+  const LOGO = "https://pub-029dbeba49ff4db5b8395ef19af790f9.r2.dev/logos/2_Avastha_White_Logo.png";
 
   return `<!DOCTYPE html>
 <html lang="${LANG}" dir="${DIR}">

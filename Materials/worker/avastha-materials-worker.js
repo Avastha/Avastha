@@ -15,8 +15,8 @@
 
    Setup (one time, dash.cloudflare.com):
    A. Storage & Databases → KV → Create namespace → name: avastha-auth
-   B. Workers & Pages → Create → Worker → name it exactly: avastha-materials
-      (that makes the URL https://avastha-materials.adidatabase.workers.dev,
+   B. Workers & Pages → Create → Worker → name it exactly: materials
+      (that makes the URL https://materials.avastha-music.workers.dev,
       which is what Materials/index.html expects) → paste this whole file
       as the worker code → Deploy.
    C. Worker → Settings → Bindings → Add:
