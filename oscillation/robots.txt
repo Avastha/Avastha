@@ -1,0 +1,126 @@
+# Block all AI crawlers and training bots
+
+# OpenAI
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+# Google AI
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Googlebot-Extended
+Disallow: /
+
+# Anthropic
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+# Meta
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: Meta-ExternalFetcher
+Disallow: /
+
+# Apple
+User-agent: Applebot-Extended
+Disallow: /
+
+# Amazon
+User-agent: Amazonbot
+Disallow: /
+
+# Bytedance / TikTok
+User-agent: Bytespider
+Disallow: /
+
+# Cohere
+User-agent: cohere-ai
+Disallow: /
+
+# Common Crawl (used for AI training datasets)
+User-agent: CCBot
+Disallow: /
+
+# Diffbot
+User-agent: Diffbot
+Disallow: /
+
+# Hugging Face
+User-agent: huggingface
+Disallow: /
+
+# PerplexityAI
+User-agent: PerplexityBot
+Disallow: /
+
+# YouBot (You.com AI)
+User-agent: YouBot
+Disallow: /
+
+# Scrapy (generic scraper often used for AI training)
+User-agent: Scrapy
+Disallow: /
+
+# ImagesiftBot
+User-agent: ImagesiftBot
+Disallow: /
+
+# Timpibot
+User-agent: Timpibot
+Disallow: /
+
+# Omgili / Webz.io (data aggregators for AI)
+User-agent: omgili
+Disallow: /
+
+User-agent: omgilibot
+Disallow: /
+
+# DataForSEO
+User-agent: DataForSeoBot
+Disallow: /
+
+# Allow legitimate search engines but block /Materials/
+User-agent: Googlebot
+Allow: /
+Disallow: /Materials/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /Materials/
+
+User-agent: Slurp
+Allow: /
+Disallow: /Materials/
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /Materials/
+
+User-agent: Baiduspider
+Allow: /
+Disallow: /Materials/
+
+User-agent: YandexBot
+Allow: /
+Disallow: /Materials/
+
+# Allow all others by default
+User-agent: *
+Allow: /
