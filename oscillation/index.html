@@ -167,7 +167,7 @@
       border: 1px solid rgba(201,168,76,0.35);
       border-radius: 999px;
       padding: 5px 14px 5px 18px;
-      margin-bottom: 18px;
+      margin-bottom: 36px;
       animation: fadeUp 1.1s 0.3s ease both;
     }
 
@@ -204,6 +204,14 @@
       text-align: center;
       margin-bottom: 40px;
       animation: fadeUp 1.1s 0.6s ease both;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
 
     /* ── STREAMING SECTION ── */
@@ -459,13 +467,6 @@
 
 <section class="hero">
 
-  <!-- Logo -->
-  <img
-    class="logo"
-    src="https://raw.githubusercontent.com/Avastha/transforming/main/avastha_logo_transparent.png"
-    alt="Avastha"
-  />
-
   <!-- Album Art -->
   <div class="album-wrap">
     <span class="ring"></span>
@@ -481,9 +482,7 @@
 
   <!-- Title -->
   <p class="release-badge">Out Now</p>
-  <h1 class="artist-name">Avastha</h1>
-  <p class="track-title">Oscillation</p>
-  <p class="label-tag">Dreamspace · Single</p>
+  <h1 class="sr-only">Avastha – Oscillation</h1>
 
   <!-- Streaming links -->
   <div class="section">
